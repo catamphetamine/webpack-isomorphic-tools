@@ -9,31 +9,32 @@
 [![Gratipay][gratipay-image]][gratipay-url]
 -->
 
-Is a small helper module providing full support for isomorphic (universal) rendering when using webpack.
+Is a small helper module providing full support for isomorphic (universal) rendering when using Webpack.
 
 ## What it does and why is it needed?
 
 Javascript allows you to run all your `.js` code (Views, Controllers, Stores, and so on) both on the client and the server, and Webpack gives you the ability to just `require()` your javascript modules both on the client and the server so that the same code works both on the client and the server automagically (I guess that was the main purpose of Webpack).
 
-When you write your web application in React, you create the main `style.css` where you describe all your base style (h1, h2, a, p, nav, footer, fonts, etc).
+When you write your web application in React, you create the main `style.css` where you describe all your base styles (h1, h2, a, p, nav, footer, fonts, etc).
 
-Then, you use inline styles to style each React component individually (use [react-styling](github.com/halt-hammerzeit/react-styling) for that).
+Then, you use inline styles to style each React component individually (use [react-styling](https://github.com/halt-hammerzeit/react-styling) for that).
 
-What about that `style.css` file? On the server in development mode it needs to be injected automagically through javascript to support hot module reload, so you don't need to know the exact path to it on disk because it isn't even a `.css` file on your disk: it's actually a javascript file because that's how webpack [style-loader](https://github.com/webpack/style-loader) works. So you don't need to `require()` your styles in the server code because you simply can't because there are no such files.
+What about that `style.css` file? On the server in development mode it needs to be injected automagically through javascript to support hot module reload, so you don't need to know the exact path to it on disk because it isn't even a `.css` file on your disk: it's actually a javascript file because that's how Webpack [style-loader](https://github.com/webpack/style-loader) works. So you don't need to `require()` your styles in the server code because you simply can't because there are no such files. (You only need to require `style.css` in your `client-application.js` which is gonna be a Webpack entry point)
 
-What about fonts? Fonts are parsed correctly by webpack [css-loader](https://github.com/webpack/css-loader) when it finds `url()` sections in your main `style.css`, so no issues there.
+What about fonts? Fonts are parsed correctly by Webpack [css-loader](https://github.com/webpack/css-loader) when it finds `url()` sections in your main `style.css`, so no issues there.
 
 What's left are images. Images are `require()`d in React components and then used like this:
 
 ```javascript
-// when webpack url-loader finds this `require()` call 
+// when Webpack url-loader finds this `require()` call 
 // it will copy `image.png` to your build folder 
 // and name it something like `9059f094ddb49c2b0fa6a254a6ebf2ad.png`, 
-// because we are using the `[hash]` file naming feature of webpack url-loader
+// because we are using the `[hash]` file naming feature of Webpack url-loader
 // which (feature) is required to make browser caching work correctly
 var image = require('../image.png')
 
-// or if you are using Babel for javascript transpilation (which you absolutely should do)
+// or if you are using Babel for javascript transpilation (which you absolutely should do),
+// alternatively:
 import image from '../image.png'
 
 // next you just `src` your image inside your `render()` method
@@ -46,18 +47,19 @@ class Photo extends React.Component
 }
 ```
 
-It works on the client because webpack intelligently replaces all the `require()` calls for you.
+It works on the client because Webpack intelligently replaces all the `require()` calls for you.
 But it wouldn't work on the server because Node.js only knows how to `require()` javascript modules.
-What `webpack-isomorphic-tools` does is it makes the code above work on the server too, so that you can have your isomorphic (universal) rendering (e.g. React).
+What `webpack-isomorphic-tools` does is it makes the code above work on the server too (and much more), so that you can have your isomorphic (universal) rendering (e.g. React).
 
 What about javascripts on the Html page?
 
-When you render your Html page on the server you need to include all the client scripts using `<script src={...}/>` tags. And for that purpose you need to know the real paths to your webpack compiled javascripts. Which are gonna have names like `main-9059f094ddb49c2b0fa6a254a6ebf2ad.js` because we are using the `[hash]` file naming feature of webpack which is required to make browser caching work correctly. And `webpack-isomorphic-tools` tells you these filenames (see the [Usage](#usage) section).
+When you render your Html page on the server you need to include all the client scripts using `<script src={...}/>` tags. And for that purpose you need to know the real paths to your Webpack compiled javascripts. Which are gonna have names like `main-9059f094ddb49c2b0fa6a254a6ebf2ad.js` because we are using the `[hash]` file naming feature of Webpack which is required to make browser caching work correctly. And `webpack-isomorphic-tools` tells you these filenames (see the [Usage](#usage) section).
 
 For a comprehensive example of isomorphic React rendering you can look at this sample project:
 
 * [webpack-isomorphic-tools initialization](https://github.com/halt-hammerzeit/cinema/blob/master/code/server/entry.js)
 * [webpage rendering express middleware](https://github.com/halt-hammerzeit/cinema/blob/master/code/server/webpage%20rendering.js)
+* [the Html file](https://github.com/halt-hammerzeit/cinema/blob/master/code/client/html.js)
 
 ## Installation
 
@@ -67,14 +69,14 @@ $ npm install webpack-isomorphic-tools
 
 ## Usage
 
-First you create your webpack configuration like you usually do that except that you don't add module loaders for the `assets` you decide to manage with `webpack_isomorphic_tools` (`webpack_isomorphic_tools` will add these module loaders to your webpack configuration instead of you doing it by yourself)
+First you create your Webpack configuration like you usually do except that you don't add module loaders for the `assets` you decide to manage with `webpack_isomorphic_tools` (`webpack_isomorphic_tools` will add these module loaders to your Webpack configuration instead of you doing it by yourself)
 
 ### webpack.config.js
 
 ```javascript
 var Webpack_isomorphic_tools = require('webpack-isomorphic-tools')
 
-// usual webpack configuration
+// usual Webpack configuration
 var webpack_configuration =
 {
   context: 'your project path here',
@@ -103,7 +105,7 @@ var webpack_configuration =
   ...
 }
 
-// webpack-isomorphic-tools reside in a separate .js file to remove code duplication
+// webpack-isomorphic-tools settings reside in a separate .js file to remove code duplication
 // (it will be used in the server code too)
 var webpack_isomorphic_tools = new Webpack_isomorphic_tools(webpack_configuration, require('./webpack-isomorphic-tools'))
 
@@ -113,7 +115,7 @@ module.exports = webpack_configuration
 ### webpack-isomorphic-tools.js
 
 ```javascript
-import Webpack_isomorphic_tools, { url_loader_path_parser } from 'webpack-isomorphic-tools'
+import Webpack_isomorphic_tools from 'webpack-isomorphic-tools'
 
 export default
 {
@@ -138,15 +140,15 @@ export default
         'ttf',
         'svg'
       ],
-      path: 'path to your project folder here',
-      loaders: ['url-loader?limit=10240'], // Any png-image or woff-font below or equal to 10K will be converted to inline base64 instead
-      path_parser: Webpack_isomorphic_tools.url_loader_path_parser
+      path: 'path to your project folder here', // or "paths"
+      loaders: ['url-loader?limit=10240'], // or "loader"; any png-image or woff-font below or equal to 10K will be converted to inline base64 instead
+      path_parser: Webpack_isomorphic_tools.url_loader_path_parser // you don't need to know what this function does but you can always look at the sources (it's an extension point along with a couple more)
     }
   }
 }
 ```
 
-Then you create your server side instance of `webpack-isomorphic-tools` and register a Node.js require hook in the very main server script (and your web application code will reside in the server.js file which is require()d in the bottom)
+Then you create your server side instance of `webpack-isomorphic-tools` and register a Node.js require hook in the very main server script (and your web application code will reside in the server.js file which is `require()`d in the bottom):
 
 ### main.js
 
@@ -157,22 +159,21 @@ var Webpack_isomorphic_tools = require('webpack-isomorphic-tools')
 // the same line as in webpack.config.js
 var webpack_isomorphic_tools = new Webpack_isomorphic_tools(webpack_configuration, require('./webpack-isomorphic-tools'))
 
-// registers Node.js require hooks for your assets
-// (these hooks must be set before you require any of your React components)
+// registers Node.js require() hooks for your assets
+// (these hooks must be set before you require() any of your React components)
 webpack_isomorphic_tools.register()
 
 // will be used in express middleware
 global.webpack_isomorphic_tools = webpack_isomorphic_tools
 
 // now goes all your web application code
-require(path.resolve(__dirname, 'server'))
+require('./server')
 ```
 
 Then you, for example, create an express middleware to render your pages on the server
 
 ```javascript
 import React from 'react'
-import { refresh, assets } from 'webpack-isomorphic-tools'
 
 import Html from './html'
 
@@ -264,6 +265,7 @@ If you don't like having the `main.js` file before all your web application code
 
 ```javascript
 // (use webpack DefinePlugin for setting _client_ environment variable)
+// (webpack_isomorphic_tools is taken from the "global" scope)
 const picture = _client_ ? require('./../cat.png') : webpack_isomorphic_tools.require('./cat.png')
 ```
 
@@ -287,6 +289,8 @@ This means that Webpack build process hasn't finished by the time your Node.js s
 Initially based on [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example) by Erik Rasmussen
 
 Also the same codebase (as in the project mentioned above) can be found in [isomorphic500](https://github.com/gpbl/isomorphic500) by Giampaolo Bellavite
+
+Also uses require() hooking techniques from [node-hook](https://github.com/bahmutov/node-hook) by Gleb Bahmutov
 
 ## Contributing
 
