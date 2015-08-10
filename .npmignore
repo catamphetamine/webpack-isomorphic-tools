@@ -1,0 +1,20 @@
+# git
+.gitignore
+
+# Travis CI
+.travis.yml
+
+# test coverage folder
+/coverage/
+
+# npm errors
+npm-debug.log
+
+# github pages
+/gh-pages/
+
+# workspace files are user-specific
+*.sublime-workspace
+
+# NUL
+/NUL

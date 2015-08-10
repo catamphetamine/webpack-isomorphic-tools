@@ -1,0 +1,339 @@
+# webpack-isomorphic-tools
+
+[![NPM Version][npm-image]][npm-url]
+[![NPM Downloads][downloads-image]][downloads-url]
+[![Build Status][travis-image]][travis-url]
+[![Test Coverage][coveralls-image]][coveralls-url]
+
+<!---
+[![Gratipay][gratipay-image]][gratipay-url]
+-->
+
+Is a small helper module providing full support for isomorphic (universal) rendering when using webpack.
+
+## What it does and why is it needed?
+
+Javascript allows you to run all your `.js` code (Views, Controllers, Stores, and so on) both on the client and the server, and Webpack gives you the ability to just `require()` your javascript modules both on the client and the server so that the same code works both on the client and the server automagically (I guess that was the main purpose of Webpack).
+
+When you write your web application in React, you create the main `style.css` where you describe all your base style (h1, h2, a, p, nav, footer, fonts, etc).
+
+Then, you use inline styles to style each React component individually (use [react-styling](github.com/halt-hammerzeit/react-styling) for that).
+
+What about that `style.css` file? On the server in development mode it needs to be injected automagically through javascript to support hot module reload, so you don't need to know the exact path to it on disk because it isn't even a `.css` file on your disk: it's actually a javascript file because that's how webpack [style-loader](https://github.com/webpack/style-loader) works. So you don't need to `require()` your styles in the server code because you simply can't because there are no such files.
+
+What about fonts? Fonts are parsed correctly by webpack [css-loader](https://github.com/webpack/css-loader) when it finds `url()` sections in your main `style.css`, so no issues there.
+
+What's left are images. Images are `require()`d in React components and then used like this:
+
+```javascript
+// when webpack url-loader finds this `require()` call 
+// it will copy `image.png` to your build folder 
+// and name it something like `9059f094ddb49c2b0fa6a254a6ebf2ad.png`, 
+// because we are using the `[hash]` file naming feature of webpack url-loader
+// which (feature) is required to make browser caching work correctly
+var image = require('../image.png')
+
+// or if you are using Babel for javascript transpilation (which you absolutely should do)
+import image from '../image.png'
+
+// next you just `src` your image inside your `render()` method
+class Photo extends React.Component
+{
+  render()
+  {
+    return <img src={image}/>
+  }
+}
+```
+
+It works on the client because webpack intelligently replaces all the `require()` calls for you.
+But it wouldn't work on the server because Node.js only knows how to `require()` javascript modules.
+What `webpack-isomorphic-tools` does is it makes the code above work on the server too, so that you can have your isomorphic (universal) rendering (e.g. React).
+
+What about javascripts on the Html page?
+
+When you render your Html page on the server you need to include all the client scripts using `<script src={...}/>` tags. And for that purpose you need to know the real paths to your webpack compiled javascripts. Which are gonna have names like `main-9059f094ddb49c2b0fa6a254a6ebf2ad.js` because we are using the `[hash]` file naming feature of webpack which is required to make browser caching work correctly. And `webpack-isomorphic-tools` tells you these filenames (see the [Usage](#usage) section).
+
+For a comprehensive example of isomorphic React rendering you can look at this sample project:
+
+* [webpack-isomorphic-tools initialization](https://github.com/halt-hammerzeit/cinema/blob/master/code/server/entry.js)
+* [webpage rendering express middleware](https://github.com/halt-hammerzeit/cinema/blob/master/code/server/webpage%20rendering.js)
+
+## Installation
+
+```bash
+$ npm install webpack-isomorphic-tools
+```
+
+## Usage
+
+First you create your webpack configuration like you usually do that except that you don't add module loaders for the `assets` you decide to manage with `webpack_isomorphic_tools` (`webpack_isomorphic_tools` will add these module loaders to your webpack configuration instead of you doing it by yourself)
+
+### webpack.config.js
+
+```javascript
+var Webpack_isomorphic_tools = require('webpack-isomorphic-tools')
+
+// usual webpack configuration
+var webpack_configuration =
+{
+  context: 'your project path here',
+
+  output:
+  {
+    path: 'filesystem static files path here',
+    publicPath: 'web path for static files here'
+  },
+
+  module:
+  {
+    loaders:
+    [{
+      {
+        test: /\.js$/,
+        include:
+        [
+          'your javascript sources path here'
+        ],
+        loaders: ['babel-loader?stage=0&optional=runtime&plugins=typecheck']
+      }
+    }]
+  },
+
+  ...
+}
+
+// webpack-isomorphic-tools reside in a separate .js file to remove code duplication
+// (it will be used in the server code too)
+var webpack_isomorphic_tools = new Webpack_isomorphic_tools(webpack_configuration, require('./webpack-isomorphic-tools'))
+
+module.exports = webpack_configuration
+```
+
+### webpack-isomorphic-tools.js
+
+```javascript
+import Webpack_isomorphic_tools, { url_loader_path_parser } from 'webpack-isomorphic-tools'
+
+export default
+{
+  // if this is the configuration for webpack-dev-server
+  development: true,
+
+  // if this is the production build configuration
+  // production: true,
+
+  assets:
+  {
+    images_and_fonts:
+    {
+      extensions:
+      [
+        'png',
+        'jpg',
+        'ico',
+        'woff',
+        'woff2',
+        'eot',
+        'ttf',
+        'svg'
+      ],
+      path: 'path to your project folder here',
+      loaders: ['url-loader?limit=10240'], // Any png-image or woff-font below or equal to 10K will be converted to inline base64 instead
+      path_parser: Webpack_isomorphic_tools.url_loader_path_parser
+    }
+  }
+}
+```
+
+Then you create your server side instance of `webpack-isomorphic-tools` and register a Node.js require hook in the very main server script (and your web application code will reside in the server.js file which is require()d in the bottom)
+
+### main.js
+
+```javascript
+var webpack_configuration = require('./webpack.config.js')
+var Webpack_isomorphic_tools = require('webpack-isomorphic-tools')
+
+// the same line as in webpack.config.js
+var webpack_isomorphic_tools = new Webpack_isomorphic_tools(webpack_configuration, require('./webpack-isomorphic-tools'))
+
+// registers Node.js require hooks for your assets
+// (these hooks must be set before you require any of your React components)
+webpack_isomorphic_tools.register()
+
+// will be used in express middleware
+global.webpack_isomorphic_tools = webpack_isomorphic_tools
+
+// now goes all your web application code
+require(path.resolve(__dirname, 'server'))
+```
+
+Then you, for example, create an express middleware to render your pages on the server
+
+```javascript
+import React from 'react'
+import { refresh, assets } from 'webpack-isomorphic-tools'
+
+import Html from './html'
+
+export function page_rendering_middleware(request, response)
+{
+  // clear require() cache (used internally)
+  // you don't need to understand the purpose of this call
+  if (_development_)
+  {
+    webpack_isomorphic_tools.refresh()
+  }
+
+  // for react-router example of determining current page take a look this:
+  // https://github.com/halt-hammerzeit/cinema/blob/master/code/server/webpage%20rendering.js
+  const page_component = [determine your page component here using request.path]
+
+  // for Redux Flux implementation you can see the same example:
+  // https://github.com/halt-hammerzeit/cinema/blob/master/code/server/webpage%20rendering.js
+  const flux_store = [initialize and populate your flux store depending on the page being shown]
+
+  response.send('<!doctype html>\n' +
+        React.renderToString(<Html assets={webpack_isomorphic_tools.assets()} component={page_component} store={flux_store}/>))
+}
+```
+
+And finally you use the `assets` inside the `Html` component's `render()` method
+
+```javascript
+import React, {Component, PropTypes} from 'react'
+import serialize from 'serialize-javascript'
+
+import picture from './../cat.jpg'
+
+export default class Html extends Component
+{
+  static propTypes =
+  {
+    assets: PropTypes.object,
+    component: PropTypes.object,
+    store: PropTypes.object
+  }
+
+  render()
+  {
+    const { assets, component, store } = this.props
+    const title = 'xHamster'
+    const html = 
+    (
+      <html lang="en-us">
+        <head>
+          <meta charSet="utf-8"/>
+          <title>{title}</title>
+
+          {/* favicon */}
+          <link rel="shortcut icon" href={assets.images_and_fonts['./client/images/icon/32x32.png'].path} />
+
+          {/* styles */}
+          {Object.keys(assets.styles).map((style, i) =>
+            <link href={assets.styles[style]} key={i} media="screen, projection"
+                  rel="stylesheet" type="text/css"/>)}
+        </head>
+
+        <body>
+          {/* image requiring demonstration */}
+          <img src={picture}/>
+
+          {/* rendered React page */}
+          <div id="content" dangerouslySetInnerHTML={{__html: React.renderToString(component)}}/>
+
+          {/* Flux store data will be reloaded into the store on the client */}
+          <script dangerouslySetInnerHTML={{__html: `window._flux_store_data=${serialize(store.getState())};`}} />
+
+          {/* javascripts */}
+          {Object.keys(assets.javascript).map((script, i) =>
+            <script src={assets.javascript[script]}/>
+          )}
+        </body>
+      </html>
+    )
+
+    return html
+  }
+}
+```
+
+And that's it: now your web application is isomorphic.
+
+If you don't like having the `main.js` file before all your web application code you can omit creating `main.js`. In this case you won't register a Node.js require hook and the only difference would be a bit more verbose syntax when `require()`ing images in your web components:
+
+```javascript
+// (use webpack DefinePlugin for setting _client_ environment variable)
+const picture = _client_ ? require('./../cat.png') : webpack_isomorphic_tools.require('./cat.png')
+```
+
+## Gotchas
+
+Ideally you should run your Node.js web server after Webpack finishes its build process because `webpack-isomorphic-tools` adds its own plugins to the Webpack build chain which output a file with Webpack build info which is required to render pages on the server properly.
+
+This is easily done in production environment where you can run Node.js server after Webpack build finishes. But when you're developing on your machine you likely run `webpack-dev-server` which never exits because it listens to changes infinitely. And that's why when running your project for the first time in development mode you can see this in the console:
+
+```
+***** File "g:\work\project\build\webpack-stats.json" not found. Using an empty 
+      stub instead until the next try. This is normal because webpack-dev-server 
+      and Node.js both start simultaneously and therefore webpack hasn't yet 
+      finished its build process when Node.js server starts
+```
+
+This means that Webpack build process hasn't finished by the time your Node.js server ran (and `require()`d all the assets). You can simply wait a moment for Webpack to finish its build (you'll see green stats output in the console) and then just terminate the script and run it again, now with the Webpack build info file present.
+
+## References
+
+Initially based on [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example) by Erik Rasmussen
+
+Also the same codebase (as in the project mentioned above) can be found in [isomorphic500](https://github.com/gpbl/isomorphic500) by Giampaolo Bellavite
+
+## Contributing
+
+After cloning this repo, ensure dependencies are installed by running:
+
+```sh
+npm install
+```
+
+This module is written in ES6 and uses [Babel](http://babeljs.io/) for ES5
+transpilation. Widely consumable JavaScript can be produced by running:
+
+```sh
+npm run build
+```
+
+Once `npm run build` has run, you may `import` or `require()` directly from
+node.
+
+After developing, the full test suite can be evaluated by running:
+
+```sh
+npm test
+```
+
+While actively developing, we recommend running
+
+```sh
+npm run watch
+```
+
+in a terminal. This will watch the file system and run tests automatically 
+whenever you save a js file.
+
+## License
+
+[MIT](LICENSE)
+[npm-image]: https://img.shields.io/npm/v/webpack-isomorphic-tools.svg
+[npm-url]: https://npmjs.org/package/webpack-isomorphic-tools
+[travis-image]: https://img.shields.io/travis/halt-hammerzeit/webpack-isomorphic-tools/master.svg
+[travis-url]: https://travis-ci.org/halt-hammerzeit/webpack-isomorphic-tools
+[downloads-image]: https://img.shields.io/npm/dm/webpack-isomorphic-tools.svg
+[downloads-url]: https://npmjs.org/package/webpack-isomorphic-tools
+[coveralls-image]: https://img.shields.io/coveralls/halt-hammerzeit/webpack-isomorphic-tools/master.svg
+[coveralls-url]: https://coveralls.io/r/halt-hammerzeit/webpack-isomorphic-tools?branch=master
+
+<!---
+[gratipay-image]: https://img.shields.io/gratipay/dougwilson.svg
+[gratipay-url]: https://gratipay.com/dougwilson/
+-->

@@ -1,0 +1,10 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": ".",
+			"folder_exclude_patterns": ["webpack-isomorphic-tools/node_modules", "webpack-isomorphic-tools/coverage", "webpack-isomorphic-tools/build", "webpack-isomorphic-tools/babel-transpiled-modules", "webpack-isomorphic-tools/project.sublime-workspace"]
+		}
+	]
+}
