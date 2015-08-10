@@ -298,7 +298,7 @@ export default class webpack_isomorphic_tools
 
 // a sample path parser of webpack url-loader
 // (works for images, fonts, and i guess for everything else, should work for any file type)
-webpack_isomorphic_tools.url_loader_path_parser = function(module, resolve_asset_path, options)
+webpack_isomorphic_tools.url_loader_parser = function(module, options)
 {
 	// retain everything inside of double quotes.
 	// usually it's "data:image..." for embedded with the double quotes
@@ -311,7 +311,7 @@ webpack_isomorphic_tools.url_loader_path_parser = function(module, resolve_asset
 	if (!is_embedded)
 	{
 		// if it wasn't embedded then it's a file path so resolve it
-		asset_path = resolve_asset_path(asset_path)
+		asset_path = options.output_path + asset_path
 	}
 
 	return asset_path

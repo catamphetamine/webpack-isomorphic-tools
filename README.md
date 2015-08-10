@@ -136,7 +136,7 @@ export default
     // or you can specify no loader at all and in that case no module loader would be added to webpack
     // path: 'you can constrain loading assets by path'
     // paths: ['or by a list of paths']
-    path_parser: Webpack_isomorphic_tools.url_loader_path_parser // you don't need to know what this function does but you can always look at the sources (it's an extension point along with a couple more)
+    parser: Webpack_isomorphic_tools.url_loader_parser // you don't need to know what this function does but you can always look at the sources (it's an extension point along with a couple more)
   }]
 }
 ```

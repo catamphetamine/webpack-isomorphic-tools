@@ -10,13 +10,13 @@ export default function write_stats(stats, options)
 
 	const json = stats.toJson()
 
-	const output_path = this.options.output.publicPath
+	options.output_path = this.options.output.publicPath
+
 	const output = {}
 
 	// to see all webpack stats (for debuggin purpose)
 	// output.json = json
 
-	const resolve_asset_path = asset_path => this.options.output.publicPath + asset_path
 	// {
 	// 	if (_development_)
 	// 	{
@@ -71,7 +71,7 @@ export default function write_stats(stats, options)
 			// filter by extension
 			.filter(name => path.extname(name) === `.${extension}`)
 			// adjust the real path (can be http, filesystem)
-			.map(name => resolve_asset_path(name))
+			.map(name => options.output_path + name)
 	}
 
 	// // output stats for all application javascript entry points
@@ -90,7 +90,8 @@ export default function write_stats(stats, options)
 	// omit node_modules contents and internal webpack modules
 	const modules = json.modules.filter(module =>
 	{
-		return module.name.indexOf('./~/') !== 0 && module.name.indexOf('(webpack)') !== 0
+		return module.name.indexOf('.') === 0 && module.name.indexOf('./~/') !== 0
+		// return module.name.indexOf('./~/') !== 0 && module.name.indexOf('(webpack)') !== 0
 	})
 
 	// one can supply a custom filter
@@ -101,13 +102,13 @@ export default function write_stats(stats, options)
 	{
 		// one can supply his own filter
 		const filter = (asset_description.filter || default_filter).bind(this)
-		// one can supply his own path_parser
-		const path_parser = asset_description.path_parser.bind(this)
+		// one can supply his own parser
+		const parser = asset_description.parser.bind(this)
 
-		// path_parser is required
-		if (!asset_description.path_parser)
+		// parser is required
+		if (!asset_description.parser)
 		{
-			throw new Error(`path_parser required for assets type "${asset_description.name}"`)
+			throw new Error(`parser required for assets type "${asset_description.name}"`)
 		}
 
 		// get real paths for all the files from this asset type
@@ -117,7 +118,7 @@ export default function write_stats(stats, options)
 			.reduce((set, module) =>
 			{
 				// determine and set the real file path
-				set[module.name] = path_parser(module, resolve_asset_path, options)
+				set[module.name] = parser(module, options)
 				return set
 			},
 			{})
