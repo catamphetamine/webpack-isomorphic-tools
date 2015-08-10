@@ -53,7 +53,7 @@ What `webpack-isomorphic-tools` does is it makes the code above work on the serv
 
 What about javascripts on the Html page?
 
-When you render your Html page on the server you need to include all the client scripts using `<script src={...}/>` tags. And for that purpose you need to know the real paths to your Webpack compiled javascripts. Which are gonna have names like `main-9059f094ddb49c2b0fa6a254a6ebf2ad.js` because we are using the `[hash]` file naming feature of Webpack which is required to make browser caching work correctly. And `webpack-isomorphic-tools` tells you these filenames (see the [Usage](#usage) section).
+When you render your Html page on the server you need to include all the client scripts using `<script src={...}/>` tags. And for that purpose you need to know the real paths to your Webpack compiled javascripts. Which are gonna have names like `main-9059f094ddb49c2b0fa6a254a6ebf2ad.js` because we are using the `[hash]` file naming feature of Webpack which is required to make browser caching work correctly. And `webpack-isomorphic-tools` tells you these filenames (see the [Usage](#usage) section). It also tells you real paths to your Css styles in case you're using [extract-text-webpack-plugin](https://github.com/webpack/extract-text-webpack-plugin) (which is usually the case for production build).
 
 For a comprehensive example of isomorphic React rendering you can look at this sample project:
 
