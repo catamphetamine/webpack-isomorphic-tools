@@ -2,7 +2,7 @@ import path   from 'path'
 import fs     from 'fs'
 import colors from 'colors/safe'
 
-import hook from './node-hook'
+import hook from './tools/node-hook'
 
 import write_stats  from './plugins/write stats'
 import notify_stats from './plugins/notify stats'

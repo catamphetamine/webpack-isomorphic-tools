@@ -97,13 +97,17 @@ export default function write_stats(stats, options)
 	// one can supply a custom filter
 	const default_filter = (asset, regular_expression) => regular_expression.test(asset.name)
 
+	const default_naming = (module) => module.name
+
 	// for each user specified asset type
 	options.assets.forEach(asset_description =>
 	{
 		// one can supply his own filter
-		const filter = (asset_description.filter || default_filter).bind(this)
+		const filter = (asset_description.filter || default_filter) //.bind(this)
 		// one can supply his own parser
-		const parser = asset_description.parser.bind(this)
+		const parser = asset_description.parser //.bind(this)
+		// one can supply his own namer
+		const naming = (asset_description.naming || default_naming) //.bind(this)
 
 		// parser is required
 		if (!asset_description.parser)
@@ -117,8 +121,9 @@ export default function write_stats(stats, options)
 			.filter(module => filter(module, options.regular_expressions[asset_description.name], options))
 			.reduce((set, module) =>
 			{
+				const name = naming(module)
 				// determine and set the real file path
-				set[module.name] = parser(module, options)
+				set[name] = parser(module, options)
 				return set
 			},
 			{})
