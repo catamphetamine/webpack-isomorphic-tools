@@ -151,7 +151,7 @@ export default class webpack_isomorphic_tools
 		// webpack and node.js start in parallel, so web
 		if (!fs.existsSync(this.webpack_stats_path()))
 		{
-			console.log(colors.red(`***** File "${this.webpack_stats_path()}" not found. Using an empty stub instead until the next try. This is normal because webpack-dev-server and Node.js both start simultaneously and therefore webpack hasn't yet finished its build process when Node.js server starts. Just restart your script after Webpack finishes the build (when green letter will appear in the console)`))
+			console.log(colors.red(`***** File "${this.webpack_stats_path()}" not found. Using an empty stub instead. This is normal because webpack-dev-server and Node.js both start simultaneously and therefore webpack hasn't yet finished its build process when Node.js server starts. Just restart your script after Webpack finishes the build (when green letter will appear in the console)`))
 			return {}
 		}
 

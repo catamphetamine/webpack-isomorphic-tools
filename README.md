@@ -277,9 +277,11 @@ This is easily done in production environment where you can run Node.js server a
 
 ```
 ***** File "g:\work\project\build\webpack-stats.json" not found. Using an empty 
-      stub instead until the next try. This is normal because webpack-dev-server 
+      stub instead. This is normal because webpack-dev-server 
       and Node.js both start simultaneously and therefore webpack hasn't yet 
-      finished its build process when Node.js server starts
+      finished its build process when Node.js server starts.
+      Just restart your script after Webpack finishes the build 
+      (when green letter will appear in the console)
 ```
 
 This means that Webpack build process hasn't finished by the time your Node.js server ran (and `require()`d all the assets). You can simply wait a moment for Webpack to finish its build (you'll see green stats output in the console) and then just terminate the script and run it again, now with the Webpack build info file present.
