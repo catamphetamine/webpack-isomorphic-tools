@@ -26,22 +26,21 @@ What about fonts? Fonts are parsed correctly by Webpack [css-loader](https://git
 What's left are images. Images are `require()`d in React components and then used like this:
 
 ```javascript
-// when Webpack url-loader finds this `require()` call 
-// it will copy `image.png` to your build folder 
-// and name it something like `9059f094ddb49c2b0fa6a254a6ebf2ad.png`, 
-// because we are using the `[hash]` file naming feature of Webpack url-loader
-// which (feature) is required to make browser caching work correctly
-var image = require('../image.png')
-
-// or if you are using Babel for javascript transpilation (which you absolutely should do),
-// alternatively:
-import image from '../image.png'
+// alternatively one can use import, but in this case hot reloading won't work
+// import image from '../image.png'
 
 // next you just `src` your image inside your `render()` method
 class Photo extends React.Component
 {
   render()
   {
+    // when Webpack url-loader finds this `require()` call 
+    // it will copy `image.png` to your build folder 
+    // and name it something like `9059f094ddb49c2b0fa6a254a6ebf2ad.png`, 
+    // because we are using the `[hash]` file naming feature of Webpack url-loader
+    // which (feature) is required to make browser caching work correctly
+    const image = require('../image.png')
+
     return <img src={image}/>
   }
 }
@@ -201,8 +200,6 @@ And finally you use the `assets` inside the `Html` component's `render()` method
 import React, {Component, PropTypes} from 'react'
 import serialize from 'serialize-javascript'
 
-import picture from './../cat.jpg'
-
 export default class Html extends Component
 {
   static propTypes =
@@ -215,6 +212,13 @@ export default class Html extends Component
   render()
   {
     const { assets, component, store } = this.props
+
+    // "import" will work here too 
+    // but if you want hot reloading to work while developing your project
+    // then you need to use require()
+    // because import will only be executed a single time 
+    // (when the application launches)
+    const picture = require('./../cat.jpg')
 
     const html = 
     (
