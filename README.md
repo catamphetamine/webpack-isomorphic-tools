@@ -269,6 +269,18 @@ If you don't like having the `main.js` file before all your web application code
 const picture = _client_ ? require('./../cat.png') : webpack_isomorphic_tools.require('./cat.png')
 ```
 
+## Fully working example project
+
+* clone [this repo](https://github.com/halt-hammerzeit/cinema)
+* npm install
+* npm run dev
+* Ctrl + C after the green stats appear in the console
+* npm run dev
+* go to http://localhost:3000
+* Ctrl + C
+* npm run production
+* go to http://localhost:3000
+
 ## Gotchas
 
 Ideally you should run your Node.js web server after Webpack finishes its build process because `webpack-isomorphic-tools` adds its own plugins to the Webpack build chain which output a file with Webpack build info which is required to render pages on the server properly.
