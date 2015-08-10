@@ -29,9 +29,12 @@ export default function write_stats(stats, options)
 		// }
 	}
 
-	// // get assets by name and extensions
-	function get_assets(name, extension = 'js')
+	output.javascript = {}
+
+	Object.keys(json.assetsByChunkName).forEach(function(name)
 	{
+		let extension = 'js'
+
 		let chunk = json.assetsByChunkName[name]
 
 		// a chunk could be a string or an array, so make sure it is an array
@@ -40,26 +43,44 @@ export default function write_stats(stats, options)
 			chunk = [chunk]
 		}
 
-		return chunk
+		const assets = chunk
 			// filter by extension
 			.filter(name => path.extname(name) === `.${extension}`)
 			.map(name => resolve_asset_path(name))
-	}
 
-	output.javascript = {}
-
-	// output stats for all application javascript entry points
-	Object.keys(this.options.entry).forEach(chunk_name =>
-	{
-		let entry = this.options.entry[chunk_name]
-		if (Array.isArray(entry))
-		{
-			entry = entry[entry.length - 1]
-		}
-
-		output.javascript[entry] = get_assets(chunk_name, 'js')[0]
+		output.javascript[name] = assets[0]
 		// the second asset is usually a source map
 	})
+
+	// // // get assets by name and extensions
+	// function get_assets(name, extension = 'js')
+	// {
+	// 	let chunk = json.assetsByChunkName[name]
+	//
+	// 	// a chunk could be a string or an array, so make sure it is an array
+	// 	if (!(Array.isArray(chunk)))
+	// 	{
+	// 		chunk = [chunk]
+	// 	}
+	//
+	// 	return chunk
+	// 		// filter by extension
+	// 		.filter(name => path.extname(name) === `.${extension}`)
+	// 		.map(name => resolve_asset_path(name))
+	// }
+
+	// // output stats for all application javascript entry points
+	// Object.keys(this.options.entry).forEach(chunk_name =>
+	// {
+	// 	let entry = this.options.entry[chunk_name]
+	// 	if (Array.isArray(entry))
+	// 	{
+	// 		entry = entry[entry.length - 1]
+	// 	}
+	//
+	// 	output.javascript[entry] = get_assets(chunk_name, 'js')[0]
+	// 	// the second asset is usually a source map
+	// })
 	
 	output.styles = {}
 
