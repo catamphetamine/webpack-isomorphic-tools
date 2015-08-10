@@ -1,5 +1,6 @@
-import fs   from 'fs'
-import path from 'path'
+import fs     from 'fs'
+import path   from 'path'
+import mkdirp from 'mkdirp'
 
 // writes webpack-stats.json file, which contains assets' file paths
 export default function write_stats(stats, options)
@@ -109,7 +110,12 @@ export default function write_stats(stats, options)
 			{})
 	})
 
+	// for debugging purposes
 	// console.log(JSON.stringify(output, null, 2))
 
+	// create all the folders in the path if they don't exist
+	mkdirp.sync(path.dirname(options.output))
+
+	// write webpack stats file
 	fs.writeFileSync(options.output, JSON.stringify(output))
 }
