@@ -141,7 +141,7 @@ export default
         'svg'
       ],
       path: 'path to your project folder here', // or "paths"
-      loaders: ['url-loader?limit=10240'], // or "loader"; any png-image or woff-font below or equal to 10K will be converted to inline base64 instead
+      loaders: ['url-loader?limit=10240'], // or "loader" (or no "loader" at all to skip adding webpack module loader to webpack configuration); with this "url-loader" any png-image or woff-font below or equal to 10K will be converted to inline base64 instead
       path_parser: Webpack_isomorphic_tools.url_loader_path_parser // you don't need to know what this function does but you can always look at the sources (it's an extension point along with a couple more)
     }
   }
@@ -175,8 +175,10 @@ Then you, for example, create an express middleware to render your pages on the 
 ```javascript
 import React from 'react'
 
+// html page markup
 import Html from './html'
 
+// will be used in express_application.use(...)
 export function page_rendering_middleware(request, response)
 {
   // clear require() cache (used internally)
@@ -194,6 +196,7 @@ export function page_rendering_middleware(request, response)
   // https://github.com/halt-hammerzeit/cinema/blob/master/code/server/webpage%20rendering.js
   const flux_store = [initialize and populate your flux store depending on the page being shown]
 
+  // render the page to string and send it to the browser as text/html
   response.send('<!doctype html>\n' +
         React.renderToString(<Html assets={webpack_isomorphic_tools.assets()} component={page_component} store={flux_store}/>))
 }
@@ -219,18 +222,18 @@ export default class Html extends Component
   render()
   {
     const { assets, component, store } = this.props
-    const title = 'xHamster'
+
     const html = 
     (
       <html lang="en-us">
         <head>
           <meta charSet="utf-8"/>
-          <title>{title}</title>
+          <title>xHamster</title>
 
           {/* favicon */}
           <link rel="shortcut icon" href={assets.images_and_fonts['./client/images/icon/32x32.png'].path} />
 
-          {/* styles */}
+          {/* styles (will be present only in production with webpack extract text plugin) */}
           {Object.keys(assets.styles).map((style, i) =>
             <link href={assets.styles[style]} key={i} media="screen, projection"
                   rel="stylesheet" type="text/css"/>)}
@@ -247,6 +250,8 @@ export default class Html extends Component
           <script dangerouslySetInnerHTML={{__html: `window._flux_store_data=${serialize(store.getState())};`}} />
 
           {/* javascripts */}
+          {/* (usually one for each "entry" in webpack configuration) */}
+          {/* (for more informations on "entries" see https://github.com/petehunt/webpack-howto/) */}
           {Object.keys(assets.javascript).map((script, i) =>
             <script src={assets.javascript[script]}/>
           )}

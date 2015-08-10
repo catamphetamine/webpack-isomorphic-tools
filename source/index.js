@@ -31,9 +31,12 @@ export default class webpack_isomorphic_tools
 		// will be used with write_stats plugin
 		// const assets = {}
 
+		// for each user defined asset type
 		for (let assets_type of Object.keys(this.options.assets))
 		{
 			const description = options.assets[assets_type]
+
+			// create a regular expression for this file type (or these file types)
 
 			let extension_matcher
 			if (description.extensions && description.extensions.length > 1)
@@ -47,6 +50,7 @@ export default class webpack_isomorphic_tools
 
 			regular_expressions[assets_type] = new RegExp(`\\.${extension_matcher}$`)
 
+			// if a "loader" (or "loaders") are specified, then create a webpack module loader
 			if (description.loader || description.loaders)
 			{
 				const loader =
@@ -70,11 +74,6 @@ export default class webpack_isomorphic_tools
 
 				webpack_configuration.module.loaders.push(loader)
 			}
-
-			// assets[assets_type] = 
-			// {
-			// 	regular_expression : regular_expressions[assets_type]
-			// }
 		}
 
 		if (!webpack_configuration.context)
@@ -97,11 +96,12 @@ export default class webpack_isomorphic_tools
 			throw new Error('You must specify "configuration.output.publicPath" in your webpack configuration')
 		}
 
+		// webpack-stats.json file path
 		const webpack_stats_file_path = this.webpack_stats_path()
 
-		// add webpack plugins
+		// add webpack stats plugins
 
-		// write webpack compiled files' names to a special .json file
+		// write_stats writes webpack compiled files' names to a special .json file
 		// (this will be used later to fetch these files from server)
 		function write_stats_plugin()
 		{
@@ -124,6 +124,7 @@ export default class webpack_isomorphic_tools
 			webpack_configuration.plugins = webpack_configuration.plugins.concat
 			(
 				// outputs stats info to the console
+				// (only needed in development mode)
 				function()
 				{
 					this.plugin('done', notify_stats)
@@ -141,14 +142,19 @@ export default class webpack_isomorphic_tools
 		}
 	}
 
+	// gets webpack-stats.json file path
 	webpack_stats_path()
 	{
 		return path.resolve(this.webpack_configuration.output.path, '..', 'webpack-stats.json')
 	}
 
+	// returns a mapping to read file paths for all the user specified asset types
+	// along with a couple of predefined ones: javascripts and styles
 	assets()
 	{
-		// webpack and node.js start in parallel, so web
+		// webpack and node.js start in parallel
+		// so webpack-stats.json might not exist on the very first run
+		// (or there should be a better way of webpack notifying about build ending)
 		if (!fs.existsSync(this.webpack_stats_path()))
 		{
 			console.log(colors.red(`***** File "${this.webpack_stats_path()}" not found. Using an empty stub instead. This is normal because webpack-dev-server and Node.js both start simultaneously and therefore webpack hasn't yet finished its build process when Node.js server starts. Just restart your script after Webpack finishes the build (when green letter will appear in the console)`))
@@ -173,14 +179,21 @@ export default class webpack_isomorphic_tools
 		return assets
 	}
 
+	// clear the require.cache (only used in developer mode with webpack-dev-server)
 	refresh()
 	{
 		delete require.cache[require.resolve(this.webpack_stats_path())]
 		return require(this.webpack_stats_path())
 	}
 
+	// registers a Node.js require hook
+	//
+	// read this article if you don't know what a "require hook" is
+	// http://bahmutov.calepin.co/hooking-into-node-loader-for-fun-and-profit.html
 	register()
 	{
+		// for each user specified asset type which isn't for .js files
+		// (because '.js' files requiring already works natively)
 		Object.keys(this.options.assets).filter(assets_type =>
 		{
 			const description = this.options.assets[assets_type]
@@ -193,6 +206,7 @@ export default class webpack_isomorphic_tools
 				return description.extensions.indexOf('js') < 0
 			}
 		})
+		// register a require hook for each file extension of this asset type
 		.forEach(assets_type =>
 		{
 			const description = this.options.assets[assets_type];
@@ -203,6 +217,8 @@ export default class webpack_isomorphic_tools
 		})
 	}
 
+	// is called when you require() your assets
+	// (or can be used manually without require hooks)
 	require(asset_path)
 	{
 		if (!asset_path)
@@ -212,22 +228,26 @@ export default class webpack_isomorphic_tools
 
 		// console.log('* Requiring', asset_path)
 
+		// get real file path list
 		var assets = this.assets()
 		
+		// find this asset in the real file path list
 		for (let type of Object.keys(assets))
 		{
 			const asset = assets[type][asset_path]
+			// if the real path was found in the list - return it
 			if (asset)
 			{
 				return asset
 			}
 		}
 
-		// Serve a not-found asset maybe
+		// serve a not-found asset maybe
 		console.log(colors.red(`***** Warning. Asset not found: ${asset_path}`))
 		return ''
 	}
 
+	// registers a require hook for a particular file extension
 	register_extension(extension)
 	{
 		hook.hook(`.${extension}`, (asset_path, fallback) =>
@@ -235,32 +255,42 @@ export default class webpack_isomorphic_tools
 			// convert absolute path to relative path
 			asset_path = path.relative(this.webpack_configuration.context, asset_path)
 
-			// convert Windows path to Webpack path
+			// convert Windows path to a correct Webpack path
 			asset_path = asset_path.replace(/\\/g, '/')
+			// add './' in the beginning if it's missing (is the case on Windows for example)
 			if (asset_path.indexOf('.') !== 0)
 			{
 				asset_path = './' + asset_path
 			}
 
+			// if this filename is in the user specified exceptions list
+			// then fallback to the normal require() behaviour
 			if (this.options.exceptions.indexOf(asset_path) >= 0)
 			{
 				return fallback()
 			}
 
+			// require() this asset (returns the real file path for this asset, e.g. an image)
 			return this.require(asset_path)
 		})
 	}
 }
 
+// a sample path parser of webpack url-loader
+// (works for images, fonts, and i guess for everything else, should work for any file type)
 webpack_isomorphic_tools.url_loader_path_parser = function(module, resolve_asset_path, options)
 {
-	// retain everything inside of double quotes (don't know what it is for)
+	// retain everything inside of double quotes.
+	// usually it's "data:image..." for embedded with the double quotes
+	// or __webpack_public_path__ + "..." for filesystem path
 	const double_qoute_index = module.source.indexOf('"')
 	let asset_path = module.source.slice(double_qoute_index + 1, -1)
 
+	// check if the file was embedded (small enough)
 	const is_embedded = asset_path.lastIndexOf('data:image', 0) === 0
 	if (!is_embedded)
 	{
+		// if it wasn't embedded then it's a file path so resolve it
 		asset_path = resolve_asset_path(asset_path)
 	}
 
