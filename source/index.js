@@ -47,6 +47,8 @@ export default class webpack_isomorphic_tools
 
 		this.options.project_path = webpack_configuration.context
 		this.options.webpack_output_path = webpack_configuration.output.path
+
+		this.require_cache = []
 	}
 
 	// adds module loaders and plugins to webpack configuration
@@ -202,7 +204,17 @@ export default class webpack_isomorphic_tools
 	// clear the require.cache (only used in developer mode with webpack-dev-server)
 	refresh()
 	{
-		delete require.cache[require.resolve(this.webpack_stats_path())]
+		delete require.cache[this.webpack_stats_path()]
+
+		// uncache cached assets
+		for (let path of this.require_cache)
+		{
+			// console.log('Flushing cache for', path)
+			delete require.cache[path]
+		}
+
+		this.require_cache = []
+
 		return require(this.webpack_stats_path())
 	}
 
@@ -272,6 +284,11 @@ export default class webpack_isomorphic_tools
 	{
 		hook.hook(`.${extension}`, (asset_path, fallback) =>
 		{
+			// console.log('Requiring', asset_path)
+			
+			// track cached assets
+			this.require_cache.push(asset_path)
+
 			// convert absolute path to relative path
 			asset_path = path.relative(this.options.project_path, asset_path)
 
