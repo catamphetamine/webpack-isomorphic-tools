@@ -16,12 +16,12 @@ module.exports = function notify_stats(stats)
 	var json = stats.toJson()
 
 	// if there were any errors
-	if (json.errors.not_empty())
+	if (json.errors.length > 0)
 	{
 		json.errors.forEach(error)
 	}
 	// if there were any warnings
-	else if (json.warnings.not_empty())
+	else if (json.warnings.length > 0)
 	{
 		json.warnings.forEach(warning)
 	}
