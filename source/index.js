@@ -13,67 +13,16 @@ export default class webpack_isomorphic_tools
 {
 	constructor(webpack_configuration, options)
 	{
-		this.webpack_configuration = webpack_configuration
 		this.options = options || {}
 
 		// a list of files which can be require()d normally on the server
 		// (for example, if you have require("./file.json") both in webpack and in the server code)
 		// (should work, not tested)
-		options.exceptions = options.exceptions || []
+		this.options.exceptions = this.options.exceptions || []
 
-		if (!options.assets)
+		if (!this.options.assets)
 		{
 			throw new Error('You must specify "assets" parameter')
-		}
-
-		const regular_expressions = {}
-
-		// will be used with write_stats plugin
-		// const assets = {}
-
-		// for each user defined asset type
-		for (let assets_type of Object.keys(this.options.assets))
-		{
-			const description = options.assets[assets_type]
-
-			// create a regular expression for this file type (or these file types)
-
-			let extension_matcher
-			if (description.extensions && description.extensions.length > 1)
-			{
-				extension_matcher = `(${description.extensions.join('|')})`
-			}
-			else
-			{
-				extension_matcher = description.extension || description.extensions[0]
-			}
-
-			regular_expressions[assets_type] = new RegExp(`\\.${extension_matcher}$`)
-
-			// if a "loader" (or "loaders") are specified, then create a webpack module loader
-			if (description.loader || description.loaders)
-			{
-				const loader =
-				{
-					test : regular_expressions[assets_type]
-				}
-
-				if (description.loader)
-				{
-					loader.loader = description.loader
-				}
-				else
-				{
-					loader.loaders = description.loaders
-				}
-
-				if (description.path || description.paths)
-				{
-					loader.include = description.paths || [description.path]
-				}
-
-				webpack_configuration.module.loaders.push(loader)
-			}
 		}
 
 		if (!webpack_configuration.context)
@@ -96,10 +45,77 @@ export default class webpack_isomorphic_tools
 			throw new Error('You must specify "configuration.output.publicPath" in your webpack configuration')
 		}
 
+		this.options.project_path = webpack_configuration.context
+		this.options.webpack_output_path = webpack_configuration.output.path
+	}
+
+	// adds module loaders and plugins to webpack configuration
+	populate(webpack_configuration)
+	{
+		const regular_expressions = {}
+
+		// for each user defined asset type
+		for (let description of this.options.assets)
+		{
+			// for readability
+			description.name = description.name || (description.extension || description.extensions.join(', '))
+
+			// create a regular expression for this file type (or these file types)
+
+			let extension_matcher
+			if (description.extensions && description.extensions.length > 1)
+			{
+				extension_matcher = `(${description.extensions.join('|')})`
+			}
+			else
+			{
+				extension_matcher = description.extension || description.extensions[0]
+			}
+
+			regular_expressions[description.name] = new RegExp(`\\.${extension_matcher}$`)
+
+			// if a "loader" (or "loaders") are specified, then create a webpack module loader
+			if (description.loader || description.loaders)
+			{
+				const loader =
+				{
+					test : regular_expressions[description.name]
+				}
+
+				if (description.loader)
+				{
+					loader.loader = description.loader
+				}
+				else
+				{
+					loader.loaders = description.loaders
+				}
+
+				if (description.path || description.paths)
+				{
+					loader.include = description.paths || [description.path]
+				}
+
+				if (!webpack_configuration.module)
+				{
+					webpack_configuration.module = {}
+				}
+
+				if (!webpack_configuration.module.loaders)
+				{
+					webpack_configuration.module.loaders = {}
+				}
+
+				webpack_configuration.module.loaders.push(loader)
+			}
+		}
+
 		// webpack-stats.json file path
 		const webpack_stats_file_path = this.webpack_stats_path()
 
 		// add webpack stats plugins
+
+		const options = this.options
 
 		// write_stats writes webpack compiled files' names to a special .json file
 		// (this will be used later to fetch these files from server)
@@ -145,7 +161,11 @@ export default class webpack_isomorphic_tools
 	// gets webpack-stats.json file path
 	webpack_stats_path()
 	{
-		return path.resolve(this.webpack_configuration.output.path, '..', 'webpack-stats.json')
+		if (this.options.webpack_stats_file_path)
+		{
+			return path.resolve(this.options.project_path, this.options.webpack_stats_file_path)
+		}
+		return path.resolve(this.options.webpack_output_path, '..', 'webpack-stats.json')
 	}
 
 	// returns a mapping to read file paths for all the user specified asset types
@@ -253,7 +273,7 @@ export default class webpack_isomorphic_tools
 		hook.hook(`.${extension}`, (asset_path, fallback) =>
 		{
 			// convert absolute path to relative path
-			asset_path = path.relative(this.webpack_configuration.context, asset_path)
+			asset_path = path.relative(this.options.project_path, asset_path)
 
 			// convert Windows path to a correct Webpack path
 			asset_path = asset_path.replace(/\\/g, '/')

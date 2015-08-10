@@ -97,11 +97,8 @@ export default function write_stats(stats, options)
 	const default_filter = (asset, regular_expression) => regular_expression.test(asset.name)
 
 	// for each user specified asset type
-	Object.keys(options.assets).forEach(asset_type =>
+	options.assets.forEach(asset_description =>
 	{
-		// user settings for this asset type
-		const asset_description = options.assets[asset_type]
-
 		// one can supply his own filter
 		const filter = (asset_description.filter || default_filter).bind(this)
 		// one can supply his own path_parser
@@ -110,13 +107,13 @@ export default function write_stats(stats, options)
 		// path_parser is required
 		if (!asset_description.path_parser)
 		{
-			throw new Error(`path_parser required for asset type "${asset_type}"`)
+			throw new Error(`path_parser required for assets type "${asset_description.name}"`)
 		}
 
 		// get real paths for all the files from this asset type
-		output[asset_type] = modules
+		output[asset_description.name] = modules
 			// take just modules of this asset type
-			.filter(module => filter(module, options.regular_expressions[asset_type], options))
+			.filter(module => filter(module, options.regular_expressions[asset_description.name], options))
 			.reduce((set, module) =>
 			{
 				// determine and set the real file path

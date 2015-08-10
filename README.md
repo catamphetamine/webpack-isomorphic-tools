@@ -108,6 +108,7 @@ var webpack_configuration =
 // webpack-isomorphic-tools settings reside in a separate .js file to remove code duplication
 // (it will be used in the server code too)
 var webpack_isomorphic_tools = new Webpack_isomorphic_tools(webpack_configuration, require('./webpack-isomorphic-tools'))
+webpack_isomorphic_tools.populate(webpack_configuration)
 
 module.exports = webpack_configuration
 ```
@@ -120,31 +121,20 @@ import Webpack_isomorphic_tools from 'webpack-isomorphic-tools'
 export default
 {
   // if this is the configuration for webpack-dev-server
-  development: true,
+  development: true, // false by default
 
-  // if this is the production build configuration
-  // production: true,
+  // by default it creates 'webpack-stats.json' file 
+  // one level higher than your Webpack output.path.
+  // if you want you can change the stats file path as you want:
+  // webpack_stats_file_path: 'webpack-stats.json' // relative to your project folder
 
   assets:
-  {
-    images_and_fonts:
-    {
-      extensions:
-      [
-        'png',
-        'jpg',
-        'ico',
-        'woff',
-        'woff2',
-        'eot',
-        'ttf',
-        'svg'
-      ],
-      path: 'path to your project folder here', // or "paths"
-      loaders: ['url-loader?limit=10240'], // or "loader" (or no "loader" at all to skip adding webpack module loader to webpack configuration); with this "url-loader" any png-image or woff-font below or equal to 10K will be converted to inline base64 instead
-      path_parser: Webpack_isomorphic_tools.url_loader_path_parser // you don't need to know what this function does but you can always look at the sources (it's an extension point along with a couple more)
-    }
-  }
+  [{
+    extensions: ['png', 'jpg', 'gif', 'ico', 'svg'],
+    path: 'path to your project folder here', // or "paths"
+    loaders: ['url-loader?limit=10240'], // or "loader" (or no "loader" at all to skip adding webpack module loader to webpack configuration); with this "url-loader" any image below or equal to 10K will be converted to inline base64 instead
+    path_parser: Webpack_isomorphic_tools.url_loader_path_parser // you don't need to know what this function does but you can always look at the sources (it's an extension point along with a couple more)
+  }]
 }
 ```
 
