@@ -87,12 +87,12 @@ export default function write_stats(stats, options)
 	// 	// the second asset is usually a source map
 	// })
 
-	// omit node_modules contents and internal webpack modules
-	const modules = json.modules.filter(module =>
-	{
-		return module.name.indexOf('.') === 0 && module.name.indexOf('./~/') !== 0
-		// return module.name.indexOf('./~/') !== 0 && module.name.indexOf('(webpack)') !== 0
-	})
+	// // omit node_modules contents and internal webpack modules
+	// const modules = json.modules.filter(module =>
+	// {
+	// 	return module.name.indexOf('.') === 0 && module.name.indexOf('./~/') !== 0
+	// 	// return module.name.indexOf('./~/') !== 0 && module.name.indexOf('(webpack)') !== 0
+	// })
 
 	// one can supply a custom filter
 	const default_filter = (asset, regular_expression) => regular_expression.test(asset.name)
@@ -112,7 +112,7 @@ export default function write_stats(stats, options)
 		}
 
 		// get real paths for all the files from this asset type
-		output[asset_description.name] = modules
+		output[asset_description.name] = json.modules
 			// take just modules of this asset type
 			.filter(module => filter(module, options.regular_expressions[asset_description.name], options))
 			.reduce((set, module) =>
