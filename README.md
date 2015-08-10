@@ -131,8 +131,11 @@ export default
   assets:
   [{
     extensions: ['png', 'jpg', 'gif', 'ico', 'svg'],
-    path: 'path to your project folder here', // or "paths"
-    loaders: ['url-loader?limit=10240'], // or "loader" (or no "loader" at all to skip adding webpack module loader to webpack configuration); with this "url-loader" any image below or equal to 10K will be converted to inline base64 instead
+    loader: 'url-loader?limit=10240', // any image below or equal to 10K will be converted to inline base64 instead
+    // loaders: ['you can specify a list of loaders too']
+    // or you can specify no loader at all and in that case no module loader would be added to webpack
+    // path: 'you can constrain loading assets by path'
+    // paths: ['or by a list of paths']
     path_parser: Webpack_isomorphic_tools.url_loader_path_parser // you don't need to know what this function does but you can always look at the sources (it's an extension point along with a couple more)
   }]
 }
