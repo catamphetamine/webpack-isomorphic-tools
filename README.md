@@ -276,8 +276,7 @@ const picture = _client_ ? require('./../cat.png') : webpack_isomorphic_tools.re
 * clone [this repo](https://github.com/halt-hammerzeit/cinema)
 * npm install
 * npm run dev
-* Ctrl + C after the green stats appear in the console
-* npm run dev
+* wait for Webpack to finish the first build (green stats will appear in the console)
 * go to http://localhost:3000
 * Ctrl + C
 * npm run production
