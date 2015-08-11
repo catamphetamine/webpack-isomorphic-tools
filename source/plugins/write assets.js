@@ -2,8 +2,8 @@ import fs     from 'fs'
 import path   from 'path'
 import mkdirp from 'mkdirp'
 
-// writes webpack-stats.json file, which contains assets' file paths
-export default function write_stats(stats, options)
+// writes webpack-assets.json file, which contains assets' file paths
+export default function write_assets(stats, options)
 {
 	const development = options.environment === 'development'
 
@@ -33,9 +33,7 @@ export default function write_stats(stats, options)
 	// populate the output object with assets
 	populate_assets(output, json, options)
 
-	// to see all webpack stats (for debuggin purpose)
-	// output.json = json
-
+	// function resolve_path(asset_path)
 	// {
 	// 	if (development)
 	// 	{
@@ -48,7 +46,7 @@ export default function write_stats(stats, options)
 	// 	}
 	// }
 
-	// write webpack stats file
+	// write webpack assets info file
 	options.log.debug(`writing webpack assets info to ${options.output_file}`)
 	// format the JSON for readability if in debug mode
 	const assets_info = development ? JSON.stringify(output, null, 2) : JSON.stringify(output)
@@ -105,7 +103,7 @@ function populate_assets(output, json, options)
 			.map(name => options.assets_base_path + name)
 	}
 
-	// // output stats for all application javascript entry points
+	// // output assets for all application javascript entry points
 	// Object.keys(this.options.entry).forEach(chunk_name =>
 	// {
 	// 	let entry = this.options.entry[chunk_name]

@@ -293,9 +293,9 @@ Available configuration parameters:
   //  for some asset type)
   debug: true, // is false by default
 
-  // By default it creates 'webpack-assets.json' file one level higher
-  // than your webpack_configuration.output.path (which is your project path).
-  // You can change the stats file path as you want
+  // By default it creates 'webpack-assets.json' file at 
+  // webpack_configuration.output.path (which is your project folder).
+  // You can change the assets file path as you wish
   // (therefore changing both folder and filename).
   // 
   // The folder derived from this parameter will also be used

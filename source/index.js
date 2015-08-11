@@ -186,12 +186,6 @@ export default class webpack_isomorphic_tools
 	webpack_assets_path()
 	{
 		return path.resolve(this.options.project_path, this.options.webpack_assets_file_path)
-
-		// if (this.options.webpack_assets_file_path)
-		// {
-		// 	return path.resolve(this.options.project_path, this.options.webpack_assets_file_path)
-		// }
-		// return path.resolve(this.options.webpack_output_path, '..', 'webpack-assets.json')
 	}
 
 	// returns a mapping to read file paths for all the user specified asset types
@@ -227,15 +221,17 @@ export default class webpack_isomorphic_tools
 	// clear the require.cache (only used in developer mode with webpack-dev-server)
 	refresh()
 	{
-		this.debug('refreshing')
+		this.debug('flushing require() caches')
 
 		// uncache webpack-assets.json file
+		// this.debug(' flushing require() cache for webpack assets json file')
+		// this.debug(` (was cached: ${typeof(require.cache[this.webpack_assets_path()]) !== 'undefined'})`)
 		delete require.cache[this.webpack_assets_path()]
 
 		// uncache cached assets
 		for (let path of this.require_cache)
 		{
-			this.debug(`flushing require() cache for ${path}`)
+			this.debug(` flushing require() cache for ${path}`)
 			delete require.cache[path]
 		}
 
