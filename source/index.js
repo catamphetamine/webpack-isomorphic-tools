@@ -2,9 +2,10 @@ import path   from 'path'
 import fs     from 'fs'
 import colors from 'colors/safe'
 
-import hook from './tools/node-hook'
+import hook      from './tools/node-hook'
+import serialize from './tools/serialize-javascript'
 
-import write_stats  from './plugins/write stats'
+import write_assets  from './plugins/write assets'
 import notify_stats from './plugins/notify stats'
 
 // using ES6 template strings
@@ -22,7 +23,8 @@ export default class webpack_isomorphic_tools
 
 		if (!this.options.assets)
 		{
-			throw new Error('You must specify "assets" parameter')
+			this.options.assets = []
+			// throw new Error('You must specify "assets" parameter')
 		}
 
 		if (!webpack_configuration.context)
@@ -48,12 +50,25 @@ export default class webpack_isomorphic_tools
 		this.options.project_path = webpack_configuration.context
 		this.options.webpack_output_path = webpack_configuration.output.path
 
+		this.options.webpack_assets_file_path = this.options.webpack_assets_file_path || 'webpack-assets.json'
+
 		this.require_cache = []
+
+		this.debug('options:')
+		this.debug(this.options)
 	}
 
 	// adds module loaders and plugins to webpack configuration
 	populate(webpack_configuration)
 	{
+		this.debug('populating webpack configuration')
+
+		// ensure the "module.loaders" path exists inside webpack configuration
+		webpack_configuration.module = webpack_configuration.module || {}
+		webpack_configuration.module.loaders = webpack_configuration.module.loaders || {}
+
+		// assets regular expressions (based on extensions).
+		// will be used in loaders and in write_assets
 		const regular_expressions = {}
 
 		// for each user defined asset type
@@ -84,6 +99,7 @@ export default class webpack_isomorphic_tools
 					test : regular_expressions[description.name]
 				}
 
+				// specify the loader (or loaders)
 				if (description.loader)
 				{
 					loader.loader = description.loader
@@ -93,46 +109,47 @@ export default class webpack_isomorphic_tools
 					loader.loaders = description.loaders
 				}
 
+				// restrict the loader to specific paths if needed
 				if (description.path || description.paths)
 				{
 					loader.include = description.paths || [description.path]
 				}
 
-				if (!webpack_configuration.module)
-				{
-					webpack_configuration.module = {}
-				}
+				this.debug('adding webpack loader:')
+				// simple JSON.stringify won't suffice 
+				// because loader's test property is a regular expression
+				// (but serialize-javascript does no indentation)
+				this.debug(serialize(loader))
 
-				if (!webpack_configuration.module.loaders)
-				{
-					webpack_configuration.module.loaders = {}
-				}
-
+				// add the loader to webpack configuration
 				webpack_configuration.module.loaders.push(loader)
 			}
 		}
 
-		// webpack-stats.json file path
-		const webpack_stats_file_path = this.webpack_stats_path()
+		// webpack-assets.json file path
+		const webpack_assets_file_path = this.webpack_assets_path()
 
-		// add webpack stats plugins
+		// add webpack assets plugins
 
+		// selfie
 		const tools = this
 		const options = this.options
 
-		// write_stats writes webpack compiled files' names to a special .json file
+		// write_assets writes webpack compiled files' names to a special .json file
 		// (this will be used later to fetch these files from server)
-		function write_stats_plugin()
+		function write_assets_plugin()
 		{
 			this.plugin('done', function(stats)
 			{
-				write_stats.call(this, stats,
+				write_assets.call(this, stats,
 				{ 
 					environment         : options.development ? 'development' : 'production',
-					output_file         : webpack_stats_file_path,
-					output              : () => tools.default_webpack_stats(),
+					debug               : options.debug,
+					output_file         : webpack_assets_file_path,
+					output              : () => tools.default_webpack_assets(),
 					assets              : options.assets,
-					regular_expressions : regular_expressions
+					regular_expressions : regular_expressions,
+					log                 : { info: tools.info.bind(tools), debug: tools.debug.bind(tools), error: tools.error.bind(tools) }
 				})
 			})
 		}
@@ -150,14 +167,14 @@ export default class webpack_isomorphic_tools
 					this.plugin('done', notify_stats)
 				},
 
-				write_stats_plugin
+				write_assets_plugin
 			)
 		}
 		else
 		{
 			webpack_configuration.plugins = webpack_configuration.plugins.concat
 			(
-				write_stats_plugin
+				write_assets_plugin
 			)
 		}
 
@@ -165,14 +182,16 @@ export default class webpack_isomorphic_tools
 		return this
 	}
 
-	// gets webpack-stats.json file path
-	webpack_stats_path()
+	// gets webpack-assets.json file path
+	webpack_assets_path()
 	{
-		if (this.options.webpack_stats_file_path)
-		{
-			return path.resolve(this.options.project_path, this.options.webpack_stats_file_path)
-		}
-		return path.resolve(this.options.webpack_output_path, '..', 'webpack-stats.json')
+		return path.resolve(this.options.project_path, this.options.webpack_assets_file_path)
+
+		// if (this.options.webpack_assets_file_path)
+		// {
+		// 	return path.resolve(this.options.project_path, this.options.webpack_assets_file_path)
+		// }
+		// return path.resolve(this.options.webpack_output_path, '..', 'webpack-assets.json')
 	}
 
 	// returns a mapping to read file paths for all the user specified asset types
@@ -180,55 +199,43 @@ export default class webpack_isomorphic_tools
 	assets()
 	{
 		// webpack and node.js start in parallel
-		// so webpack-stats.json might not exist on the very first run
+		// so webpack-assets.json might not exist on the very first run
 		// (or there should be a better way of webpack notifying about build ending)
-		if (!fs.existsSync(this.webpack_stats_path()))
+		if (!fs.existsSync(this.webpack_assets_path()))
 		{
-			console.log(colors.red(`***** File "${this.webpack_stats_path()}" not found. Using an empty stub instead.`))
-			return this.default_webpack_stats()
+			this.error(`"${this.webpack_assets_path()}" not found. Using an empty stub instead`)
+			return this.default_webpack_assets()
 		}
 
-		const assets = require(this.webpack_stats_path())
-
-		// // invalidate caches with empty data
-		// // a better way would be to keep track of all the required modules in require()
-		// for (let assets_type of Object.keys(assets))
-		// {
-		// 	const assets_of_type = assets[assets_type]
-		// 	for (let path of Object.keys(assets_of_type))
-		// 	{
-		// 		const real_path = assets_of_type[path]				
-		// 		// http://...
-		// 		delete require.cache[require.resolve(real_path)]
-		// 	}
-		// }
-
-		return assets
+		return require(this.webpack_assets_path())
 	}
 
-	// returns a stub for webpack-stats.json
+	// returns a stub for webpack-assets.json
 	// (because it doesn't exist on the very first run)
 	// https://github.com/halt-hammerzeit/webpack-isomorphic-tools#race-condition-looking-for-a-solution
-	default_webpack_stats()
+	default_webpack_assets()
 	{
-		const webpack_stats = 
+		const webpack_assets = 
 		{
 			javascript: {},
 			styles: {}
 		}
 
-		return webpack_stats
+		return webpack_assets
 	}
 
 	// clear the require.cache (only used in developer mode with webpack-dev-server)
 	refresh()
 	{
-		delete require.cache[this.webpack_stats_path()]
+		this.debug('refreshing')
+
+		// uncache webpack-assets.json file
+		delete require.cache[this.webpack_assets_path()]
 
 		// uncache cached assets
 		for (let path of this.require_cache)
 		{
-			// console.log('Flushing cache for', path)
+			this.debug(`flushing require() cache for ${path}`)
 			delete require.cache[path]
 		}
 
@@ -241,11 +248,12 @@ export default class webpack_isomorphic_tools
 	// http://bahmutov.calepin.co/hooking-into-node-loader-for-fun-and-profit.html
 	register()
 	{
+		this.debug('registering require() hooks for assets')
+
 		// for each user specified asset type which isn't for .js files
 		// (because '.js' files requiring already works natively)
-		Object.keys(this.options.assets).filter(assets_type =>
+		this.options.assets.filter(description =>
 		{
-			const description = this.options.assets[assets_type]
 			if (description.extension)
 			{
 				return description.extension !== 'js'
@@ -256,9 +264,8 @@ export default class webpack_isomorphic_tools
 			}
 		})
 		// register a require hook for each file extension of this asset type
-		.forEach(assets_type =>
+		.forEach(description =>
 		{
-			const description = this.options.assets[assets_type];
 			(description.extensions || [description.extension]).forEach(extension =>
 			{
 				this.register_extension(extension)
@@ -273,12 +280,12 @@ export default class webpack_isomorphic_tools
 	// (or can be used manually without require hooks)
 	require(asset_path)
 	{
+		this.debug(`requiring ${asset_path}`)
+
 		if (!asset_path)
 		{
 			return ''
 		}
-
-		// console.log('* Requiring', asset_path)
 
 		// get real file path list
 		var assets = this.assets()
@@ -295,16 +302,18 @@ export default class webpack_isomorphic_tools
 		}
 
 		// serve a not-found asset maybe
-		console.log(colors.red(`***** Asset not found: ${asset_path}`))
+		this.error(`asset not found: ${asset_path}`)
 		return ''
 	}
 
 	// registers a require hook for a particular file extension
 	register_extension(extension)
 	{
+		this.debug(`registering a require() hook for extension ${extension}`)
+
 		hook.hook(`.${extension}`, (asset_path, fallback) =>
 		{
-			// console.log('Requiring', asset_path)
+			this.debug(`require() hook fired for ${asset_path}`)
 
 			// track cached assets
 			this.require_cache.push(asset_path)
@@ -324,6 +333,7 @@ export default class webpack_isomorphic_tools
 			// then fallback to the normal require() behaviour
 			if (this.options.exceptions.indexOf(asset_path) >= 0)
 			{
+				this.debug(`skipping require call for ${asset_path}`)
 				return fallback()
 			}
 
@@ -332,10 +342,13 @@ export default class webpack_isomorphic_tools
 		})
 	}
 
-	// waits for webpack-stats.json to be created after Webpack build process finishes
+	// waits for webpack-assets.json to be created after Webpack build process finishes
 	ready(done)
 	{
 		const interval = 1000 // milliseconds
+
+		// selfie
+		const tools = this
 
 		function wait_for(condition, proceed)
 		{
@@ -345,17 +358,38 @@ export default class webpack_isomorphic_tools
 				{
 					return proceed()
 				}
-				console.log('(waiting for the first Webpack build to finish)')
+
+				tools.debug(`${tools.webpack_assets_path()} not found`)
+				tools.info('(waiting for the first Webpack build to finish)')
+
 				setTimeout(check, interval)
 			}
 
 			check()
 		}
 
-		wait_for(() => fs.existsSync(this.webpack_stats_path()), done)
+		wait_for(() => fs.existsSync(this.webpack_assets_path()), done)
 
 		// allows chaining
 		return this
+	}
+
+	info(message)
+	{
+		console.log(log_preamble, generate_log_message(message))
+	}
+
+	debug(message)
+	{
+		if (this.options.debug)
+		{
+			console.log(log_preamble, '[debug]', generate_log_message(message))
+		}
+	}
+
+	error(message)
+	{
+		console.log(colors.red(log_preamble, '[error]', generate_log_message(message)))
 	}
 }
 
@@ -374,8 +408,21 @@ webpack_isomorphic_tools.url_loader_parser = function(module, options)
 	if (!is_embedded)
 	{
 		// if it wasn't embedded then it's a file path so resolve it
-		asset_path = options.output_path + asset_path
+		asset_path = options.assets_base_path + asset_path
 	}
 
 	return asset_path
 }
+
+// transforms arguments to text
+function generate_log_message(message)
+{
+	if (typeof message === 'object')
+	{
+		return JSON.stringify(message, null, 2)
+	}
+	return message
+}
+
+// is prepended to console output
+const log_preamble = '[webpack-isomorphic-tools]'
