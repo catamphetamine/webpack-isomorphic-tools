@@ -9,7 +9,7 @@
 [![Gratipay][gratipay-image]][gratipay-url]
 -->
 
-Is a small helper module providing full support for isomorphic (universal) rendering when using Webpack.
+Is a small helper module providing support for isomorphic (universal) rendering when using Webpack.
 
 ## What it does and why is it needed?
 
