@@ -5,8 +5,7 @@ import mkdirp from 'mkdirp'
 // writes webpack-stats.json file, which contains assets' file paths
 export default function write_stats(stats, options)
 {
-	const _production_  = options.environment === 'production'
-	const _development_ = options.environment === 'development'
+	const development = options.environment === 'development'
 
 	// webpack stats
 	const json = stats.toJson()
@@ -21,7 +20,8 @@ export default function write_stats(stats, options)
 
 		// write webpack stats file
 		options.log.debug(`writing webpack stats to ${webpack_stats_file_path}`)
-		fs.writeFileSync(webpack_stats_file_path, json)
+		// write the file (format the JSON for readability)
+		fs.writeFileSync(webpack_stats_file_path, JSON.stringify(json, null, 2))
 	}
 
 	// the output object with assets
@@ -37,7 +37,7 @@ export default function write_stats(stats, options)
 	// output.json = json
 
 	// {
-	// 	if (_development_)
+	// 	if (development)
 	// 	{
 	// 		// path.resolve doesn't work for Http protocol
 	// 		return this.options.output.publicPath + asset_path
@@ -50,7 +50,10 @@ export default function write_stats(stats, options)
 
 	// write webpack stats file
 	options.log.debug(`writing webpack assets info to ${options.output_file}`)
-	fs.writeFileSync(options.output_file, JSON.stringify(output))
+	// format the JSON for readability if in debug mode
+	const assets_info = development ? JSON.stringify(output, null, 2) : JSON.stringify(output)
+	// write the file
+	fs.writeFileSync(options.output_file, assets_info)
 }
 
 // populates the output object with assets
@@ -68,7 +71,7 @@ function populate_assets(output, json, options)
 
 		if (javascript)
 		{
-			options.log.debug(`got javascript`)
+			options.log.debug(` (got javascript)`)
 			output.javascript[name] = javascript
 		}
 
@@ -79,7 +82,7 @@ function populate_assets(output, json, options)
 
 		if (style)
 		{
-			options.log.debug(`got style`)
+			options.log.debug(` (got style)`)
 			output.styles[name] = style
 		}
 	})
@@ -149,9 +152,11 @@ function populate_assets(output, json, options)
 			.filter(module => filter(module, options.regular_expressions[asset_description.name], options))
 			.reduce((set, module) =>
 			{
+				// determine asset name
 				const name = naming(module, options)
-				// determine and set the real file path
+				// determine and set the real file path for the asset
 				set[name] = parser(module, options)
+				// continue
 				return set
 			},
 			{})

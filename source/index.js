@@ -359,7 +359,7 @@ export default class webpack_isomorphic_tools
 					return proceed()
 				}
 
-				tools.debug(`${tools.webpack_assets_path()} not found`)
+				tools.debug(`(${tools.webpack_assets_path()} not found)`)
 				tools.info('(waiting for the first Webpack build to finish)')
 
 				setTimeout(check, interval)
