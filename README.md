@@ -313,28 +313,6 @@ Available configuration parameters:
     paths: ['or by a list of paths'],
 
     // [optional]
-    //
-    // transforms a webpack stats module name 
-    // to an asset name
-    //
-    // arguments:
-    //
-    //  module  - a webpack stats module
-    //
-    //  options - various options
-    //            (development or production mode,
-    //             "debug" flag,
-    //             assets base path (on the disk or on the network),
-    //             regular_expressions{} for each asset type (by name),
-    //             "log" object (for logging))
-    // 
-    // returns: a String
-    //
-    // by default is: "return module.name"
-    //
-    naming: function(module) { ... },
-
-    // [optional]
     // 
     // determines which webpack stats modules 
     // belong to this asset type
@@ -348,17 +326,39 @@ Available configuration parameters:
     //                       e.g. /\.scss$/, /\.(ico|gif)$/
     //
     //  options            - various options
-    //                       (development or production mode,
-    //                        "debug" flag,
+    //                       (development mode flag,
+    //                        debug mode flag,
     //                        assets base path (on the disk or on the network),
     //                        regular_expressions{} for each asset type (by name),
-    //                        "log" object (for logging))
+    //                        logger)
     // 
     // returns: a Boolean
     //
     // by default is: "return regular_expression.test(module.name)"
     //
     filter: function(module, regular_expression, options) { ... },
+
+    // [optional]
+    //
+    // transforms a webpack stats module name 
+    // to an asset name
+    //
+    // arguments:
+    //
+    //  module  - a webpack stats module
+    //
+    //  options - various options
+    //            (development mode flag,
+    //             debug mode flag,
+    //             assets base path (on the disk or on the network),
+    //             regular_expressions{} for each asset type (by name),
+    //             logger)
+    // 
+    // returns: a String
+    //
+    // by default is: "return module.name"
+    //
+    naming: function(module, options) { ... },
 
     // [required]
     // 
@@ -372,13 +372,13 @@ Available configuration parameters:
     //  module  - a webpack stats module
     //
     //  options - various options
-    //            (development or production mode,
-    //             "debug" flag,
+    //            (development mode flag,
+    //             debug mode flag,
     //             assets base path (on the disk or on the network),
     //             regular_expressions{} for each asset type (by name),
-    //             "log" object (for logging))
+    //             logger)
     // 
-    // returns: whatever (could be a filename, could be a JSON object)
+    // returns: whatever (could be a filename, could be a JSON object, etc)
     //
     parser: function(module, options) { ... }
   },
@@ -400,7 +400,7 @@ Adds the necessary asset module loaders and plugins into the supplied Webpack co
 
 Registers Node.js `require()` hooks for your assets.This is what makes the `requre()` magic work on server. These `require()` hooks must be set before you `require()` any of your assets (e.g. before you `require()` any React components `require()`ing your assets).
 
-#### .ready()
+#### .ready(function callback() {})
 
 Waits for `webpack-isomorphic-tools` to finish all the preparations needed. To be more specific, it waits for Webpack to finish the build process and to output the assets info file. You can get away without using this method but in that case make sure that Webpack has already finished the build process by the time you launch your web server.
 
