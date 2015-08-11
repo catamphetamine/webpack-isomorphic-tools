@@ -118,7 +118,11 @@ import Webpack_isomorphic_tools from 'webpack-isomorphic-tools'
 
 export default
 {
-  // development mode (supports assets hot reload)
+  // development mode flag (supports assets hot reload).
+  // shouldn't be set for production, obviously.
+  // you better set this flag outside of this file
+  // when instantiating webpack-isomoriphic-tools
+  // because that way it can be determined at runtime.
   development: true,
 
   assets:
