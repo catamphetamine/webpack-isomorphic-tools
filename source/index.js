@@ -179,7 +179,17 @@ export default class webpack_isomorphic_tools
 		// (or there should be a better way of webpack notifying about build ending)
 		if (!fs.existsSync(this.webpack_stats_path()))
 		{
-			console.log(colors.red(`***** File "${this.webpack_stats_path()}" not found. Using an empty stub instead. This is normal because webpack-dev-server and Node.js both start simultaneously and therefore webpack hasn't yet finished its build process when Node.js server starts. Just restart your script after Webpack finishes the build (when green letter will appear in the console)`))
+			console.log(colors.red(`
+***** File "${this.webpack_stats_path()}" not found.
+Using an empty stub instead. This is normal because webpack-dev-server 
+and Node.js both start simultaneously and therefore webpack hasn't yet 
+finished its build process when Node.js server starts.
+This happens only the very first time you run this application.
+Just wait a moment for Webpack to finish its build 
+(you'll see green stats output in the console)
+and refresh the page in your web browser - that should fix this little issue.
+This will be fixed in code eventually, maybe even in a couple of days.
+`))
 			return this.default_webpack_stats()
 		}
 
@@ -228,8 +238,6 @@ export default class webpack_isomorphic_tools
 		}
 
 		this.require_cache = []
-
-		return require(this.webpack_stats_path())
 	}
 
 	// registers a Node.js require hook
