@@ -63,7 +63,7 @@ For a comprehensive example of isomorphic React rendering you can look at this s
 ## Installation
 
 ```bash
-$ npm install webpack-isomorphic-tools
+$ npm install webpack-isomorphic-tools --save
 ```
 
 ## Usage
@@ -138,10 +138,8 @@ var Webpack_isomorphic_tools = require('webpack-isomorphic-tools')
 // the global variable will be used in express middleware
 global.webpack_isomorphic_tools = new Webpack_isomorphic_tools(webpack_configuration, require('./webpack-isomorphic-tools'))
 // registers Node.js require() hooks for your assets
-// (these hooks must be set before you require() any of your React components)
 .register()
-// .ready() call is necessary in the end:
-// it waits for webpack-isomorphic-tools to finish all the preparations needed
+// waits for webpack-isomorphic-tools to finish all the preparations needed
 .ready(function()
 {
   // webpack-isomorphic-tools is all set now.
@@ -161,8 +159,8 @@ import Html from './html'
 // will be used in express_application.use(...)
 export function page_rendering_middleware(request, response)
 {
-  // clear require() cache (used internally)
-  // you don't need to understand the purpose of this call
+  // clear require() cache if in development mode
+  // (makes asset hot reloading work)
   if (_development_)
   {
     webpack_isomorphic_tools.refresh()
@@ -206,6 +204,7 @@ export default class Html extends Component
     // then you need to use require()
     // because import will only be executed a single time 
     // (when the application launches)
+    // you can refer to the "Require() vs import" section for more explanation
     const picture = require('./../cat.jpg')
 
     const html = 
@@ -249,17 +248,9 @@ export default class Html extends Component
 }
 ```
 
-And that's it: now your web application is isomorphic.
+And that's it: now you can `require()` your assets "isomorphically" (both on client and server).
 
-If you don't like having the `main.js` file before all your web application code you can omit creating `main.js`. In this case you won't register a Node.js require hook and the only difference would be a bit more verbose syntax when `require()`ing images in your web components:
-
-```javascript
-// (use webpack DefinePlugin for setting _client_ environment variable)
-// (webpack_isomorphic_tools is taken from the "global" scope)
-const picture = _client_ ? require('./../cat.png') : webpack_isomorphic_tools.require('./cat.png')
-```
-
-## Fully working example project
+## A working example
 
 * clone [this repo](https://github.com/halt-hammerzeit/cinema)
 * npm install
@@ -405,9 +396,13 @@ Is it development mode or is it production mode? By default it's production mode
 
 Adds the necessary asset module loaders and plugins into the supplied Webpack configuration.
 
+#### .register()
+
+Registers Node.js `require()` hooks for your assets.This is what makes the `requre()` magic work on server. These `require()` hooks must be set before you `require()` any of your assets (e.g. before you `require()` any React components `require()`ing your assets).
+
 #### .ready()
 
-Waits for `webpack-isomorphic-tools` to finish all the preparations needed. To be more specific, it waits for Webpack to finish the build process and to output the assets info file.
+Waits for `webpack-isomorphic-tools` to finish all the preparations needed. To be more specific, it waits for Webpack to finish the build process and to output the assets info file. You can get away without using this method but in that case make sure that Webpack has already finished the build process by the time you launch your web server.
 
 ## Gotchas
 
