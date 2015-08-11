@@ -302,6 +302,8 @@ This is easily done in production environment where you can run Node.js server a
 
 This means that Webpack build process hasn't finished by the time your Node.js server ran (and `require()`d all the assets). You can simply wait a moment for Webpack to finish its build (you'll see green stats output in the console) and then just terminate the script and run it again, now with the Webpack build info file present.
 
+A possible solution would be to run Node.js webserver after the first webpack-dev-server build finishes. Maybe one could write a .js script which would cycle until `webpack-stats.json` is created. That's a todo.
+
 ### Require() vs import
 
 In the image requiring examples above we could have wrote it like this:

@@ -180,7 +180,7 @@ export default class webpack_isomorphic_tools
 		if (!fs.existsSync(this.webpack_stats_path()))
 		{
 			console.log(colors.red(`***** File "${this.webpack_stats_path()}" not found. Using an empty stub instead. This is normal because webpack-dev-server and Node.js both start simultaneously and therefore webpack hasn't yet finished its build process when Node.js server starts. Just restart your script after Webpack finishes the build (when green letter will appear in the console)`))
-			return {}
+			return this.default_webpack_stats()
 		}
 
 		const assets = require(this.webpack_stats_path())
@@ -199,6 +199,20 @@ export default class webpack_isomorphic_tools
 		// }
 
 		return assets
+	}
+
+	// returns a stub for webpack-stats.json
+	// (because it doesn't exist on the very first run)
+	// https://github.com/halt-hammerzeit/webpack-isomorphic-tools#race-condition-looking-for-a-solution
+	default_webpack_stats()
+	{
+		const webpack_stats = 
+		{
+			javascript: {},
+			styles: {}
+		}
+
+		return webpack_stats
 	}
 
 	// clear the require.cache (only used in developer mode with webpack-dev-server)
@@ -285,7 +299,7 @@ export default class webpack_isomorphic_tools
 		hook.hook(`.${extension}`, (asset_path, fallback) =>
 		{
 			// console.log('Requiring', asset_path)
-			
+
 			// track cached assets
 			this.require_cache.push(asset_path)
 
