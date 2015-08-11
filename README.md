@@ -310,17 +310,15 @@ In the image requiring examples above we could have wrote it like this:
 import picture from './cat.jpg'
 ```
 
-Much simpler and more modern. But, the disadvantage of the new ES6 module `import`ing is that by design it's static as opposed to dynamic nature of `require()`. Such a design decision was done on purpose and I think it's the right one:
+That would surely work. Much simpler and more modern. But, the disadvantage of the new ES6 module `import`ing is that by design it's static as opposed to dynamic nature of `require()`. Such a design decision was done on purpose and it's surely the right one:
 
-* it's static so it can be optimized by the compiler and you dont't need to know which module depends on which and manually reorder them in the right order because the compiler does it for you
-* it resolves cyclic dependencies automagically
+* it's static so it can be optimized by the compiler and you don't need to know which module depends on which and manually reorder them in the right order because the compiler does it for you
+* it's smart enough to resolve cyclic dependencies
 * it can load modules both synchronously and asynchronously if it wants to and you'll never know because it can do it all by itself behind the scenes without your supervision
-* the `export`s are static which means that your IDE can get know exactly what each module is gonna export without compiling the code (and therefore it can autocomplete names, detect syntax errors, check types, etc); the compiler too has some benefits such as improved lookup speed and syntax and type checking
+* the `export`s are static which means that your IDE can know exactly what each module is gonna export without compiling the code (and therefore it can autocomplete names, detect syntax errors, check types, etc); the compiler too has some benefits such as improved lookup speed and syntax and type checking
 * it's simple, it's transparent, it's sane
 
-If you wrote your code with just `import`s it would work fine. But imagine you're developing your website, so you're changing files constantly, and you would like it all refresh automagically when you reload your webpage (in development mode).
-
-`webpack-isomorphic-tools` gives you that. Remember this code in the express middleware example above?
+If you wrote your code with just `import`s it would work fine. But imagine you're developing your website, so you're changing files constantly, and you would like it all refresh automagically when you reload your webpage (in development mode). `webpack-isomorphic-tools` gives you that. Remember this code in the express middleware example above?
 
 ```javascript
 if (_development_)
@@ -331,7 +329,7 @@ if (_development_)
 
 It does exactly as it says: it refreshes everything on page reload when you're in development mode. And to leverage this feature you need to use dynamic module loading as opposed to static one through `import`s. This can be done by `require()`ing your assets, and not at the top of the file where all `require()`s usually go but, say, inside the `reder()` method for React components.
 
-I also read on the internets that ES6 also supports dynamic module loading and it looks something like this:
+I also read on the internets that ES6 supports dynamic module loading too and it looks something like this:
 
 ```javascript
 System.import('some_module')
@@ -342,10 +340,12 @@ System.import('some_module')
 .catch(error =>
 {
   ...
-});
+})
 ```
 
 I'm currently unfamiliar with ES6 dynamic module loading system because I didn't research this question. Anyway it's still a draft specification so I guess good old `require()` is just fine to the time being.
+
+Also it's good to know that the way all this `require('asset.whatever')` magic is based on [Node.js require hooks](http://bahmutov.calepin.co/hooking-into-node-loader-for-fun-and-profit.html) and it works with `import`s only when your ES6 code is transpiled by Babel which simply replaces all the `import`s with `require()`s. For now, everyone out there uses Babel, both on client and server. But when the time comes for ES6 to be widely natively adopted, and when a good enough ES6 module loading specification is released, then I (or someone) will step in and port this "require hook" to ES6 to work with `import`s.
 
 ## References
 
