@@ -54,7 +54,7 @@ export default class webpack_isomorphic_tools
 
 		this.require_cache = []
 
-		this.debug('options:')
+		this.debug('instantiated webpack-isomorphic-tools with options:')
 		this.debug(this.options)
 	}
 
