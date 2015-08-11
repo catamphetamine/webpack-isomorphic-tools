@@ -105,9 +105,8 @@ var webpack_configuration =
 }
 
 // webpack-isomorphic-tools settings reside in a separate .js file to remove code duplication
-// (it will be used in the server code too)
-var webpack_isomorphic_tools = new Webpack_isomorphic_tools(webpack_configuration, require('./webpack-isomorphic-tools'))
-webpack_isomorphic_tools.populate(webpack_configuration)
+// (because it will be used in the web server code too)
+new Webpack_isomorphic_tools(webpack_configuration, require('./webpack-isomorphic-tools')).populate(webpack_configuration)
 
 module.exports = webpack_configuration
 ```
@@ -148,18 +147,19 @@ Then you create your server side instance of `webpack-isomorphic-tools` and regi
 var webpack_configuration = require('./webpack.config.js')
 var Webpack_isomorphic_tools = require('webpack-isomorphic-tools')
 
-// the same line as in webpack.config.js
-var webpack_isomorphic_tools = new Webpack_isomorphic_tools(webpack_configuration, require('./webpack-isomorphic-tools'))
-
+// the global variable will be used in express middleware
+global.webpack_isomorphic_tools = new Webpack_isomorphic_tools(webpack_configuration, require('./webpack-isomorphic-tools'))
 // registers Node.js require() hooks for your assets
 // (these hooks must be set before you require() any of your React components)
-webpack_isomorphic_tools.register()
-
-// will be used in express middleware
-global.webpack_isomorphic_tools = webpack_isomorphic_tools
-
-// now goes all your web application code
-require('./server')
+.register()
+// .ready() call is necessary in the end:
+// it waits for webpack-isomorphic-tools to finish all the preparations needed
+.ready(function()
+{
+  // webpack-isomorphic-tools is all set now.
+  // here goes all your web application code:
+  require('./server')
+})
 ```
 
 Then you, for example, create an express middleware to render your pages on the server
@@ -276,7 +276,7 @@ const picture = _client_ ? require('./../cat.png') : webpack_isomorphic_tools.re
 * clone [this repo](https://github.com/halt-hammerzeit/cinema)
 * npm install
 * npm run dev
-* wait for Webpack to finish the first build (green stats will appear in the console)
+* wait a moment for Webpack to finish the first build (green stats will appear in the terminal)
 * go to http://localhost:3000
 * Ctrl + C
 * npm run production

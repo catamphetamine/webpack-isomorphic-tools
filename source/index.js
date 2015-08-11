@@ -333,7 +333,7 @@ export default class webpack_isomorphic_tools
 	}
 
 	// waits for webpack-stats.json to be created after Webpack build process finishes
-	wait(done)
+	ready(done)
 	{
 		const interval = 1000 // milliseconds
 
