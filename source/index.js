@@ -58,6 +58,17 @@ export default class webpack_isomorphic_tools
 		this.debug(this.options)
 	}
 
+	// sets development mode flag to true
+	// (allows asset hot reloading in Webpack development configuration)
+	development()
+	{
+		this.debug('entering development mode')
+		this.options.development = true
+
+		// allows method chaining
+		return this
+	}
+
 	// adds module loaders and plugins to webpack configuration
 	populate(webpack_configuration)
 	{
@@ -143,13 +154,19 @@ export default class webpack_isomorphic_tools
 			{
 				write_assets.call(this, stats,
 				{ 
-					environment         : options.development ? 'development' : 'production',
+					development         : options.development,
 					debug               : options.debug,
 					output_file         : webpack_assets_file_path,
 					output              : () => tools.default_webpack_assets(),
 					assets              : options.assets,
 					regular_expressions : regular_expressions,
-					log                 : { info: tools.info.bind(tools), debug: tools.debug.bind(tools), error: tools.error.bind(tools) }
+					log:
+					{
+						info    : tools.info.bind(tools),
+						debug   : tools.debug.bind(tools),
+						warning : tools.warning.bind(tools),
+						error   : tools.error.bind(tools)
+					}
 				})
 			})
 		}
@@ -178,7 +195,7 @@ export default class webpack_isomorphic_tools
 			)
 		}
 
-		// allows chaining
+		// allows method chaining
 		return this
 	}
 
@@ -221,6 +238,12 @@ export default class webpack_isomorphic_tools
 	// clear the require.cache (only used in developer mode with webpack-dev-server)
 	refresh()
 	{
+		// sanity check
+		if (!this.options.development)
+		{
+			this.warning('.refresh() called in production mode')
+		}
+
 		this.debug('flushing require() caches')
 
 		// uncache webpack-assets.json file
@@ -268,7 +291,7 @@ export default class webpack_isomorphic_tools
 			})
 		})
 
-		// allows chaining
+		// allows method chaining
 		return this
 	}
 
@@ -366,7 +389,7 @@ export default class webpack_isomorphic_tools
 
 		wait_for(() => fs.existsSync(this.webpack_assets_path()), done)
 
-		// allows chaining
+		// allows method chaining
 		return this
 	}
 
@@ -381,6 +404,11 @@ export default class webpack_isomorphic_tools
 		{
 			console.log(log_preamble, '[debug]', generate_log_message(message))
 		}
+	}
+
+	warning(message)
+	{
+		console.log(colors.yellow(log_preamble, '[warning]', generate_log_message(message)))
 	}
 
 	error(message)

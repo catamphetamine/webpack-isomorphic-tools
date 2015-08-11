@@ -118,13 +118,6 @@ import Webpack_isomorphic_tools from 'webpack-isomorphic-tools'
 
 export default
 {
-  // development mode flag (supports assets hot reload).
-  // shouldn't be set for production, obviously.
-  // you better set this flag outside of this file
-  // when instantiating webpack-isomoriphic-tools
-  // because that way it can be determined at runtime.
-  development: true,
-
   assets:
   [{
     extensions: ['png', 'jpg', 'gif', 'ico', 'svg'],
@@ -283,10 +276,10 @@ Available configuration parameters:
 
 ```javascript
 {
-  // is it development or production?
-  // set this to true, for example, if this is 
-  // the configuration for webpack-dev-server
-  // (enables asset hot reloading).
+  // sets "development" mode flag.
+  // see the API section below for method .development()
+  // for more explanation about what "development" mode does
+  // and when is it needed.
   development: true, // is false by default
 
   // debug mode.
@@ -401,6 +394,20 @@ Available configuration parameters:
   ...]
 }
 ```
+
+## API
+
+#### .development()
+
+Is it development mode or is it production mode? By default it's production mode. But if you're instantiating `webpack-isomorphic-tools` for populating Webpack development configuration then you should call this method to enable asset hot reloading (and disable asset caching). In this case it must be called before `.populate()`, obviously.
+
+#### .populate(webpack_configuration)
+
+Adds the necessary asset module loaders and plugins into the supplied Webpack configuration.
+
+#### .ready()
+
+Waits for `webpack-isomorphic-tools` to finish all the preparations needed. To be more specific, it waits for Webpack to finish the build process and to output the assets info file.
 
 ## Gotchas
 

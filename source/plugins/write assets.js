@@ -5,7 +5,14 @@ import mkdirp from 'mkdirp'
 // writes webpack-assets.json file, which contains assets' file paths
 export default function write_assets(stats, options)
 {
-	const development = options.environment === 'development'
+	options.log.debug('running write assets webpack plugin')
+
+	const development = options.development
+
+	if (development)
+	{
+		options.log.debug(' (development mode is on)')
+	}
 
 	// webpack stats
 	const json = stats.toJson()
