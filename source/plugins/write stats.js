@@ -12,7 +12,7 @@ export default function write_stats(stats, options)
 
 	options.output_path = this.options.output.publicPath
 
-	const output = {}
+	const output = options.output()
 
 	// to see all webpack stats (for debuggin purpose)
 	// output.json = json
@@ -28,9 +28,6 @@ export default function write_stats(stats, options)
 	// 		return path.resolve(this.options.output.path, asset_path)
 	// 	}
 	// }
-
-	output.javascript = {}
-	output.styles = {}
 
 	// for each chunk name ("main", "common", ...)
 	Object.keys(json.assetsByChunkName).forEach(function(name)
@@ -133,8 +130,8 @@ export default function write_stats(stats, options)
 	// console.log(JSON.stringify(output, null, 2))
 
 	// create all the folders in the path if they don't exist
-	mkdirp.sync(path.dirname(options.output))
+	mkdirp.sync(path.dirname(options.output_file))
 
 	// write webpack stats file
-	fs.writeFileSync(options.output, JSON.stringify(output))
+	fs.writeFileSync(options.output_file, JSON.stringify(output))
 }

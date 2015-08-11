@@ -117,6 +117,7 @@ export default class webpack_isomorphic_tools
 
 		// add webpack stats plugins
 
+		const tools = this
 		const options = this.options
 
 		// write_stats writes webpack compiled files' names to a special .json file
@@ -128,7 +129,8 @@ export default class webpack_isomorphic_tools
 				write_stats.call(this, stats,
 				{ 
 					environment         : options.development ? 'development' : 'production',
-					output              : webpack_stats_file_path,
+					output_file         : webpack_stats_file_path,
+					output              : () => tools.default_webpack_stats(),
 					assets              : options.assets,
 					regular_expressions : regular_expressions
 				})
@@ -158,6 +160,9 @@ export default class webpack_isomorphic_tools
 				write_stats_plugin
 			)
 		}
+
+		// allows chaining
+		return this
 	}
 
 	// gets webpack-stats.json file path
@@ -179,17 +184,7 @@ export default class webpack_isomorphic_tools
 		// (or there should be a better way of webpack notifying about build ending)
 		if (!fs.existsSync(this.webpack_stats_path()))
 		{
-			console.log(colors.red(`
-***** File "${this.webpack_stats_path()}" not found.
-Using an empty stub instead. This is normal because webpack-dev-server 
-and Node.js both start simultaneously and therefore webpack hasn't yet 
-finished its build process when Node.js server starts.
-This happens only the very first time you run this application.
-Just wait a moment for Webpack to finish its build 
-(you'll see green stats output in the console)
-and refresh the page in your web browser - that should fix this little issue.
-This will be fixed in code eventually, maybe even in a couple of days.
-`))
+			console.log(colors.red(`***** File "${this.webpack_stats_path()}" not found. Using an empty stub instead.`))
 			return this.default_webpack_stats()
 		}
 
@@ -269,6 +264,9 @@ This will be fixed in code eventually, maybe even in a couple of days.
 				this.register_extension(extension)
 			})
 		})
+
+		// allows chaining
+		return this
 	}
 
 	// is called when you require() your assets
@@ -297,7 +295,7 @@ This will be fixed in code eventually, maybe even in a couple of days.
 		}
 
 		// serve a not-found asset maybe
-		console.log(colors.red(`***** Warning. Asset not found: ${asset_path}`))
+		console.log(colors.red(`***** Asset not found: ${asset_path}`))
 		return ''
 	}
 
@@ -332,6 +330,32 @@ This will be fixed in code eventually, maybe even in a couple of days.
 			// require() this asset (returns the real file path for this asset, e.g. an image)
 			return this.require(asset_path)
 		})
+	}
+
+	// waits for webpack-stats.json to be created after Webpack build process finishes
+	wait(done)
+	{
+		const interval = 1000 // milliseconds
+
+		function wait_for(condition, proceed)
+		{
+			function check()
+			{
+				if (condition())
+				{
+					return proceed()
+				}
+				console.log('(waiting for the first Webpack build to finish)')
+				setTimeout(check, interval)
+			}
+
+			check()
+		}
+
+		wait_for(() => fs.existsSync(this.webpack_stats_path()), done)
+
+		// allows chaining
+		return this
 	}
 }
 

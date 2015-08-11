@@ -284,28 +284,6 @@ const picture = _client_ ? require('./../cat.png') : webpack_isomorphic_tools.re
 
 ## Gotchas
 
-### Race condition (looking for a solution)
-
-Ideally you should run your Node.js web server after Webpack finishes its build process because `webpack-isomorphic-tools` adds its own plugins to the Webpack build chain which output a file with Webpack build info which is required to render pages on the server properly.
-
-This is easily done in production environment where you can run Node.js server after Webpack build finishes. But when you're developing on your machine you likely run `webpack-dev-server` which never exits because it listens to changes infinitely. And that's why when running your project for the very first time in development mode you can see this in the console:
-
-```
-***** File "g:\work\project\build\webpack-stats.json" not found. Using an empty 
-      stub instead. This is normal because webpack-dev-server 
-      and Node.js both start simultaneously and therefore webpack hasn't yet 
-      finished its build process when Node.js server starts.
-      This happens only the very first time you run this application.
-      Just wait a moment for Webpack to finish its build 
-      (you'll see green stats output in the console)
-      and refresh the page in your web browser - that should fix this little issue.
-      This will be fixed in code eventually, maybe even in a couple of days.
-```
-
-This means that Webpack build process hasn't finished by the time your Node.js server ran (and `require()`d all the assets). You can simply wait a moment for Webpack to finish its build (you'll see green stats output in the console) and then just refresh the page in the browser.
-
-A possible solution would be to run Node.js webserver after the first webpack-dev-server build finishes. Maybe one could write a .js script which would cycle until `webpack-stats.json` is created. That's a todo.
-
 ### Require() vs import
 
 In the image requiring examples above we could have wrote it like this:
