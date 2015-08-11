@@ -453,11 +453,11 @@ Also it's good to know that the way all this `require('./asset.whatever_extensio
 
 ## References
 
-Initially based on [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example) by Erik Rasmussen
+Initially based on the code from [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example) by Erik Rasmussen
 
 Also the same codebase (as in the project mentioned above) can be found in [isomorphic500](https://github.com/gpbl/isomorphic500) by Giampaolo Bellavite
 
-Also uses require() hooking techniques from [node-hook](https://github.com/bahmutov/node-hook) by Gleb Bahmutov
+Also uses `require()` hooking techniques from [node-hook](https://github.com/bahmutov/node-hook) by Gleb Bahmutov
 
 ## Contributing
 
