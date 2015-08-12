@@ -52,7 +52,11 @@ What `webpack-isomorphic-tools` does is it makes the code above work on the serv
 
 What about javascripts on the Html page?
 
-When you render your Html page on the server you need to include all the client scripts using `<script src={...}/>` tags. And for that purpose you need to know the real paths to your Webpack compiled javascripts. Which are gonna have names like `main-9059f094ddb49c2b0fa6a254a6ebf2ad.js` because we are using the `[hash]` file naming feature of Webpack which is required to make browser caching work correctly. And `webpack-isomorphic-tools` tells you these filenames (see the [Usage](#usage) section). It also tells you real paths to your Css styles in case you're using [extract-text-webpack-plugin](https://github.com/webpack/extract-text-webpack-plugin) (which is usually the case for production build).
+When you render your Html page on the server you need to include all the client scripts using `<script src={...}/>` tags. And for that purpose you need to know the real paths to your Webpack compiled javascripts. Which are gonna have names like `main-9059f094ddb49c2b0fa6a254a6ebf2ad.js` because we are using the `[hash]` file naming feature of Webpack which is required to make browser caching work correctly. And `webpack-isomorphic-tools` tells you these filenames (see the [Usage](#usage) section). 
+
+It also tells you real paths to your CSS styles in case you're using [extract-text-webpack-plugin](https://github.com/webpack/extract-text-webpack-plugin) which is usually the case for production build.
+
+Aside all of that, `webpack-isomorphic-tools` is highly extensible, and finding the real paths for your assets is just the simplest example of what it's capable of. Using [custom configuration](#configuration) one can make `require()` calls return virtually anything (not just String, it may be a JSON object, for example). For example, if you're using Webpack [css-loader](https://github.com/webpack/css-loader) modules feature (also referred to as ["local styles"](https://medium.com/seek-ui-engineering/the-end-of-global-css-90d2a4a06284)) you can make `require(*.css)` calls return JSON objects with CSS class names like they do in [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example#styles) (it's just a demonstration of what one can do with `webpack-isomorphic-tools`, and I'm not using this "modules" feature of `ccs-plugin` in my projects).
 
 ## Installation
 
