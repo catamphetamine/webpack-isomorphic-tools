@@ -68,7 +68,11 @@ $ npm install webpack-isomorphic-tools --save
 
 ## Usage
 
-First you create your Webpack configuration like you usually do except that you don't add module loaders for the `assets` you decide to manage with `webpack_isomorphic_tools` (`webpack_isomorphic_tools` will add these module loaders to your Webpack configuration instead of you doing it by yourself)
+First you take your existing Webpack configuration and then you instantiate `webpack_isomorphic_tools` and `.populate()` your Webpack configuration with it.
+
+What does `.populate()` method do? It adds a couple of Webpack plugins to the end of the `plugins` list. The first one outputs some 
+
+What does `.development()` method do? It enables development mode. In short, when in development mode, it disables asset caching (and enables asset hot reload). This is required only for your development webpack configuration (i.e. the one used with `webpack-dev-server`).
 
 ### webpack.config.js
 
@@ -106,10 +110,16 @@ var webpack_configuration =
 
 // webpack-isomorphic-tools settings reside in a separate .js file to remove code duplication
 // (because it will be used in the web server code too)
-new Webpack_isomorphic_tools(webpack_configuration, require('./webpack-isomorphic-tools')).populate(webpack_configuration)
+new Webpack_isomorphic_tools(webpack_configuration, require('./webpack-isomorphic-tools')).
+// enter development mode (see the API section below for .development() method explanation)
+.development()
+// populate the existing webpack configuration
+.populate(webpack_configuration)
 
 module.exports = webpack_configuration
 ```
+
+`webpack_isomorphic_tools` populator has an optional feature of adding module loaders to your webpack configuration. Why might it come in handy? The reason is that it knows how to generate a suitable `test` property of the loader (provided a file extension or a list of extensions). You can view it like a small bonus feature. In this particular example we're taking use of this feature by not specifying image loader in the existing webpack configuration: it will be created automatically during `.populate()` method call because we provided the `loader` parameter for the images asset type in `webpack-isomorphic-tools` configuration.
 
 ### webpack-isomorphic-tools.js
 
@@ -127,7 +137,7 @@ export default
 }
 ```
 
-Then you create your server side instance of `webpack-isomorphic-tools` and register a Node.js require hook in the very main server script (and your web application code will reside in the server.js file which is `require()`d in the bottom):
+That was the client side. Next, the server side. You create your server side instance of `webpack-isomorphic-tools` and register a Node.js require hook in the very main server script (and your web application code will reside in the server.js file which is `require()`d in the bottom):
 
 ### main.js
 
