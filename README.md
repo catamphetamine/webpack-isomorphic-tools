@@ -117,7 +117,7 @@ What does `.development()` method do? It enables development mode. In short, whe
 
 What does `.populate()` method do? It adds a couple of Webpack plugins to the end of the `plugins` list. The first one outputs some green info to the console when in development mode. The second one parses webpack "stats" to extract, for example, the real file paths for your assets (or it can do whatever you need it to do using [extension points](#configuration)).
 
-`webpack_isomorphic_tools` populator has an optional feature of adding module loaders to your webpack configuration. Why might it come in handy? The reason is that it knows how to generate a suitable `test` property of the loader (provided a file extension or a list of extensions). You can view it like a small bonus feature. In this particular example we're taking use of this feature by not specifying image loader in the existing webpack configuration: it will be created automatically during `.populate()` method call because we provided the `loader` parameter for the images asset type in `webpack-isomorphic-tools` configuration.
+`webpack_isomorphic_tools` populator has an optional feature of adding module loaders to your webpack configuration. Why might it come in handy? The reason is that it knows how to generate a suitable `test` property of the loader (provided a file extension or a list of extensions). You can view it as a small bonus feature. In this particular example we're taking use of this feature by not specifying image loader in the existing webpack configuration: it will be created automatically during `.populate()` method call because we provided the `loader` parameter for the images asset type in `webpack-isomorphic-tools` configuration.
 
 ### webpack-isomorphic-tools.js
 
@@ -135,7 +135,7 @@ export default
 }
 ```
 
-That was the client side. Next, the server side. You create your server side instance of `webpack-isomorphic-tools` and register a Node.js require hook in the very main server script (and your web application code will reside in the server.js file which is `require()`d in the bottom):
+That was the client side. Next, the server side. You create your server side instance of `webpack-isomorphic-tools` and register a Node.js require hook in the very main server javascript file (and your web application code will reside in some `server.js` file which is `require()`d in the bottom):
 
 ### main.js
 
@@ -245,7 +245,7 @@ export default class Html extends Component
           {/* (usually one for each "entry" in webpack configuration) */}
           {/* (for more informations on "entries" see https://github.com/petehunt/webpack-howto/) */}
           {Object.keys(assets.javascript).map((script, i) =>
-            <script src={assets.javascript[script]}/>
+            <script src={assets.javascript[script]} key={i}/>
           )}
         </body>
       </html>
@@ -263,13 +263,13 @@ And that's it: now you can `require()` your assets "isomorphically" (both on cli
 For a comprehensive example of isomorphic React rendering you can look at this sample project:
 
 * clone [this repo](https://github.com/halt-hammerzeit/cinema)
-* npm install
-* npm run dev
+* `npm install`
+* `npm run dev`
 * wait a moment for Webpack to finish the first build (green stats will appear in the terminal)
-* go to http://localhost:3000
-* Ctrl + C
-* npm run production
-* go to http://localhost:3000
+* go to `http://localhost:3000`
+* `Ctrl + C`
+* `npm run production`
+* go to `http://localhost:3000`
 
 Some source code guidance for this particular project:
 
