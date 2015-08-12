@@ -54,12 +54,6 @@ What about javascripts on the Html page?
 
 When you render your Html page on the server you need to include all the client scripts using `<script src={...}/>` tags. And for that purpose you need to know the real paths to your Webpack compiled javascripts. Which are gonna have names like `main-9059f094ddb49c2b0fa6a254a6ebf2ad.js` because we are using the `[hash]` file naming feature of Webpack which is required to make browser caching work correctly. And `webpack-isomorphic-tools` tells you these filenames (see the [Usage](#usage) section). It also tells you real paths to your Css styles in case you're using [extract-text-webpack-plugin](https://github.com/webpack/extract-text-webpack-plugin) (which is usually the case for production build).
 
-For a comprehensive example of isomorphic React rendering you can look at this sample project:
-
-* [webpack-isomorphic-tools initialization](https://github.com/halt-hammerzeit/cinema/blob/master/code/server/entry.js)
-* [webpage rendering express middleware](https://github.com/halt-hammerzeit/cinema/blob/master/code/server/webpage%20rendering.js)
-* [the Html file](https://github.com/halt-hammerzeit/cinema/blob/master/code/client/html.js)
-
 ## Installation
 
 ```bash
@@ -69,10 +63,6 @@ $ npm install webpack-isomorphic-tools --save
 ## Usage
 
 First you take your existing Webpack configuration and then you instantiate `webpack_isomorphic_tools` and `.populate()` your Webpack configuration with it.
-
-What does `.populate()` method do? It adds a couple of Webpack plugins to the end of the `plugins` list. The first one outputs some 
-
-What does `.development()` method do? It enables development mode. In short, when in development mode, it disables asset caching (and enables asset hot reload). This is required only for your development webpack configuration (i.e. the one used with `webpack-dev-server`).
 
 ### webpack.config.js
 
@@ -118,6 +108,10 @@ new Webpack_isomorphic_tools(webpack_configuration, require('./webpack-isomorphi
 
 module.exports = webpack_configuration
 ```
+
+What does `.development()` method do? It enables development mode. In short, when in development mode, it disables asset caching (and enables asset hot reload). This is required only for your development webpack configuration (i.e. the one used with `webpack-dev-server`).
+
+What does `.populate()` method do? It adds a couple of Webpack plugins to the end of the `plugins` list. The first one outputs some green info to the console when in development mode. The second one parses webpack "stats" to extract, for example, the real file paths for your assets (or it can do whatever you need it to do using [extension points](#configuration)).
 
 `webpack_isomorphic_tools` populator has an optional feature of adding module loaders to your webpack configuration. Why might it come in handy? The reason is that it knows how to generate a suitable `test` property of the loader (provided a file extension or a list of extensions). You can view it like a small bonus feature. In this particular example we're taking use of this feature by not specifying image loader in the existing webpack configuration: it will be created automatically during `.populate()` method call because we provided the `loader` parameter for the images asset type in `webpack-isomorphic-tools` configuration.
 
@@ -262,6 +256,8 @@ And that's it: now you can `require()` your assets "isomorphically" (both on cli
 
 ## A working example
 
+For a comprehensive example of isomorphic React rendering you can look at this sample project:
+
 * clone [this repo](https://github.com/halt-hammerzeit/cinema)
 * npm install
 * npm run dev
@@ -270,6 +266,14 @@ And that's it: now you can `require()` your assets "isomorphically" (both on cli
 * Ctrl + C
 * npm run production
 * go to http://localhost:3000
+
+Some source code guidance for this particular project:
+
+* [webpack-isomorphic-tools configuration](https://github.com/halt-hammerzeit/cinema/blob/master/webpack/isomorphic.js)
+* [webpack-isomorphic-tools client initialization](https://github.com/halt-hammerzeit/cinema/blob/master/webpack/development%20server.js)
+* [webpack-isomorphic-tools server initialization](https://github.com/halt-hammerzeit/cinema/blob/master/code/server/entry.js)
+* [webpage rendering express middleware](https://github.com/halt-hammerzeit/cinema/blob/master/code/server/webpage%20rendering.js)
+* [the Html file](https://github.com/halt-hammerzeit/cinema/blob/master/code/client/html.js)
 
 ## Configuration
 
