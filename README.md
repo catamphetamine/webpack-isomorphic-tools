@@ -419,7 +419,7 @@ Is it development mode or is it production mode? By default it's production mode
 
 #### .populate(webpack_configuration)
 
-Adds the necessary asset module loaders (if specified) and plugins into the supplied Webpack configuration.
+Adds the necessary asset module loaders (if specified) and plugins to the supplied Webpack configuration.
 
 #### .server(project_path, callback)
 
