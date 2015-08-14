@@ -1,7 +1,6 @@
 import fs     from 'fs'
 import path   from 'path'
 import mkdirp from 'mkdirp'
-import moment from 'moment'
 
 // writes webpack-assets.json file, which contains assets' file paths
 export default function write_assets(stats, options)
@@ -171,6 +170,6 @@ function populate_assets(output, json, options)
 			},
 			{})
 
-		options.log.debug(` time taken: ${moment.duration(new Date().getTime() - began_at)}`)
+		options.log.debug(` time taken: ${new Date().getTime() - began_at} ms`)
 	})
 }
