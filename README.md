@@ -431,7 +431,7 @@ Refreshes your assets info (re-reads `webpack-assets.json` from disk) and also f
 
 #### .assets()
 
-Returns the assets info (contents of `webpack-assets.json`)/
+Returns the assets info (contents of `webpack-assets.json`)
 
 ## Gotchas
 
