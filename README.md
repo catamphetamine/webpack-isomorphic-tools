@@ -67,6 +67,7 @@ $ npm install webpack-isomorphic-tools --save
 ## Usage
 
 First you take your existing Webpack configuration and then you instantiate `webpack_isomorphic_tools` and `.populate()` your Webpack configuration with it.
+For example, let's assume this is your "development" Webpack configuration.
 
 ### webpack.config.js
 
@@ -76,12 +77,11 @@ var Webpack_isomorphic_tools = require('webpack-isomorphic-tools')
 // usual Webpack configuration
 var webpack_configuration =
 {
-  context: 'your project path here',
+  context: '(required) your project path here',
 
   output:
   {
-    path: 'filesystem static files path here',
-    publicPath: 'web path for static files here'
+    publicPath: '(required) web path for static files here'
   },
 
   module:
@@ -96,16 +96,17 @@ var webpack_configuration =
         ],
         loaders: ['babel-loader?stage=0&optional=runtime&plugins=typecheck']
       }
-    }]
+    },
+    ...]
   },
 
   ...
 }
 
-// webpack-isomorphic-tools settings reside in a separate .js file to remove code duplication
-// (because it will be used in the web server code too)
-new Webpack_isomorphic_tools(webpack_configuration, require('./webpack-isomorphic-tools')).
-// enter development mode (see the API section below for .development() method explanation)
+// webpack-isomorphic-tools settings reside in a separate .js file 
+// (because they will be used in the web server code too)
+new Webpack_isomorphic_tools(require('./webpack-isomorphic-tools'))
+// enter development mode since it's a development webpack configuration
 .development()
 // populate the existing webpack configuration
 .populate(webpack_configuration)
@@ -113,7 +114,7 @@ new Webpack_isomorphic_tools(webpack_configuration, require('./webpack-isomorphi
 module.exports = webpack_configuration
 ```
 
-What does `.development()` method do? It enables development mode. In short, when in development mode, it disables asset caching (and enables asset hot reload). This is required only for your development webpack configuration (i.e. the one used with `webpack-dev-server`).
+What does `.development()` method do? It enables development mode. In short, when in development mode, it disables asset caching (and enables asset hot reload). Just call it if you're developing your project with `webpack-dev-server` using this config (and don't call it for production webpack build).
 
 What does `.populate()` method do? It adds a couple of Webpack plugins to the end of the `plugins` list. The first one outputs some green info to the console when in development mode. The second one parses webpack "stats" to extract, for example, the real file paths for your assets (or it can do whatever you need it to do using [extension points](#configuration)).
 
@@ -135,7 +136,7 @@ export default
 }
 ```
 
-That was the client side. Next, the server side. You create your server side instance of `webpack-isomorphic-tools` and register a Node.js require hook in the very main server javascript file (and your web application code will reside in some `server.js` file which is `require()`d in the bottom):
+That was the client side. Next, the server side. You create your server side instance of `webpack-isomorphic-tools` in the very main server javascript file (and your web application code will reside in some `server.js` file which is `require()`d in the bottom)
 
 ### main.js
 
@@ -143,12 +144,14 @@ That was the client side. Next, the server side. You create your server side ins
 var webpack_configuration = require('./webpack.config.js')
 var Webpack_isomorphic_tools = require('webpack-isomorphic-tools')
 
-// the global variable will be used in express middleware
-global.webpack_isomorphic_tools = new Webpack_isomorphic_tools(webpack_configuration, require('./webpack-isomorphic-tools'))
-// registers Node.js require() hooks for your assets
-.register()
-// waits for webpack-isomorphic-tools to finish all the preparations needed
-.ready(function()
+// this global variable will be used later in express middleware
+global.webpack_isomorphic_tools = new Webpack_isomorphic_tools(require('./webpack-isomorphic-tools'))
+// enter development mode if needed 
+// (for example, based on a Webpack DefinePlugin variable)
+.development(_development_)
+// initializes a server-side instance of webpack-isomorphic-tools
+// (the first parameter is the base path for your project)
+.server(webpack_configuration.context, function()
 {
   // webpack-isomorphic-tools is all set now.
   // here goes all your web application code:
@@ -174,11 +177,11 @@ export function page_rendering_middleware(request, response)
     webpack_isomorphic_tools.refresh()
   }
 
-  // for react-router example of determining current page take a look this:
+  // for react-router example of determining current page by URL take a look at this:
   // https://github.com/halt-hammerzeit/cinema/blob/master/code/server/webpage%20rendering.js
   const page_component = [determine your page component here using request.path]
 
-  // for Redux Flux implementation you can see the same example:
+  // for a Redux Flux store implementation you can see the same example:
   // https://github.com/halt-hammerzeit/cinema/blob/master/code/server/webpage%20rendering.js
   const flux_store = [initialize and populate your flux store depending on the page being shown]
 
@@ -256,7 +259,7 @@ export default class Html extends Component
 }
 ```
 
-And that's it: now you can `require()` your assets "isomorphically" (both on client and server).
+And that's it, now you can `require()` your assets "isomorphically" (both on client and server).
 
 ## A working example
 
@@ -300,14 +303,14 @@ Available configuration parameters:
   debug: true, // is false by default
 
   // By default it creates 'webpack-assets.json' file at 
-  // webpack_configuration.output.path (which is your project folder).
+  // webpack_configuration.context (which is your project folder).
   // You can change the assets file path as you wish
   // (therefore changing both folder and filename).
   // 
   // The folder derived from this parameter will also be used
   // to store 'webpack-stats.debug.json' file in case you're in debug mode
   //
-  // (relative to webpack_configuration.output.path which is your project folder)
+  // (relative to webpack_configuration.context which is your project folder)
   // (these aren't actually 'stats', these are some values derived from Webpack 'stats')
   webpack_assets_file_path: 'webpack-stats.json', // is 'webpack-assets.json' by default
 
@@ -406,23 +409,41 @@ Available configuration parameters:
 
 ## API
 
-#### .development()
+#### Constructor
 
-Is it development mode or is it production mode? By default it's production mode. But if you're instantiating `webpack-isomorphic-tools` for populating Webpack development configuration then you should call this method to enable asset hot reloading (and disable asset caching). In this case it must be called before `.populate()`, obviously.
+Takes an object with options (see [Configuration](#configuration) section above).
+
+#### .development(true or false or undefined -> true)
+
+Is it development mode or is it production mode? By default it's production mode. But if you're instantiating `webpack-isomorphic-tools` for populating Webpack development configuration, or if you're instantiating `webpack-isomorphic-tools` on server when you're developing your project, then you should call this method to enable asset hot reloading (and disable asset caching). It should be called right after the constructor.
 
 #### .populate(webpack_configuration)
 
-Adds the necessary asset module loaders and plugins into the supplied Webpack configuration.
+Adds the necessary asset module loaders (if specified) and plugins into the supplied Webpack configuration.
 
-#### .register()
+#### .server(project_path, callback)
 
-Registers Node.js `require()` hooks for your assets.This is what makes the `requre()` magic work on server. These `require()` hooks must be set before you `require()` any of your assets (e.g. before you `require()` any React components `require()`ing your assets).
+Initializes a server-side instance of `webpack-isomorphic-tools` with the base path for your project and makes all the server-side `require()` calls work. The `project_path` parameter must be identical to the `context` parameter of your Webpack configuration and is needed to locate `webpack-assets.json` (contains the assets info) which is output by Webpack process. The callback is called when `webpack-assets.json` has been found (it's needed for development because `webpack-dev-server` and your application server are usually run in parallel).
 
-#### .ready(function callback() {})
+#### .refresh()
 
-Waits for `webpack-isomorphic-tools` to finish all the preparations needed. To be more specific, it waits for Webpack to finish the build process and to output the assets info file. You can get away without using this method but in that case make sure that Webpack has already finished the build process by the time you launch your web server.
+Refreshes your assets info (re-reads `webpack-assets.json` from disk) and also flushes cache for all the previously `require()`d assets.
+
+#### .assets()
+
+Returns the assets info (contents of `webpack-assets.json`)/
 
 ## Gotchas
+
+### .gitignore
+
+Make sure you add this to your `.gitignore`
+
+```
+# webpack-isomorphic-tools
+/webpack-stats.debug.json
+/webpack-assets.json
+```
 
 ### Require() vs import
 
@@ -500,15 +521,6 @@ After developing, the full test suite can be evaluated by running:
 ```sh
 npm test
 ```
-
-While actively developing, we recommend running
-
-```sh
-npm run watch
-```
-
-in a terminal. This will watch the file system and run tests automatically 
-whenever you save a js file.
 
 ## License
 

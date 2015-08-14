@@ -24,8 +24,8 @@ describe('isomorpher', function()
 			}
 		}
 
-		new isomorpher(webpack_configuration,
-		{
+		new isomorpher
+		({
 			assets:
 			[{
 				extension: 'js',

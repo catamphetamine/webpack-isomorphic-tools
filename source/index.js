@@ -8,62 +8,54 @@ import serialize from './tools/serialize-javascript'
 import write_assets  from './plugins/write assets'
 import notify_stats from './plugins/notify stats'
 
+import { exists, clone } from './helpers'
+
 // using ES6 template strings
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/template_strings
 export default class webpack_isomorphic_tools
 {
-	constructor(webpack_configuration, options)
+	constructor(options)
 	{
-		this.options = options || {}
+		// take the passed in options
+		this.options = clone(options)
 
 		// a list of files which can be require()d normally on the server
 		// (for example, if you have require("./file.json") both in webpack and in the server code)
 		// (should work, not tested)
 		this.options.exceptions = this.options.exceptions || []
 
+		// just being polite
 		if (!this.options.assets)
 		{
 			this.options.assets = []
 			// throw new Error('You must specify "assets" parameter')
 		}
 
-		if (!webpack_configuration.context)
-		{
-			throw new Error('You must specify "configuration.context" in your webpack configuration')
-		}
+		// used to keep track of cached assets and flush their caches on .refresh() call
+		this.cached_assets = []
 
-		if (!webpack_configuration.output)
-		{
-			throw new Error('You must specify "configuration.output" section in your webpack configuration')
-		}
-
-		if (!webpack_configuration.output.path)
-		{
-			throw new Error('You must specify "configuration.output.path" in your webpack configuration')
-		}
-		
-		if (!webpack_configuration.output.publicPath)
-		{
-			throw new Error('You must specify "configuration.output.publicPath" in your webpack configuration')
-		}
-
-		this.options.project_path = webpack_configuration.context
-		this.options.webpack_output_path = webpack_configuration.output.path
-
-		this.options.webpack_assets_file_path = this.options.webpack_assets_file_path || 'webpack-assets.json'
-
-		this.require_cache = []
+		// webpack-assets.json path, relative to the project base path
+		this.options.webpack_assets_file_path = this.options.webpack_assets_file_path || 'webpack-assets.json'	
 
 		this.debug('instantiated webpack-isomorphic-tools with options:')
 		this.debug(this.options)
 	}
 
-	// sets development mode flag to true
-	// (allows asset hot reloading in Webpack development configuration)
-	development()
+	// sets development mode flag to whatever was passed (or true if nothing was passed)
+	// (development mode allows asset hot reloading when used with webpack-dev-server)
+	development(flag)
 	{
-		this.debug('entering development mode')
-		this.options.development = true
+		// set development mode flag
+		this.options.development = exists(flag) ? flag : true
+
+		if (this.options.development)
+		{
+			this.debug('entering development mode')
+		}
+		else
+		{
+			this.debug('entering production mode')
+		}
 
 		// allows method chaining
 		return this
@@ -72,6 +64,39 @@ export default class webpack_isomorphic_tools
 	// adds module loaders and plugins to webpack configuration
 	populate(webpack_configuration)
 	{
+		// is client-side
+		// (currently unused variables)
+		this.options.server = false
+
+		// validate webpack configuration
+		if (!webpack_configuration.context)
+		{
+			throw new Error('You must specify "configuration.context" in your webpack configuration')
+		}
+
+		// validate webpack configuration
+		if (!webpack_configuration.output)
+		{
+			throw new Error('You must specify "configuration.output" section in your webpack configuration')
+		}
+
+		// // validate webpack configuration
+		// if (!webpack_configuration.output.path)
+		// {
+		// 	throw new Error('You must specify "configuration.output.path" in your webpack configuration')
+		// }
+		
+		// validate webpack configuration
+		if (!webpack_configuration.output.publicPath)
+		{
+			throw new Error('You must specify "configuration.output.publicPath" in your webpack configuration')
+		}
+
+		// project base path, required to output webpack-assets.json
+		this.options.project_path = webpack_configuration.context
+
+		// this.options.webpack_output_path = webpack_configuration.output.path
+
 		this.debug('populating webpack configuration')
 
 		// ensure the "module.loaders" path exists inside webpack configuration
@@ -238,10 +263,16 @@ export default class webpack_isomorphic_tools
 	// clear the require.cache (only used in developer mode with webpack-dev-server)
 	refresh()
 	{
-		// sanity check
+		// ensure this is development mode
 		if (!this.options.development)
 		{
-			this.warning('.refresh() called in production mode')
+			throw new Error('.refresh() called in production mode. Did you forget to call .development() method on your webpack-isomorphic-tools server instance?')
+		}
+
+		// sanity check
+		if (!this.options.server)
+		{
+			throw new Error('.refresh() called not on a server')
 		}
 
 		this.debug('flushing require() caches')
@@ -252,22 +283,62 @@ export default class webpack_isomorphic_tools
 		delete require.cache[this.webpack_assets_path()]
 
 		// uncache cached assets
-		for (let path of this.require_cache)
+		for (let path of this.cached_assets)
 		{
 			this.debug(` flushing require() cache for ${path}`)
 			delete require.cache[path]
 		}
 
-		this.require_cache = []
+		// no assets are cached now
+		this.cached_assets = []
 	}
 
-	// registers a Node.js require hook
+	// Initializes server-side instance of `webpack-isomorphic-tools` 
+	// with the base path for your project, then calls `.register()`,
+	// and after that calls .ready(callback).
+	//
+	// The `project_path` parameter must be identical 
+	// to the `context` parameter of your Webpack configuration 
+	// and is needed to locate `webpack-assets.json` 
+	//  which is output by Webpack process. 
+	//
+	// sets up "project_path" option
+	// (this option is required on the server to locate webpack-assets.json)
+	server(project_path, callback)
+	{
+		// is server-side
+		// (currently unused variables)
+		this.options.server = true
+
+		// project base path, required to locate webpack-assets.json
+		this.options.project_path = project_path
+
+		// register require() hooks
+		this.register()
+
+		// call back when ready
+		return this.ready(callback)
+	}
+
+	// Registers Node.js require() hooks for the assets
+	//
+	// This is what makes the `requre()` magic work on server. 
+	// These `require()` hooks must be set before you `require()` 
+	// any of your assets 
+	// (e.g. before you `require()` any React components 
+	// `require()`ing your assets).
 	//
 	// read this article if you don't know what a "require hook" is
 	// http://bahmutov.calepin.co/hooking-into-node-loader-for-fun-and-profit.html
 	register()
 	{
 		this.debug('registering require() hooks for assets')
+
+		// sanity check
+		if (!this.options.server)
+		{
+			throw new Error('.register() called not on a server')
+		}
 
 		// for each user specified asset type which isn't for .js files
 		// (because '.js' files requiring already works natively)
@@ -301,6 +372,13 @@ export default class webpack_isomorphic_tools
 	{
 		this.debug(`requiring ${asset_path}`)
 
+		// sanity check
+		if (!this.options.server)
+		{
+			throw new Error('.require() called not on a server')
+		}
+
+		// sanity check
 		if (!asset_path)
 		{
 			return ''
@@ -328,14 +406,25 @@ export default class webpack_isomorphic_tools
 	// registers a require hook for a particular file extension
 	register_extension(extension)
 	{
-		this.debug(`registering a require() hook for extension ${extension}`)
+		this.debug(` registering a require() hook for *.${extension}`)
 
+		// sanity check
+		if (!this.options.server)
+		{
+			throw new Error('.register_extension() called not on a server')
+		}
+
+		// place the require() hook for this extension
 		hook.hook(`.${extension}`, (asset_path, fallback) =>
 		{
 			this.debug(`require() hook fired for ${asset_path}`)
 
-			// track cached assets
-			this.require_cache.push(asset_path)
+			// track cached assets (only in development mode)
+			if (this.options.development)
+			{
+				// mark this asset as cached
+				this.cached_assets.push(asset_path)
+			}
 
 			// convert absolute path to relative path
 			asset_path = path.relative(this.options.project_path, asset_path)
@@ -361,18 +450,32 @@ export default class webpack_isomorphic_tools
 		})
 	}
 
-	// waits for webpack-assets.json to be created after Webpack build process finishes
+	// Waits for webpack-assets.json to be created after Webpack build process finishes
+	//
+	// The callback is called when `webpack-assets.json` has been found 
+	// (it's needed for development because `webpack-dev-server` 
+	//  and your application server are usually run in parallel).
+	//
 	ready(done)
 	{
-		const interval = 1000 // milliseconds
+		// sanity check
+		if (!this.options.server)
+		{
+			throw new Error('.ready() called not on a server')
+		}
+
+		// condition check interval
+		const interval = 1000 // in milliseconds
 
 		// selfie
 		const tools = this
 
+		// waits for condition to be met, then proceeds
 		function wait_for(condition, proceed)
 		{
 			function check()
 			{
+				// if the condition is met, then proceed
 				if (condition())
 				{
 					return proceed()
@@ -387,17 +490,20 @@ export default class webpack_isomorphic_tools
 			check()
 		}
 
+		// wait for webpack-assets.json to be written to disk by Webpack
 		wait_for(() => fs.existsSync(this.webpack_assets_path()), done)
 
 		// allows method chaining
 		return this
 	}
 
+	// outputs info to the log
 	info(message)
 	{
 		console.log(log_preamble, generate_log_message(message))
 	}
 
+	// outputs debugging info to the log
 	debug(message)
 	{
 		if (this.options.debug)
@@ -406,18 +512,20 @@ export default class webpack_isomorphic_tools
 		}
 	}
 
+	// outputs a warning to the log
 	warning(message)
 	{
 		console.log(colors.yellow(log_preamble, '[warning]', generate_log_message(message)))
 	}
 
+	// outputs an error to the log
 	error(message)
 	{
 		console.log(colors.red(log_preamble, '[error]', generate_log_message(message)))
 	}
 }
 
-// a sample path parser of webpack url-loader
+// a sample path parser for webpack url-loader
 // (works for images, fonts, and i guess for everything else, should work for any file type)
 webpack_isomorphic_tools.url_loader_parser = function(module, options)
 {

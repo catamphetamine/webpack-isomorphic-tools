@@ -1,3 +1,9 @@
+0.7.0 / 14.08.2015
+===================
+
+  * Changed constructor arguments: removed Webpack configuration
+  * Changed server-side instantiation procedure: .server() now replaces .register().ready() chain
+
 0.6.0 / 11.08.2015
 ===================
 

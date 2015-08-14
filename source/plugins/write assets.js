@@ -1,6 +1,7 @@
 import fs     from 'fs'
 import path   from 'path'
 import mkdirp from 'mkdirp'
+import moment from 'moment'
 
 // writes webpack-assets.json file, which contains assets' file paths
 export default function write_assets(stats, options)
@@ -151,6 +152,10 @@ function populate_assets(output, json, options)
 			throw new Error(`parser required for assets type "${asset_description.name}"`)
 		}
 
+		options.log.debug(`populating assets of type "${asset_description.name}"`)
+
+		const began_at = new Date().getTime()
+
 		// get real paths for all the files from this asset type
 		output[asset_description.name] = json.modules
 			// take just modules of this asset type
@@ -165,5 +170,7 @@ function populate_assets(output, json, options)
 				return set
 			},
 			{})
+
+		options.log.debug(` time taken: ${moment.duration(new Date().getTime() - began_at)}`)
 	})
 }
