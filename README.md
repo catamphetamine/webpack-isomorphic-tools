@@ -66,16 +66,23 @@ $ npm install webpack-isomorphic-tools --save
 
 ## Usage
 
-First you take your existing Webpack configuration and then you instantiate `webpack_isomorphic_tools` and `.populate()` your Webpack configuration with it.
-For example, let's assume this is your "development" Webpack configuration.
+First you add `webpack_isomorphic_tools` plugin to your Webpack configuration.
 
 ### webpack.config.js
 
 ```javascript
-var Webpack_isomorphic_tools = require('webpack-isomorphic-tools')
+var Webpack_isomorphic_tools_plugin = require('webpack-isomorphic-tools/plugin')
+
+var webpack_isomorphic_tools_plugin = 
+  // webpack-isomorphic-tools settings reside in a separate .js file 
+  // (because they will be used in the web server code too).
+  new Webpack_isomorphic_tools_plugin(require('./webpack-isomorphic-tools-configuration'))
+  // also enter development mode since it's a development webpack configuration
+  // (see below for explanation)
+  .development()
 
 // usual Webpack configuration
-var webpack_configuration =
+module.exports =
 {
   context: '(required) your project path here',
 
@@ -87,56 +94,49 @@ var webpack_configuration =
   module:
   {
     loaders:
-    [{
+    [
+      ...,
       {
-        test: /\.js$/,
-        include:
-        [
-          'your javascript sources path here'
-        ],
-        loaders: ['babel-loader?stage=0&optional=runtime&plugins=typecheck']
+        test: webpack_isomorphic_tools_plugin.regular_expression('images'),
+        loader: 'url-loader?limit=10240', // any image below or equal to 10K will be converted to inline base64 instead
       }
-    },
-    ...]
+    ]
   },
+
+  plugins:
+  [
+    ...,
+
+    webpack_isomorphic_tools_plugin
+  ]
 
   ...
 }
-
-// webpack-isomorphic-tools settings reside in a separate .js file 
-// (because they will be used in the web server code too)
-new Webpack_isomorphic_tools(require('./webpack-isomorphic-tools'))
-// enter development mode since it's a development webpack configuration
-.development()
-// populate the existing webpack configuration
-.populate(webpack_configuration)
-
-module.exports = webpack_configuration
 ```
 
 What does `.development()` method do? It enables development mode. In short, when in development mode, it disables asset caching (and enables asset hot reload). Just call it if you're developing your project with `webpack-dev-server` using this config (and don't call it for production webpack build).
 
-What does `.populate()` method do? It adds a couple of Webpack plugins to the end of the `plugins` list. The first one outputs some green info to the console when in development mode. The second one parses webpack "stats" to extract, for example, the real file paths for your assets (or it can do whatever you need it to do using [extension points](#configuration)).
+For each asset type managed by `webpack_isomorphic_tools` there should be a corresponding loader in your Webpack configuration. For this reason `webpack_isomorphic_tools/plugin` provides a `.regular_expression(asset_type)` method. The `asset_type` parameter is taken from your `webpack-isomorphic-tools` configuration:
 
-`webpack_isomorphic_tools` populator has an optional feature of adding module loaders to your webpack configuration. Why might it come in handy? The reason is that it knows how to generate a suitable `test` property of the loader (provided a file extension or a list of extensions). You can view it as a small bonus feature. In this particular example we're taking use of this feature by not specifying image loader in the existing webpack configuration: it will be created automatically during `.populate()` method call because we provided the `loader` parameter for the images asset type in `webpack-isomorphic-tools` configuration.
-
-### webpack-isomorphic-tools.js
+### webpack-isomorphic-tools-configuration.js
 
 ```javascript
-import Webpack_isomorphic_tools from 'webpack-isomorphic-tools'
+import Webpack_isomorphic_tools_plugin from 'webpack-isomorphic-tools/plugin'
 
 export default
 {
   assets:
-  [{
-    extensions: ['png', 'jpg', 'gif', 'ico', 'svg'],
-    loader: 'url-loader?limit=10240', // any image below or equal to 10K will be converted to inline base64 instead
-    parser: Webpack_isomorphic_tools.url_loader_parser // it just works; see the Configuration section for more info
-  }]
+  {
+    images:
+    {
+      extensions: ['png', 'jpg', 'gif', 'ico', 'svg'],
+      parser: Webpack_isomorphic_tools_plugin.url_loader_parser // it just works; see the Configuration section for more info
+    }
+  }
 }
 ```
 
-That was the client side. Next, the server side. You create your server side instance of `webpack-isomorphic-tools` in the very main server javascript file (and your web application code will reside in some `server.js` file which is `require()`d in the bottom)
+That's it for the client side. Next, the server side. You create your server side instance of `webpack-isomorphic-tools` in the very main server javascript file (and your web application code will reside in some `server.js` file which is `require()`d in the bottom)
 
 ### main.js
 
@@ -521,6 +521,15 @@ After developing, the full test suite can be evaluated by running:
 ```sh
 npm test
 ```
+
+While actively developing, one can use
+
+```sh
+npm run watch
+```
+
+in a terminal. This will watch the file system and run tests automatically 
+whenever you save a js file.
 
 ## License
 
