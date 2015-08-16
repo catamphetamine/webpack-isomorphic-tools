@@ -420,13 +420,13 @@ Is it development mode or is it production mode? By default it's production mode
 
 (Webpack plugin)
 
-Returns the regular expression for this asset type (based on this asset type's extension (or extensions))
+Returns the regular expression for this asset type (based on this asset type's `extension` (or `extensions`))
 
 #### Webpack_isomorphic_tools_plugin.url_loader_parser
 
 (Webpack plugin)
 
-A parser (see the [Configuration](#configuration) section above) for Webpack [url-loader](https://github.com/webpack/url-loader)
+A parser (see [Configuration](#configuration) section above) for Webpack [url-loader](https://github.com/webpack/url-loader)
 
 #### .server(project_path, callback)
 
