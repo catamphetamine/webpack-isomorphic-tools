@@ -130,7 +130,7 @@ export default
     images:
     {
       extensions: ['png', 'jpg', 'gif', 'ico', 'svg'],
-      parser: Webpack_isomorphic_tools_plugin.url_loader_parser // it just works; see the Configuration section for more info
+      parser: Webpack_isomorphic_tools_plugin.url_loader_parser // see Configuration and API sections for more info on this parameter
     }
   }
 }
@@ -411,25 +411,43 @@ Available configuration parameters:
 
 #### Constructor
 
-Takes an object with options (see [Configuration](#configuration) section above).
+(both Webpack plugin and server tools)
+
+Takes an object with options (see [Configuration](#configuration) section above)
 
 #### .development(true or false or undefined -> true)
 
+(both Webpack plugin and server tools)
+
 Is it development mode or is it production mode? By default it's production mode. But if you're instantiating `webpack-isomorphic-tools` for populating Webpack development configuration, or if you're instantiating `webpack-isomorphic-tools` on server when you're developing your project, then you should call this method to enable asset hot reloading (and disable asset caching). It should be called right after the constructor.
 
-#### .populate(webpack_configuration)
+#### .regular_expression(asset_type)
 
-Adds the necessary asset module loaders (if specified) and plugins to the supplied Webpack configuration.
+(Webpack plugin)
+
+Returns the regular expression for this asset type (based on this asset type's extension (or extensions))
+
+#### Webpack_isomorphic_tools_plugin.url_loader_parser
+
+(Webpack plugin)
+
+A parser (see the [Configuration](#configuration) section above) for Webpack [url-loader](https://github.com/webpack/url-loader)
 
 #### .server(project_path, callback)
+
+(server tools)
 
 Initializes a server-side instance of `webpack-isomorphic-tools` with the base path for your project and makes all the server-side `require()` calls work. The `project_path` parameter must be identical to the `context` parameter of your Webpack configuration and is needed to locate `webpack-assets.json` (contains the assets info) which is output by Webpack process. The callback is called when `webpack-assets.json` has been found (it's needed for development because `webpack-dev-server` and your application server are usually run in parallel).
 
 #### .refresh()
 
-Refreshes your assets info (re-reads `webpack-assets.json` from disk) and also flushes cache for all the previously `require()`d assets.
+(server tools)
+
+Refreshes your assets info (re-reads `webpack-assets.json` from disk) and also flushes cache for all the previously `require()`d assets
 
 #### .assets()
+
+(server tools)
 
 Returns the assets info (contents of `webpack-assets.json`)
 

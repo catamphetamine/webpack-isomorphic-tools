@@ -1,3 +1,10 @@
+0.8.0 / 16.08.2015
+===================
+
+  * Changed constructor arguments: assets are now a hash as opposed to array
+  * Refactored into two parts: server side and Webpack plugin
+  * API changed
+
 0.7.0 / 14.08.2015
 ===================
 
