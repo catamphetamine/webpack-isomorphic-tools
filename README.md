@@ -317,10 +317,10 @@ Available configuration parameters:
   // here you can define all your asset types
   assets:
   {
-    // appears
-    //  * in webpack-assets.json
-    //  * in .assets() method call result
-    //  * in .regular_expression(asset_type) method call
+    // asset_type will appear in:
+    //  * webpack-assets.json
+    //  * .assets() method call result
+    //  * .regular_expression(asset_type) method call
     asset_type: 
     {
       // which file types belong to this asset type
