@@ -145,7 +145,7 @@ var webpack_configuration = require('./webpack.config.js')
 var Webpack_isomorphic_tools = require('webpack-isomorphic-tools')
 
 // this global variable will be used later in express middleware
-global.webpack_isomorphic_tools = new Webpack_isomorphic_tools(require('./webpack-isomorphic-tools'))
+global.webpack_isomorphic_tools = new Webpack_isomorphic_tools(require('./webpack-isomorphic-tools-configuration'))
 // enter development mode if needed 
 // (for example, based on a Webpack DefinePlugin variable)
 .development(_development_)
