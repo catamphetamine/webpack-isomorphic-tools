@@ -414,7 +414,7 @@ Takes an object with options (see [Configuration](#configuration) section above)
 
 (both Webpack plugin and server tools)
 
-Is it development mode or is it production mode? By default it's production mode. But if you're instantiating `webpack-isomorphic-tools` for populating Webpack development configuration, or if you're instantiating `webpack-isomorphic-tools` on server when you're developing your project, then you should call this method to enable asset hot reloading (and disable asset caching). It should be called right after the constructor.
+Is it development mode or is it production mode? By default it's production mode. But if you're instantiating `webpack-isomorphic-tools/plugin` for use in Webpack development configuration, or if you're instantiating `webpack-isomorphic-tools` on server when you're developing your project, then you should call this method to enable asset hot reloading (and disable asset caching). It should be called right after the constructor.
 
 #### .regular_expression(asset_type)
 
