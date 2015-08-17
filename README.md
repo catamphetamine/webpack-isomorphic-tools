@@ -314,6 +314,11 @@ Available configuration parameters:
   // (these aren't actually 'stats', these are some values derived from Webpack 'stats')
   webpack_assets_file_path: 'webpack-stats.json', // is 'webpack-assets.json' by default
 
+  // here you are able to add some file paths 
+  // for which the require() call will bypass webpack-isomorphic-tools
+  // (relative to the project base folder, e.g. ./sources/server/kitten.jpg.js)
+  exceptions: [],
+
   // here you can define all your asset types
   assets:
   {
@@ -325,6 +330,12 @@ Available configuration parameters:
     {
       // which file types belong to this asset type
       extension: 'png', // or extensions: ['png', 'jpg', ...],
+
+      // suppresses "asset not found" errors 
+      // for production mode when set to true
+      // (e.g. for css-loader modules which are extract-text-plugin'ned in production)
+      // (defaults to false)
+      development: true,
 
       // [optional]
       // 
