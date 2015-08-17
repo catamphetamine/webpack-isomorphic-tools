@@ -141,8 +141,10 @@ That's it for the client side. Next, the server side. You create your server sid
 ### main.js
 
 ```javascript
-var webpack_configuration = require('./webpack.config.js')
 var Webpack_isomorphic_tools = require('webpack-isomorphic-tools')
+
+// this must be equal to your Webpack configuration "context" parameter
+var project_base_path = require('path').resolve(__dirname, '..')
 
 // this global variable will be used later in express middleware
 global.webpack_isomorphic_tools = new Webpack_isomorphic_tools(require('./webpack-isomorphic-tools-configuration'))
@@ -151,7 +153,7 @@ global.webpack_isomorphic_tools = new Webpack_isomorphic_tools(require('./webpac
 .development(_development_)
 // initializes a server-side instance of webpack-isomorphic-tools
 // (the first parameter is the base path for your project)
-.server(webpack_configuration.context, function()
+.server(project_base_path, function()
 {
   // webpack-isomorphic-tools is all set now.
   // here goes all your web application code:
