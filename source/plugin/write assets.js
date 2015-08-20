@@ -134,7 +134,7 @@ function populate_assets(output, json, options)
 		// parser is required
 		if (!asset_description.parser)
 		{
-			throw new Error(`parser required for assets type "${asset_type}"`)
+			throw new Error(`"parser" function is required for assets type "${asset_type}". See the Configuration section of the README for explanation.`)
 		}
 
 		options.log.debug(`populating assets of type "${asset_type}"`)

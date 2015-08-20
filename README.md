@@ -395,12 +395,13 @@ Available configuration parameters:
 
       // [required]
       // 
-      // parses a webpack stats module 
+      // parses a webpack stats module object
+      // for an asset of this asset type
       // to whatever you need to get 
       // when you require() these assets 
       // in your code later on.
       //
-      // in other words: require(...) = function() { ... return parser(...) }
+      // in other words: require(...) = function(...) { ... return parser(...) }
       //
       // arguments:
       //
