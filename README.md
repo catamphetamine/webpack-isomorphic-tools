@@ -223,7 +223,6 @@ export default class Html extends Component
     // include these assets in webpack build
     // (you'll also need to add the corresponding asset types to isomorphic.js;
     //  otherwise you'll get syntax errors when requiring these files)
-    const style = require('../assets/styles/style.scss')
     const icon  = require('../assets/images/icon/32x32.png')
 
     const html = 
