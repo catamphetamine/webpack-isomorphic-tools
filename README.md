@@ -218,7 +218,13 @@ export default class Html extends Component
     // because import will only be executed a single time 
     // (when the application launches)
     // you can refer to the "Require() vs import" section for more explanation
-    const picture = require('./../cat.jpg')
+    const picture = require('../assets/images/cat.jpg')
+
+    // include these assets in webpack build
+    // (you'll also need to add the corresponding asset types to isomorphic.js;
+    //  otherwise you'll get syntax errors when requiring these files)
+    const style = require('../assets/styles/style.scss')
+    const icon  = require('../assets/images/icon/32x32.png')
 
     const html = 
     (
@@ -228,7 +234,7 @@ export default class Html extends Component
           <title>xHamster</title>
 
           {/* favicon */}
-          <link rel="shortcut icon" href={assets.images_and_fonts['./client/images/icon/32x32.png'].path} />
+          <link rel="shortcut icon" href={icon} />
 
           {/* styles (will be present only in production with webpack extract text plugin) */}
           {Object.keys(assets.styles).map((style, i) =>
@@ -392,7 +398,9 @@ Available configuration parameters:
       // parses a webpack stats module 
       // to whatever you need to get 
       // when you require() these assets 
-      // in your code later on
+      // in your code later on.
+      //
+      // in other words: require(...) = function() { ... return parser(...) }
       //
       // arguments:
       //
