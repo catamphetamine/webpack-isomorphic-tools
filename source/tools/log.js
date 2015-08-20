@@ -11,39 +11,66 @@ export default class Log
 	}
 
 	// outputs info to the log
-	info(message)
+	info(...parameters)
 	{
-		console.log(this.preamble, generate_log_message(message))
+		console.log(this.preamble, generate_log_message(parameters))
 	}
 
 	// outputs debugging info to the log
-	debug(message)
+	debug(...parameters)
 	{
 		if (this.options.debug)
 		{
-			console.log(this.preamble, '[debug]', generate_log_message(message))
+			console.log(this.preamble, '[debug]', generate_log_message(parameters))
 		}
 	}
 
 	// outputs a warning to the log
-	warning(message)
+	warning(...parameters)
 	{
-		console.log(colors.yellow(this.preamble, '[warning]', generate_log_message(message)))
+		console.log(colors.yellow(this.preamble, '[warning]', generate_log_message(parameters)))
 	}
 
 	// outputs an error to the log
-	error(message)
+	error(...parameters)
 	{
-		console.log(colors.red(this.preamble, '[error]', generate_log_message(message)))
+		console.log(colors.red(this.preamble, '[error]', generate_log_message(parameters)))
 	}
 }
 
 // transforms arguments to text
-function generate_log_message(message)
+function generate_log_message(parameters)
 {
-	if (typeof message === 'object')
+	// преобразовать все аргументы функции в текстовый вид
+	return parameters.map(argument =>
 	{
-		return JSON.stringify(message, null, 2)
-	}
-	return message
+		// преобразование объектов в строку
+		if (typeof argument === 'object')
+		{
+			// для ошибок - распечатывать стек вызовов
+			if (argument instanceof Error)
+			{
+				return argument.stack
+			}
+			// для остальных объектов вызывать JSON.stringify()
+			return JSON.stringify(argument, null, 2)
+		}
+		// если undefined
+		if (typeof argument === 'undefined')
+		{
+			return '[undefined]'
+		}
+		// прочие переменные - просто .toString()
+		return argument.toString()
+	})
+	// собрать всё это в одну строку через пробел
+	.reduce((message, argument) =>
+	{
+		if (message.length > 0)
+		{
+			message += ' '
+		}
+		return message + argument
+	},
+	'')
 }

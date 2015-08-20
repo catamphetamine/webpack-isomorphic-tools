@@ -139,10 +139,14 @@ function populate_assets(output, json, options)
 
 		options.log.debug(`populating assets of type "${asset_type}"`)
 
+		// timer start
 		const began_at = new Date().getTime()
 
+		// initialization
+		output[asset_type] = output[asset_type] || {}
+
 		// get real paths for all the files from this asset type
-		output[asset_type] = json.modules
+		json.modules
 			// take just modules of this asset type
 			.filter(module => filter(module, options.regular_expressions[asset_type], options))
 			.reduce((set, module) =>
@@ -150,12 +154,13 @@ function populate_assets(output, json, options)
 				// determine asset name
 				const name = naming(module, options)
 				// determine and set the real file path for the asset
-				set[name] = parser(module, options)
+				set[name] = parser(module, options) || ''
 				// continue
 				return set
 			},
-			{})
+			output[asset_type])
 
+		// timer stop
 		options.log.debug(` time taken: ${new Date().getTime() - began_at} ms`)
 	}
 }

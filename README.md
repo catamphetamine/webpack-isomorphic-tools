@@ -407,7 +407,18 @@ Available configuration parameters:
       // 
       // returns: whatever (could be a filename, could be a JSON object, etc)
       //
-      parser: function(module, options) { ... }
+      parser: function(module, options)
+      {
+        options.log.info('# module name', module.name)
+        options.log.info('# module source', module.source)
+        options.log.info('# assets base path', options.assets_base_path)
+        options.log.info('# regular expressions', options.regular_expressions)
+        options.log.info('# debug mode', options.debug)
+        options.log.info('# development mode', options.development)
+        options.log.debug('debugging')
+        options.log.warning('warning')
+        options.log.error('error')
+      }
     },
     ...
   },
