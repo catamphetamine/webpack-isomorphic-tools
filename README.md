@@ -220,10 +220,8 @@ export default class Html extends Component
     // you can refer to the "Require() vs import" section for more explanation
     const picture = require('../assets/images/cat.jpg')
 
-    // include these assets in webpack build
-    // (you'll also need to add the corresponding asset types to isomorphic.js;
-    //  otherwise you'll get syntax errors when requiring these files)
-    const icon  = require('../assets/images/icon/32x32.png')
+    // favicon
+    const icon = require('../assets/images/icon/32x32.png')
 
     const html = 
     (
