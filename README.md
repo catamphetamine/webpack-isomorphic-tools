@@ -361,12 +361,17 @@ Available configuration parameters:
       //                        assets base path (on the disk or on the network),
       //                        regular_expressions{} for each asset type (by name),
       //                        logger)
+      //
+      //  log
       // 
       // returns: a Boolean
       //
       // by default is: "return regular_expression.test(module.name)"
       //
-      filter: function(module, regular_expression, options) { ... },
+      filter: function(module, regular_expression, options, log)
+      {
+        return regular_expression.test(module.name)
+      },
 
       // [optional]
       //
@@ -383,12 +388,17 @@ Available configuration parameters:
       //             assets base path (on the disk or on the network),
       //             regular_expressions{} for each asset type (by name),
       //             logger)
+      //
+      //  log
       // 
       // returns: a String
       //
       // by default is: "return module.name"
       //
-      naming: function(module, options) { ... },
+      naming: function(module, options, log)
+      {
+        return module.name
+      },
 
       // [required]
       // 
@@ -410,20 +420,22 @@ Available configuration parameters:
       //             assets base path (on the disk or on the network),
       //             regular_expressions{} for each asset type (by name),
       //             logger)
+      //
+      //  log
       // 
       // returns: whatever (could be a filename, could be a JSON object, etc)
       //
-      parser: function(module, options)
+      parser: function(module, options, log)
       {
-        options.log.info('# module name', module.name)
-        options.log.info('# module source', module.source)
-        options.log.info('# assets base path', options.assets_base_path)
-        options.log.info('# regular expressions', options.regular_expressions)
-        options.log.info('# debug mode', options.debug)
-        options.log.info('# development mode', options.development)
-        options.log.debug('debugging')
-        options.log.warning('warning')
-        options.log.error('error')
+        log.info('# module name', module.name)
+        log.info('# module source', module.source)
+        log.info('# assets base path', options.assets_base_path)
+        log.info('# regular expressions', options.regular_expressions)
+        log.info('# debug mode', options.debug)
+        log.info('# development mode', options.development)
+        log.debug('debugging')
+        log.warning('warning')
+        log.error('error')
       }
     },
     ...

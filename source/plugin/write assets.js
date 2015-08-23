@@ -5,13 +5,15 @@ import mkdirp from 'mkdirp'
 // writes webpack-assets.json file, which contains assets' file paths
 export default function write_assets(json, options)
 {
-	options.log.debug('running write assets webpack plugin')
+	const log = options.log
+
+	log.debug('running write assets webpack plugin')
 
 	const development = options.development
 
 	if (development)
 	{
-		options.log.debug(' (development mode is on)')
+		log.debug(' (development mode is on)')
 	}
 
 	// // webpack stats
@@ -26,7 +28,7 @@ export default function write_assets(json, options)
 		const webpack_stats_file_path = path.resolve(path.dirname(options.webpack_assets_path), 'webpack-stats.debug.json')
 
 		// write webpack stats file
-		options.log.debug(`writing webpack stats to ${webpack_stats_file_path}`)
+		log.debug(`writing webpack stats to ${webpack_stats_file_path}`)
 		// write the file (format the JSON for readability)
 		fs.writeFileSync(webpack_stats_file_path, JSON.stringify(json, null, 2))
 	}
@@ -35,10 +37,10 @@ export default function write_assets(json, options)
 	const output = options.output
 
 	// populate the output object with assets
-	populate_assets(output, json, options)
+	populate_assets(output, json, options, log)
 
 	// write webpack assets info file
-	options.log.debug(`writing webpack assets info to ${options.webpack_assets_path}`)
+	log.debug(`writing webpack assets info to ${options.webpack_assets_path}`)
 	// format the JSON for readability if in debug mode
 	const assets_info = development ? JSON.stringify(output, null, 2) : JSON.stringify(output)
 	// write the file
@@ -46,12 +48,12 @@ export default function write_assets(json, options)
 }
 
 // populates the output object with assets
-function populate_assets(output, json, options)
+function populate_assets(output, json, options, log)
 {
 	// for each chunk name ("main", "common", ...)
 	Object.keys(json.assetsByChunkName).forEach(function(name)
 	{
-		options.log.debug(`getting javascript and styles for chunk "${name}"`)
+		log.debug(`getting javascript and styles for chunk "${name}"`)
 
 		// get javascript chunk real file path
 
@@ -60,7 +62,7 @@ function populate_assets(output, json, options)
 
 		if (javascript)
 		{
-			options.log.debug(` (got javascript)`)
+			log.debug(` (got javascript)`)
 			output.javascript[name] = javascript
 		}
 
@@ -71,7 +73,7 @@ function populate_assets(output, json, options)
 
 		if (style)
 		{
-			options.log.debug(` (got style)`)
+			log.debug(` (got style)`)
 			output.styles[name] = style
 		}
 	})
@@ -137,7 +139,7 @@ function populate_assets(output, json, options)
 			throw new Error(`"parser" function is required for assets type "${asset_type}". See the Configuration section of the README for explanation.`)
 		}
 
-		options.log.debug(`populating assets of type "${asset_type}"`)
+		log.debug(`populating assets of type "${asset_type}"`)
 
 		// timer start
 		const began_at = new Date().getTime()
@@ -148,19 +150,19 @@ function populate_assets(output, json, options)
 		// get real paths for all the files from this asset type
 		json.modules
 			// take just modules of this asset type
-			.filter(module => filter(module, options.regular_expressions[asset_type], options))
+			.filter(module => filter(module, options.regular_expressions[asset_type], options, log))
 			.reduce((set, module) =>
 			{
 				// determine asset name
-				const name = naming(module, options)
+				const name = naming(module, options, log)
 				// determine and set the real file path for the asset
-				set[name] = parser(module, options) || ''
+				set[name] = parser(module, options, log) || ''
 				// continue
 				return set
 			},
 			output[asset_type])
 
 		// timer stop
-		options.log.debug(` time taken: ${new Date().getTime() - began_at} ms`)
+		log.debug(` time taken: ${new Date().getTime() - began_at} ms`)
 	}
 }
