@@ -268,7 +268,15 @@ export default class Html extends Component
 
 ```javascript
 {
-  ...
+  javascript:
+  {
+    main: '/assets/main-d8c29e9b2a4623f696e8.js'
+  },
+
+  styles:
+  {
+    main: '/assets/main-d8c29e9b2a4623f696e8.css'
+  },
 
   images:
   {
