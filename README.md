@@ -203,9 +203,9 @@ export default class Html extends Component
 {
   static propTypes =
   {
-    assets: PropTypes.object,
-    component: PropTypes.object,
-    store: PropTypes.object
+    assets    : PropTypes.object,
+    component : PropTypes.object,
+    store     : PropTypes.object
   }
 
   render()
@@ -264,11 +264,29 @@ export default class Html extends Component
 }
 ```
 
+`assets` in the code above are simply the contents of `webpack-assets.json` which is created by `webpack-isomorphic-tools` in your project base folder. `webpack-assets.json` (in the simplest case) keeps track of the real paths to your assets, e.g.
+
+```javascript
+{
+  ...
+
+  images:
+  {
+    './assets/images/cat.jpg': '/assets/9059f094ddb49c2b0fa6a254a6ebf2ad.jpg',
+    ...
+  }
+
+  ...
+}
+```
+
 And that's it, now you can `require()` your assets "isomorphically" (both on client and server).
 
 ## A working example
 
-For a comprehensive example of isomorphic React rendering you can look at this sample project:
+`webpack-isomorphic-tools` are featured in [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example).
+
+Also for a comprehensive example of isomorphic React rendering you can look at this sample project:
 
 * clone [this repo](https://github.com/halt-hammerzeit/cinema)
 * `npm install`
@@ -486,7 +504,7 @@ Refreshes your assets info (re-reads `webpack-assets.json` from disk) and also f
 
 (server tools)
 
-Returns the assets info (contents of `webpack-assets.json`)
+Returns the contents of `webpack-assets.json` which is created by `webpack-isomorphic-tools` in your project base folder
 
 ## Gotchas
 
