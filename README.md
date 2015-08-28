@@ -468,7 +468,7 @@ Returns the regular expression for this asset type (based on this asset type's `
 
 (Webpack plugin)
 
-A parser (see [Configuration](#configuration) section above) for Webpack [url-loader](https://github.com/webpack/url-loader)
+A parser (see [Configuration](#configuration) section above) for Webpack [url-loader](https://github.com/webpack/url-loader), also works for Webpack [file-loader](https://github.com/webpack/file-loader). Use it for your images, fonts, etc.
 
 #### .server(project_path, callback)
 
