@@ -60,6 +60,8 @@ Aside all of that, `webpack-isomorphic-tools` is highly extensible, and finding 
 
 ## Installation
 
+`webpack-isomorphic-tools` are required both for development and production
+
 ```bash
 $ npm install webpack-isomorphic-tools --save
 ```
