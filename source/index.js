@@ -159,7 +159,7 @@ export default class webpack_isomorphic_tools
 			
 			for (let extension of description.extensions)
 			{
-				this.register_extension(extension, description.development)
+				this.register_extension(extension)
 			}
 		})
 
@@ -199,7 +199,7 @@ export default class webpack_isomorphic_tools
 	}
 
 	// registers a require hook for a particular file extension
-	register_extension(extension, development_mode_only)
+	register_extension(extension)
 	{
 		this.log.debug(` registering a require() hook for *.${extension}`)
 
@@ -242,13 +242,7 @@ export default class webpack_isomorphic_tools
 				// mark this asset as cached
 				this.cached_assets.push(global_asset_path)
 			}
-			// skips loading this asset type if it's development mode only
-			// (e.g. for css-loader modules which are extract-text-plugin'ned in production)
-			else if (development_mode_only)
-			{
-				return ''
-			}
-
+			
 			// require() this asset (returns the real file path for this asset, e.g. an image)
 			return this.require(asset_path)
 		})

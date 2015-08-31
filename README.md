@@ -361,12 +361,6 @@ Available configuration parameters:
       // which file types belong to this asset type
       extension: 'png', // or extensions: ['png', 'jpg', ...],
 
-      // suppresses "asset not found" errors 
-      // for production mode when set to true
-      // (e.g. for css-loader modules which are extract-text-plugin'ned in production)
-      // (defaults to false)
-      development: true,
-
       // [optional]
       // 
       // determines which webpack stats modules 
