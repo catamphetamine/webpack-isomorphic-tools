@@ -5,7 +5,7 @@ import hook      from './tools/node-hook'
 import serialize from './tools/serialize-javascript'
 import Log       from './tools/log'
 
-import { exists, clone } from './helpers'
+import { exists, clone, alias_camel_case } from './helpers'
 import { default_webpack_assets, normalize_options } from './common'
 
 // using ES6 template strings
@@ -15,7 +15,7 @@ export default class webpack_isomorphic_tools
 	constructor(options)
 	{
 		// take the passed in options
-		this.options = clone(options)
+		this.options = alias_camel_case(clone(options))
 
 		// a list of files which can be require()d normally on the server
 		// (for example, if you have require("./file.json") both in webpack and in the server code)
@@ -176,7 +176,8 @@ export default class webpack_isomorphic_tools
 		// sanity check
 		if (!asset_path)
 		{
-			return ''
+			// return ''
+			return undefined
 		}
 
 		// get real file path list
@@ -187,7 +188,7 @@ export default class webpack_isomorphic_tools
 		{
 			const asset = assets[type][asset_path]
 			// if the real path was found in the list - return it
-			if (asset)
+			if (exists(asset))
 			{
 				return asset
 			}
@@ -195,7 +196,8 @@ export default class webpack_isomorphic_tools
 
 		// serve a not-found asset maybe
 		this.log.error(`asset not found: ${asset_path}`)
-		return ''
+		// return ''
+		return undefined
 	}
 
 	// registers a require hook for a particular file extension

@@ -5,7 +5,7 @@ import notify_stats  from './notify stats'
 
 import Log from './../tools/log'
 
-import { exists, clone } from './../helpers'
+import { exists, clone, alias_camel_case } from './../helpers'
 
 import { default_webpack_assets, normalize_options } from './../common'
 
@@ -13,7 +13,7 @@ import { default_webpack_assets, normalize_options } from './../common'
 export default function Plugin(options)
 {
 	// take the passed in options
-	this.options = clone(options)
+	this.options = alias_camel_case(clone(options))
 
 	// add missing fields, etc
 	normalize_options(this.options)
@@ -24,6 +24,9 @@ export default function Plugin(options)
 	// assets regular expressions (based on extensions).
 	// will be used in loaders and in write_assets
 	this.regular_expressions = {}
+
+	// alias camel case for those who prefer it
+	this.regularExpressions = this.regular_expressions
 
 	// for each user defined asset type
 	for (let asset_type of Object.keys(this.options.assets))
@@ -162,3 +165,6 @@ Plugin.url_loader_parser = function(module, options)
 
 	return asset_path
 }
+
+// alias camel case for those who prefer it
+Plugin.urlLoaderParser = Plugin.url_loader_parser

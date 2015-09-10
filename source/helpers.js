@@ -41,3 +41,25 @@ export function clone(object)
 {
 	return merge({}, object)
 }
+
+// creates camelCased aliases for all the keys of an object
+export function alias_camel_case(object)
+{
+	for (let key of Object.keys(object))
+	{
+		if (key.indexOf('_') >= 0)
+		{
+			const camel_cased_key = key.replace(/_(.)/g, function(match, group_1)
+			{
+				return group_1.toUpperCase()
+			})
+
+			if (!exists(object[camel_cased_key]))
+			{
+				object[camel_cased_key] = object[key]
+			}
+		}
+	}
+
+	return object
+}

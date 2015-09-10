@@ -1,5 +1,5 @@
 import chai from 'chai'
-import { extend } from './../source/helpers'
+import { extend, alias_camel_case } from './../source/helpers'
 
 chai.should()
 
@@ -35,5 +35,35 @@ describe('helpers', function()
 		}
 
 		a.should.deep.equal(ab)
+	})
+
+	it('should alias camel case', function()
+	{
+		const a = 
+		{
+			a: 1,
+
+			b_cd_ef:
+			{
+				g_h: true
+			}
+		}
+
+		const camel_cased_a =
+		{
+			a: 1,
+
+			b_cd_ef:
+			{
+				g_h: true
+			},
+			
+			bCdEf:
+			{
+				g_h: true
+			}
+		}
+
+		alias_camel_case(a).should.deep.equal(camel_cased_a)
 	})
 })
