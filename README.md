@@ -381,7 +381,7 @@ Available configuration parameters:
       //                        debug mode flag,
       //                        assets base path (on the disk or on the network),
       //                        regular_expressions{} for each asset type (by name),
-      //                        logger)
+      //                        webpack stats json object)
       //
       //  log
       // 
@@ -408,7 +408,7 @@ Available configuration parameters:
       //             debug mode flag,
       //             assets base path (on the disk or on the network),
       //             regular_expressions{} for each asset type (by name),
-      //             logger)
+      //             webpack stats json object)
       //
       //  log
       // 
@@ -440,7 +440,7 @@ Available configuration parameters:
       //             debug mode flag,
       //             assets base path (on the disk or on the network),
       //             regular_expressions{} for each asset type (by name),
-      //             logger)
+      //             webpack stats json object)
       //
       //  log
       // 

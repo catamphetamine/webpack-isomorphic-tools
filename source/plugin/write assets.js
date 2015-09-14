@@ -3,9 +3,13 @@ import path   from 'path'
 import mkdirp from 'mkdirp'
 
 // writes webpack-assets.json file, which contains assets' file paths
-export default function write_assets(json, options)
+export default function write_assets(json, options, log)
 {
-	const log = options.log
+	// take the passed in options
+	options = clone(options)
+
+	// make webpack stats accessible for asset functions (parser, naming, filter)
+	options.webpack_stats = json
 
 	log.debug('running write assets webpack plugin')
 
@@ -15,9 +19,6 @@ export default function write_assets(json, options)
 	{
 		log.debug(' (development mode is on)')
 	}
-
-	// // webpack stats
-	// const json = stats.toJson()
 
 	// create all the folders in the path if they don't exist
 	mkdirp.sync(path.dirname(options.webpack_assets_path))
@@ -156,7 +157,7 @@ function populate_assets(output, json, options, log)
 				// determine asset name
 				const name = naming(module, options, log)
 				// determine and set the real file path for the asset
-				set[name] = parser(module, options, log) || ''
+				set[name] = parser(module, options, log) // || ''
 				// continue
 				return set
 			},

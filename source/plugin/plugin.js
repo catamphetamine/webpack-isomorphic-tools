@@ -139,9 +139,9 @@ Plugin.prototype.apply = function(compiler)
 			assets_base_path    : assets_base_path,
 			webpack_assets_path : webpack_assets_path,
 			output              : default_webpack_assets(),
-			regular_expressions : plugin.regular_expressions,
-			log                 : plugin.log
-		})
+			regular_expressions : plugin.regular_expressions
+		},
+		plugin.log)
 	})
 }
 
