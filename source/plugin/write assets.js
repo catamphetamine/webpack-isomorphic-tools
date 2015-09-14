@@ -2,6 +2,8 @@ import fs     from 'fs'
 import path   from 'path'
 import mkdirp from 'mkdirp'
 
+import { clone } from '../helpers'
+
 // writes webpack-assets.json file, which contains assets' file paths
 export default function write_assets(json, options, log)
 {
