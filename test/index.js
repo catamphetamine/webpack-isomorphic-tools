@@ -24,8 +24,10 @@ describe('plugin', function()
 			}
 		}
 
-		const plugin = new isomorpher_plugin
-		({
+		const isomorpher_settings = 
+		{
+			exclude: ['kitten.jpg', /^\.\/node_modules\/*/],
+
 			assets:
 			{
 				javascript:
@@ -51,11 +53,12 @@ describe('plugin', function()
 					]
 				}
 			}
-		})
+		}
 
-		// regular_expressions.javascript.toString().should.equal('/\\.js$/')
-		// regular_expressions.styles.toString().should.equal('/\\.scss$/')
-		// regular_expressions.images_and_fonts.toString().should.equal('/\\.(png|jpg|ico|woff|woff2|eot|ttf|svg)$/')
+		const plugin = new isomorpher_plugin(isomorpher_settings)
+		const server_side = new isomorpher(isomorpher_settings)
+
+		// check resulting regular expressions
 
 		const regular_expressions =
 		{
@@ -68,5 +71,11 @@ describe('plugin', function()
 		{
 			plugin.regular_expression(asset_type).toString().should.equal(regular_expressions[asset_type].toString())
 		}
+
+		// check require() hooks exclusion
+		server_side.excludes('kitten.jpg.backup').should.be.false
+		server_side.excludes('kitten.jpg').should.be.true
+		server_side.excludes('./node_modules/fonts/style.css').should.be.true
+		server_side.excludes('source/node_modules/fonts/style.css').should.be.false
 	})
 })

@@ -34,10 +34,20 @@ export function normalize_options(options)
 		// normalize extensions
 		if (description.extension)
 		{
+			// sanity check
+			if (Array.isArray(description.extension))
+			{
+				throw new Error(`Use "extensions" key instead of "extension" for specifying an array of file extensions for assets of type "${asset_type}"`)
+			}
+
+			// normalize
 			description.extensions = [description.extension]
 		}
 
-		// // set asset type name (if required), for readability
-		// description.name = description.name || description.extensions.join(', ')
+		// sanity check
+		if (!description.extensions)
+		{
+			throw new Error(`You must specify file extensions for assets of type "${asset_type}"`)
+		}
 	}
 }

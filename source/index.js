@@ -20,7 +20,7 @@ export default class webpack_isomorphic_tools
 		// a list of files which can be require()d normally on the server
 		// (for example, if you have require("./file.json") both in webpack and in the server code)
 		// (should work, not tested)
-		this.options.exceptions = this.options.exceptions || []
+		this.options.exclude = this.options.exclude || []
 
 		// used to keep track of cached assets and flush their caches on .refresh() call
 		this.cached_assets = []
@@ -232,7 +232,7 @@ export default class webpack_isomorphic_tools
 
 			// if this filename is in the user specified exceptions list
 			// then fallback to the normal require() behaviour
-			if (this.options.exceptions.indexOf(asset_path) >= 0)
+			if (this.excludes(asset_path))
 			{
 				this.log.debug(`skipping require call for ${asset_path}`)
 				return fallback()
@@ -248,6 +248,34 @@ export default class webpack_isomorphic_tools
 			// require() this asset (returns the real file path for this asset, e.g. an image)
 			return this.require(asset_path)
 		})
+	}
+
+	// Checks if the required path should be excluded from the custom require() hook
+	excludes(path)
+	{
+		// for each exclusion case
+		for (let exclude of this.options.exclude)
+		{
+			// supports regular expressions
+			if (exclude instanceof RegExp)
+			{
+				if (exclude.test(path))
+				{
+					return true
+				}
+			}
+			// otherwise check for a simple textual match
+			else
+			{
+				if (exclude == path)
+				{
+					return true
+				}
+			}
+		}
+
+		// so that it isn't undefined (for testing purpose)
+		return false
 	}
 
 	// Waits for webpack-assets.json to be created after Webpack build process finishes

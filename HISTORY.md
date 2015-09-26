@@ -1,3 +1,9 @@
+0.9.0 / 26.09.2015
+===================
+
+  * "exceptions" is now called "exclude"
+  * "exclude" supports regular expressions
+
 0.8.0 / 16.08.2015
 ===================
 

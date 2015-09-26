@@ -349,7 +349,8 @@ Available configuration parameters:
   // here you are able to add some file paths 
   // for which the require() call will bypass webpack-isomorphic-tools
   // (relative to the project base folder, e.g. ./sources/server/kitten.jpg.js)
-  exceptions: [],
+  // (also supports regular expressions, e.g. /^\.\/node_modules\/*/)
+  exclude: [],
 
   // here you can define all your asset types
   assets:
