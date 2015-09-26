@@ -74,7 +74,7 @@ function hook(extension, transform, options)
 		// var source = fs.readFileSync(filename, 'utf8')
 		var result = transform(filename, function fallback()
 		{
-			originalLoaders[extension](module, filename)
+			(originalLoaders[extension] || Module._extensions['.js'])(module, filename)
 		})
 
 		result = serialize(result)
