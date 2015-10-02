@@ -63,7 +63,9 @@ In this particular case the `require()` call will return the real path to the im
 
 ## You got the idea now?
 
-Aside all of that, `webpack-isomorphic-tools` is highly extensible, and finding the real paths for your assets is just the simplest example of what it's capable of. Using [custom configuration](#configuration) one can make `require()` calls (on the server) return virtually anything (not just a String, it may be a JSON object, for example). For example, if you're using Webpack [css-loader](https://github.com/webpack/css-loader) modules feature (also referred to as ["local styles"](https://medium.com/seek-ui-engineering/the-end-of-global-css-90d2a4a06284)) you can make `require(*.css)` calls return JSON objects with CSS class names like they do in [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example#styles) (it's just a demonstration of what one can do with `webpack-isomorphic-tools`, and I'm not using this "modules" feature of `ccs-plugin` in my projects).
+Aside all of that, `webpack-isomorphic-tools` is highly extensible, and finding the real paths for your assets is just the simplest example of what it's capable of. Using [custom configuration](#configuration) one can make `require()` calls (on the server) return virtually anything (not just a String, it may be a JSON object, for example).
+
+For example, if you're using Webpack [css-loader](https://github.com/webpack/css-loader) modules feature (also referred to as ["local styles"](https://medium.com/seek-ui-engineering/the-end-of-global-css-90d2a4a06284)) you can make `require(*.css)` calls return JSON objects with CSS class names like they do in [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example#styles) (it's just a demonstration of what one can do with `webpack-isomorphic-tools`, and I'm not using this "modules" feature of `ccs-plugin` in my projects).
 
 ## Installation
 
