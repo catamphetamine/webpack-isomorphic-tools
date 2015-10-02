@@ -23,7 +23,7 @@ Then the age of super-responsive websites came and also the iPhone emerged and t
 
 So it became obvious that web applications need to be "isomorphic" ("universal"), i.e. be able to render both on the client and the server, depending on circumstances. It was quite manageable: one just had to write the rendering logic in such a programming language that is able to run both on client and server. One such language is javascript.
 
-Time moved on and then another new technology emerged - bundling: web application became so sophisticated and big that the programmers needed a software to take control of the development, testing and building process and to manage all the heterogeneous components of the system. Currently the most popular and well-thought bundler is Webpack.
+Time moved on and then another new technology emerged - bundling: web applications became so sophisticated and big that the programmers needed a software to take control of the development, testing and building process and to manage all the heterogeneous components of the system. Currently the most popular and well-thought bundler is Webpack.
 
 But Webpack is made for client side code development only: it finds all `require()` calls inside your code and replaces them with various kinds of magic to make the things work. If you try to run the same source code outside of Webpack - for example, on a Node.js server - you'll get a ton of `SyntaxError`s with `Unexpected token`s. That's because on a Node.js server there's no Webpack `require()` magic happening and it simply tries to `require()` all the "assets" (styles, images, fonts, OpenGL shaders, etc) as if they were proper javascript-coded modules hence the error message.
 
