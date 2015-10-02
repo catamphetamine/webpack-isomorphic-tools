@@ -13,23 +13,31 @@ Is a small helper module providing support for isomorphic (universal) rendering 
 
 ## What it does and why is it needed?
 
-Javascript allows you to run all your `.js` code (Views, Controllers, Stores, and so on) both on the client and the server, and Webpack gives you the ability to just `require()` your javascript modules both on the client and the server so that the same code works both on the client and the server automagically (I guess that was the main purpose of Webpack).
+What is a web application? I would define it as a box with a bunch of inputs (keyboard events, mouse events) and a display as an output. A user walks into your website and your web application renders a "page" on his display.
 
-When you write your web application in React, you create the main `style.css` where you describe all your base styles (h1, h2, a, p, nav, footer, fonts, etc).
+At first all the rendering used to happen on the server. But then "AJAX" came (in 2005) and it opened a possibility of moving all rendering logic to the client (user's web browser) leaving the server with just serving API calls (data fetching, data modification, etc).
 
-Then, you use inline styles to style each React component individually (use [react-styling](https://github.com/halt-hammerzeit/react-styling) for that).
+And so numerous javascript frameworks emerged to serve the purpose of client side rendering and routing. But then everybody realised that this new way of building web applications broke search engine indexing because the search engines didn't talk any javascript.
 
-What about that `style.css` file? On the server in development mode it needs to be injected automagically through javascript to support hot module reload, so you don't need to know the exact path to it on disk because it isn't even a `.css` file on your disk: it's actually a javascript file because that's how Webpack [style-loader](https://github.com/webpack/style-loader) works. So you don't need to `require()` your styles in the server code because you simply can't because there are no such files. (You only need to require `style.css` in your `client-application.js` which is gonna be a Webpack entry point)
+Then the age of super-responsive websites came and also the iPhone emerged and the battle for loading milliseconds began. And everybody noticed that client side rendering introduced unnecessary data fetching roundtrips on the first page load: the web browser loaded markup templates and scripts first and then asked the server for the actual data to display.
 
-What about fonts? Fonts are parsed correctly by Webpack [css-loader](https://github.com/webpack/css-loader) when it finds `url()` sections in your main `style.css`, so no issues there.
+So it became obvious that web applications need to be "isomorphic" ("universal"), i.e. be able to render both on the client and the server, depending on circumstances. It was quite manageable: one just had to write the rendering logic in such a programming language that is able to run both on client and server. One such language is javascript.
 
-What's left are images. Images are `require()`d in React components and then used like this:
+Time moved on and then another new technology emerged - bundling: web application became so sophisticated and big that the programmers needed a software to take control of the development, testing and building process and to manage all the heterogeneous components of the system. Currently the most popular and well-thought bundler is Webpack.
+
+But Webpack is made for client side code development only: it finds all `require()` calls inside your code and replaces them with various kinds of magic to make the things work. If you try to run the same source code outside of Webpack - for example, on a Node.js server - you'll get a ton of `SyntaxError`s with `Unexpected token`s. That's because on a Node.js server there's no Webpack `require()` magic happening and it simply tries to `require()` all the "assets" (styles, images, fonts, OpenGL shaders, etc) as if they were proper javascript-coded modules hence the error message.
+
+This module - `webpack-isomorphic-tools` aims to solve these issues and make the client-side code work on the server too therefore reclaiming isomorphic (universal) rendering capabilities. It provides the missing `require()` magic - same as Webpack does on client-side - when running your code on the server. With the help of `webpack-isomorphic-tools` one can fix all those webpack-ish `require()`s of assets and make them work on the server instead of throwing `SyntaxError`s.
+
+## Getting down to business
+
+For example, consider images. Images are `require()`d in React components and then used like this:
 
 ```javascript
 // alternatively one can use import, but in this case hot reloading won't work
 // import image from '../image.png'
 
-// next you just `src` your image inside your `render()` method
+// you just `src` your image inside your `render()` method
 class Photo extends React.Component
 {
   render()
@@ -47,16 +55,15 @@ class Photo extends React.Component
 ```
 
 It works on the client because Webpack intelligently replaces all the `require()` calls for you.
-But it wouldn't work on the server because Node.js only knows how to `require()` javascript modules.
-What `webpack-isomorphic-tools` does is it makes the code above work on the server too (and much more), so that you can have your isomorphic (universal) rendering (e.g. React).
+But it wouldn't work on the server because Node.js only knows how to `require()` javascript modules. It would just throw a `SyntaxError`.
 
-What about javascripts on the Html page?
+To solve this issue you use `webpack-isomorphic-tools` in your application and what it does is it makes the code above work on the server too (in the simplest case), so that you can have your isomorphic (universal) rendering working.
 
-When you render your Html page on the server you need to include all the client scripts using `<script src={...}/>` tags. And for that purpose you need to know the real paths to your Webpack compiled javascripts. Which are gonna have names like `main-9059f094ddb49c2b0fa6a254a6ebf2ad.js` because we are using the `[hash]` file naming feature of Webpack which is required to make browser caching work correctly. And `webpack-isomorphic-tools` tells you these filenames (see the [Usage](#usage) section). 
+In this particular case the `require()` call will return the real path to the image on the disk. It would be something like `../../build/9059f094ddb49c2b0fa6a254a6ebf2ad.png`. How did `webpack-isomorphic-tools` know this weird real file path? It's just a bit of magic.
 
-It also tells you real paths to your CSS styles in case you're using [extract-text-webpack-plugin](https://github.com/webpack/extract-text-webpack-plugin) which is usually the case for production build.
+## You got the idea now?
 
-Aside all of that, `webpack-isomorphic-tools` is highly extensible, and finding the real paths for your assets is just the simplest example of what it's capable of. Using [custom configuration](#configuration) one can make `require()` calls return virtually anything (not just String, it may be a JSON object, for example). For example, if you're using Webpack [css-loader](https://github.com/webpack/css-loader) modules feature (also referred to as ["local styles"](https://medium.com/seek-ui-engineering/the-end-of-global-css-90d2a4a06284)) you can make `require(*.css)` calls return JSON objects with CSS class names like they do in [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example#styles) (it's just a demonstration of what one can do with `webpack-isomorphic-tools`, and I'm not using this "modules" feature of `ccs-plugin` in my projects).
+Aside all of that, `webpack-isomorphic-tools` is highly extensible, and finding the real paths for your assets is just the simplest example of what it's capable of. Using [custom configuration](#configuration) one can make `require()` calls return virtually anything (not just a String, it may be a JSON object, for example). For example, if you're using Webpack [css-loader](https://github.com/webpack/css-loader) modules feature (also referred to as ["local styles"](https://medium.com/seek-ui-engineering/the-end-of-global-css-90d2a4a06284)) you can make `require(*.css)` calls return JSON objects with CSS class names like they do in [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example#styles) (it's just a demonstration of what one can do with `webpack-isomorphic-tools`, and I'm not using this "modules" feature of `ccs-plugin` in my projects).
 
 ## Installation
 
