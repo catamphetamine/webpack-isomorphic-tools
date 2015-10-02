@@ -19,7 +19,7 @@ At first all the rendering used to happen on the server. But then "AJAX" came (i
 
 And so numerous javascript frameworks emerged to serve the purpose of client side rendering and routing. But then everybody realised that this new way of building web applications broke search engine indexing because the search engines didn't talk any javascript.
 
-Then the age of super-responsive websites came and also the iPhone emerged and the battle for loading milliseconds began. And everybody noticed that client side rendering introduced unnecessary data fetching roundtrips on the first page load: the web browser loaded markup templates and scripts first and then asked the server for the actual data to display.
+Then the age of super-responsive websites came and also the iPhone emerged and the battle for milliseconds began. And everybody noticed that client side rendering introduced unnecessary data fetching roundtrips on the first page load: the web browser loaded markup templates and scripts first and then asked the server for the actual data to display.
 
 So it became obvious that web applications need to be "isomorphic" ("universal"), i.e. be able to render both on the client and the server, depending on circumstances. It was quite manageable: one just had to write the rendering logic in such a programming language that is able to run both on client and server. One such language is javascript.
 
