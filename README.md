@@ -27,7 +27,7 @@ Time moved on and then another new technology emerged - bundling: web applicatio
 
 But Webpack is made for client side code development only: it finds all `require()` calls inside your code and replaces them with various kinds of magic to make the things work. If you try to run the same source code outside of Webpack - for example, on a Node.js server - you'll get a ton of `SyntaxError`s with `Unexpected token`s. That's because on a Node.js server there's no Webpack `require()` magic happening and it simply tries to `require()` all the "assets" (styles, images, fonts, OpenGL shaders, etc) as if they were proper javascript-coded modules hence the error message.
 
-This module - `webpack-isomorphic-tools` aims to solve these issues and make the client-side code work on the server too therefore reclaiming isomorphic (universal) rendering capabilities. It provides the missing `require()` magic - same as Webpack does on client-side - when running your code on the server. With the help of `webpack-isomorphic-tools` one can fix all those webpack-ish `require()`s of assets and make them work on the server instead of throwing `SyntaxError`s.
+This module - `webpack-isomorphic-tools` - aims to solve these issues and make the client-side code work on the server too therefore reclaiming isomorphic (universal) rendering capabilities. It provides the missing `require()` magic - same as Webpack does on client-side - when running your code on the server. With the help of `webpack-isomorphic-tools` one can fix all those webpack-ish `require()`s of assets and make them work on the server instead of throwing `SyntaxError`s.
 
 ## Getting down to business
 
