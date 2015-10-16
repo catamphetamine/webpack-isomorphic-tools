@@ -125,7 +125,7 @@ module.exports =
 }
 ```
 
-What does `.development()` method do? It enables development mode. In short, when in development mode, it disables asset caching (and enables asset hot reload). Just call it if you're developing your project with `webpack-dev-server` using this config (and don't call it for production webpack build).
+What does `.development()` method do? It enables development mode. In short, when in development mode, it disables asset caching (and enables asset hot reload). Just call it if you're developing your project with `webpack-dev-server` using this config (and, conversely, don't call it for your production webpack build - obvious enough).
 
 For each asset type managed by `webpack_isomorphic_tools` there should be a corresponding loader in your Webpack configuration. For this reason `webpack_isomorphic_tools/plugin` provides a `.regular_expression(asset_type)` method. The `asset_type` parameter is taken from your `webpack-isomorphic-tools` configuration:
 
@@ -160,8 +160,8 @@ var project_base_path = require('path').resolve(__dirname, '..')
 // this global variable will be used later in express middleware
 global.webpack_isomorphic_tools = new Webpack_isomorphic_tools(require('./webpack-isomorphic-tools-configuration'))
 // enter development mode if needed 
-// (for example, based on a Webpack DefinePlugin variable)
-.development(_development_)
+// (you may also prefer to use a Webpack DefinePlugin variable)
+.development(process.env.NODE_ENV === 'development')
 // initializes a server-side instance of webpack-isomorphic-tools
 // (the first parameter is the base path for your project)
 .server(project_base_path, function()
