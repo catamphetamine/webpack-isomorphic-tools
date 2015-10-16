@@ -61,7 +61,7 @@ To solve this issue you use `webpack-isomorphic-tools` in your application and w
 
 In this particular case the `require()` call will return the real path to the image on the disk. It would be something like `../../build/9059f094ddb49c2b0fa6a254a6ebf2ad.png`. How did `webpack-isomorphic-tools` know this weird real file path? It's just a bit of magic.
 
-## You got the idea now?
+## You get the idea now?
 
 Aside all of that, `webpack-isomorphic-tools` is highly extensible, and finding the real paths for your assets is just the simplest example of what it's capable of. Using [custom configuration](#configuration) one can make `require()` calls (on the server) return virtually anything (not just a String, it may be a JSON object, for example).
 
