@@ -191,11 +191,11 @@ export function page_rendering_middleware(request, response)
   }
 
   // for react-router example of determining current page by URL take a look at this:
-  // https://github.com/halt-hammerzeit/cinema/blob/master/code/server/webpage%20rendering.js
+  // https://github.com/halt-hammerzeit/webapp/blob/master/code/server/webpage%20rendering.js
   const page_component = [determine your page component here using request.path]
 
   // for a Redux Flux store implementation you can see the same example:
-  // https://github.com/halt-hammerzeit/cinema/blob/master/code/server/webpage%20rendering.js
+  // https://github.com/halt-hammerzeit/webapp/blob/master/code/server/webpage%20rendering.js
   const flux_store = [initialize and populate your flux store depending on the page being shown]
 
   // render the page to string and send it to the browser as text/html
@@ -304,24 +304,15 @@ And that's it, now you can `require()` your assets "isomorphically" (both on cli
 
 `webpack-isomorphic-tools` are featured in [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example).
 
-Also for a comprehensive example of isomorphic React rendering you can look at this sample project:
+Also for a comprehensive example of isomorphic React rendering you can look at [this sample project](https://github.com/halt-hammerzeit/webapp) (see the Quick Start section of the readme)
 
-* clone [this repo](https://github.com/halt-hammerzeit/cinema)
-* `npm install`
-* `npm run dev`
-* wait a moment for Webpack to finish the first build (green stats will appear in the terminal)
-* go to `http://localhost:3000`
-* `Ctrl + C`
-* `npm run production`
-* go to `http://localhost:3000`
+Some source code guidance for the aforementioned project:
 
-Some source code guidance for this particular project:
-
-* [webpack-isomorphic-tools configuration](https://github.com/halt-hammerzeit/cinema/blob/master/webpack/isomorphic.js)
-* [webpack-isomorphic-tools client initialization](https://github.com/halt-hammerzeit/cinema/blob/master/webpack/development%20server.js)
-* [webpack-isomorphic-tools server initialization](https://github.com/halt-hammerzeit/cinema/blob/master/code/server/entry.js)
-* [webpage rendering express middleware](https://github.com/halt-hammerzeit/cinema/blob/master/code/server/webpage%20rendering.js)
-* [the Html file](https://github.com/halt-hammerzeit/cinema/blob/master/code/client/html.js)
+* [webpack-isomorphic-tools configuration](https://github.com/halt-hammerzeit/webapp/blob/master/webpack/isomorphic.js)
+* [webpack-isomorphic-tools client initialization](https://github.com/halt-hammerzeit/webapp/blob/master/webpack/development%20server.js)
+* [webpack-isomorphic-tools server initialization](https://github.com/halt-hammerzeit/webapp/blob/master/code/server/entry.js)
+* [webpage rendering express middleware](https://github.com/halt-hammerzeit/webapp/blob/master/code/server/webpage%20rendering.js)
+* [the Html file](https://github.com/halt-hammerzeit/webapp/blob/master/code/client/html.js)
 
 ## Configuration
 
