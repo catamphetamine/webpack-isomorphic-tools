@@ -1,7 +1,12 @@
-0.9.1 / 17.10.2015
+0.9.2 / 17.10.2015
 ===================
 
   * guard against empty `module.source` (pull request merged)
+
+0.9.1 / 02.10.2015
+===================
+
+  * readme rewrite (update for npmjs.org)
 
 0.9.0 / 26.09.2015
 ===================
