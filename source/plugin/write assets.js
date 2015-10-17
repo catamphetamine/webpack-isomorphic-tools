@@ -153,7 +153,17 @@ function populate_assets(output, json, options, log)
 		// get real paths for all the files from this asset type
 		json.modules
 			// take just modules of this asset type
-			.filter(module => filter(module, options.regular_expressions[asset_type], options, log))
+			.filter(module => 
+			{
+				// guard against an empty source.
+				if (!module.source)
+				{
+					log.error(`Module "${module.name}" has no source. Maybe Webpack compilation of this module failed. Skipping this asset.`)
+					return false
+				}
+
+				return filter(module, options.regular_expressions[asset_type], options, log)
+			})
 			.reduce((set, module) =>
 			{
 				// determine asset name
