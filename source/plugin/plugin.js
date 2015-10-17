@@ -149,6 +149,11 @@ Plugin.prototype.apply = function(compiler)
 // (works for images, fonts, and i guess for everything else, should work for any file type)
 Plugin.url_loader_parser = function(module, options)
 {
+	// Guard against an empty source.
+	if (!module.source) {
+		return;
+	}
+	
 	// retain everything inside of double quotes.
 	// usually it's "data:image..." for embedded with the double quotes
 	// or __webpack_public_path__ + "..." for filesystem path
