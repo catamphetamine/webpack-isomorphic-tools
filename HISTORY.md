@@ -1,4 +1,4 @@
-0.9.2 / 17.10.2015
+0.9.2, 0.9.3 / 17.10.2015
 ===================
 
   * guard against empty `module.source` (pull request merged)
