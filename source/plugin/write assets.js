@@ -155,6 +155,12 @@ function populate_assets(output, json, options, log)
 			// take just modules of this asset type
 			.filter(module => 
 			{
+				// check that this asset is of the asset type
+				if (!filter(module, options.regular_expressions[asset_type], options, log))
+				{
+					return false
+				}
+
 				// guard against an empty source.
 				if (!module.source)
 				{
@@ -162,7 +168,8 @@ function populate_assets(output, json, options, log)
 					return false
 				}
 
-				return filter(module, options.regular_expressions[asset_type], options, log)
+				// include this asset
+				return true
 			})
 			.reduce((set, module) =>
 			{
