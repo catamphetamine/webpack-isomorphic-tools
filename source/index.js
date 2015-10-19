@@ -119,8 +119,15 @@ export default class webpack_isomorphic_tools
 		// register require() hooks
 		this.register()
 
-		// call back when ready
-		return this.ready(callback)
+		if (callback) {
+			// call back when ready
+			return this.ready(callback)
+		} else {
+			// no callback given, return promise
+			return Promise(function(resolve, reject) {
+				this.ready(resolve);
+			});
+		}
 	}
 
 	// Registers Node.js require() hooks for the assets
