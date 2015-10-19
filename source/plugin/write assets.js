@@ -125,7 +125,6 @@ function populate_assets(output, json, options, log)
 	const default_naming = (module) => module.name
 
 	// put assets of all types into a single object for speeding up lookup by asset path
-	output.assets = {}
 
 	// for each user specified asset type
 	for (let asset_type of Object.keys(options.assets))

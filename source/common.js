@@ -7,7 +7,8 @@ export function default_webpack_assets()
 	const webpack_assets = 
 	{
 		javascript: {},
-		styles: {}
+		styles: {},
+		assets: {}
 	}
 
 	return webpack_assets
