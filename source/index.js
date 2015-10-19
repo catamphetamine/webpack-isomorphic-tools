@@ -58,15 +58,6 @@ export default class webpack_isomorphic_tools
 	// along with a couple of predefined ones: javascripts and styles
 	assets()
 	{
-		// webpack and node.js start in parallel
-		// so webpack-assets.json might not exist on the very first run
-		// (or there should be a better way of webpack notifying about build ending)
-		if (!fs.existsSync(this.webpack_assets_path))
-		{
-			this.log.error(`"${this.webpack_assets_path}" not found. Using an empty stub instead`)
-			return default_webpack_assets()
-		}
-
 		return require(this.webpack_assets_path)
 	}
 
@@ -99,7 +90,7 @@ export default class webpack_isomorphic_tools
 
 	// Initializes server-side instance of `webpack-isomorphic-tools` 
 	// with the base path for your project, then calls `.register()`,
-	// and after that calls .ready(callback).
+	// and after that calls .wait_for_assets(callback).
 	//
 	// The `project_path` parameter must be identical 
 	// to the `context` parameter of your Webpack configuration 
@@ -119,8 +110,20 @@ export default class webpack_isomorphic_tools
 		// register require() hooks
 		this.register()
 
-		// call back when ready
-		return this.ready(callback)
+		// when ready: 
+
+		// if callback is given, call it back
+		if (callback)
+		{
+			// call back when ready
+			return this.wait_for_assets(callback)
+		}
+		// otherwise resolve a Promise
+		else
+		{
+			// no callback given, return a Promise
+			return new Promise((resolve, reject) => this.wait_for_assets(resolve))
+		}
 	}
 
 	// Registers Node.js require() hooks for the assets
@@ -176,27 +179,23 @@ export default class webpack_isomorphic_tools
 		// sanity check
 		if (!asset_path)
 		{
-			// return ''
 			return undefined
 		}
 
 		// get real file path list
-		var assets = this.assets()
+		var assets = this.assets().assets
 		
 		// find this asset in the real file path list
-		for (let type of Object.keys(assets))
+		const asset = assets[asset_path]
+		
+		// if the real path was found in the list - return it
+		if (exists(asset))
 		{
-			const asset = assets[type][asset_path]
-			// if the real path was found in the list - return it
-			if (exists(asset))
-			{
-				return asset
-			}
+			return asset
 		}
 
 		// serve a not-found asset maybe
 		this.log.error(`asset not found: ${asset_path}`)
-		// return ''
 		return undefined
 	}
 
@@ -284,10 +283,10 @@ export default class webpack_isomorphic_tools
 	// (it's needed for development because `webpack-dev-server` 
 	//  and your application server are usually run in parallel).
 	//
-	ready(done)
+	wait_for_assets(done)
 	{
 		// condition check interval
-		const interval = 1000 // in milliseconds
+		const interval = 300 // in milliseconds
 
 		// selfie
 		const tools = this

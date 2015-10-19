@@ -44,7 +44,8 @@
     "build-modules": "babel ./source --optional runtime --out-dir ./babel-transpiled-modules --source-maps",
     "build": "npm-run-all clean-for-build build-modules",
     "commit-new-build": "git commit --all --message=\"Update build\"",
-    "tryout": "npm-run-all test build",
+    "tryout": "npm-run-all test build pack",
+    "pack": "npm pack",
     "watch": "babel scripts/watch.js | node"
   },
   "repository": {

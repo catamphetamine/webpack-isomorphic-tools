@@ -1,6 +1,9 @@
 # git
 .gitignore
 
+# testing package
+/webpack-isomorphic-tools-*.tgz
+
 # Travis CI
 .travis.yml
 

@@ -2,7 +2,7 @@ import fs     from 'fs'
 import path   from 'path'
 import mkdirp from 'mkdirp'
 
-import { clone } from '../helpers'
+import { exists, clone } from '../helpers'
 
 // writes webpack-assets.json file, which contains assets' file paths
 export default function write_assets(json, options, log)
@@ -124,6 +124,9 @@ function populate_assets(output, json, options, log)
 	// one can supply a custom namer
 	const default_naming = (module) => module.name
 
+	// put assets of all types into a single object for speeding up lookup by asset path
+	output.assets = {}
+
 	// for each user specified asset type
 	for (let asset_type of Object.keys(options.assets))
 	{
@@ -146,9 +149,6 @@ function populate_assets(output, json, options, log)
 
 		// timer start
 		const began_at = new Date().getTime()
-
-		// initialization
-		output[asset_type] = output[asset_type] || {}
 
 		// get real paths for all the files from this asset type
 		json.modules
@@ -175,12 +175,27 @@ function populate_assets(output, json, options, log)
 			{
 				// determine asset name
 				const name = naming(module, options, log)
-				// determine and set the real file path for the asset
-				set[name] = parser(module, options, log) // || ''
+				// asset real path (or whatever else)
+				const parsed_asset = parser(module, options, log)
+
+				// check for naming collisions (just in case)
+				if (exists(set[name]))
+				{
+					log.error('-----------------------------------------------------------------')
+					log.error(`Asset named "${name}" was overwritten because of naming collision`)
+					log.error(`Previous asset with this name:`)
+					log.error(set[name])
+					log.error(`New asset with this name:`)
+					log.error(parsed_asset)
+					log.error('-----------------------------------------------------------------')
+				}
+
+				// add this asset to the list
+				set[name] = parsed_asset
 				// continue
 				return set
 			},
-			output[asset_type])
+			output.assets)
 
 		// timer stop
 		log.debug(` time taken: ${new Date().getTime() - began_at} ms`)

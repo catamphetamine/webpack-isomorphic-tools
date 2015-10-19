@@ -1,3 +1,6 @@
+# testing package
+/webpack-isomorphic-tools-*.tgz
+
 # test coverage folder
 /coverage/
 
