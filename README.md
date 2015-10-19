@@ -500,7 +500,9 @@ A parser (see [Configuration](#configuration) section above) for Webpack [url-lo
 
 (server tools)
 
-Initializes a server-side instance of `webpack-isomorphic-tools` with the base path for your project and makes all the server-side `require()` calls work. The `project_path` parameter must be identical to the `context` parameter of your Webpack configuration and is needed to locate `webpack-assets.json` (contains the assets info) which is output by Webpack process. The callback is called when `webpack-assets.json` has been found (it's needed for development because `webpack-dev-server` and your application server are usually run in parallel).
+Initializes a server-side instance of `webpack-isomorphic-tools` with the base path for your project and makes all the server-side `require()` calls work. The `project_path` parameter must be identical to the `context` parameter of your Webpack configuration and is needed to locate `webpack-assets.json` (contains the assets info) which is output by Webpack process.
+
+The `callback` is called when `webpack-assets.json` has been found (it's needed for development because `webpack-dev-server` and your application server are usually run in parallel).
 
 If not given a `callback` it will return a `Promise` (for those who prefer `Promise`s over callbacks)
 
