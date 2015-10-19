@@ -126,7 +126,7 @@ export default class webpack_isomorphic_tools
 			// no callback given, return promise
 			return Promise(function(resolve, reject) {
 				this.ready(resolve);
-			});
+			}.bind(this));
 		}
 	}
 
