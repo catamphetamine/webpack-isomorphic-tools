@@ -1,3 +1,10 @@
+1.0.0 / 19.10.2015
+===================
+
+  * Bumped version to 1.0.0 (mature enough)
+  * Added extensive testing
+  * `.server()` method now can return a Promise if not given a callback
+
 0.9.2, 0.9.3 / 17.10.2015
 ===================
 
