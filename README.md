@@ -49,7 +49,7 @@ For example, consider images. Images are `require()`d in React components and th
 
 ```javascript
 // alternatively one can use import, but in this case hot reloading won't work
-// import image from '../image.png'
+// import image_path from '../image.png'
 
 // you just `src` your image inside your `render()` method
 class Photo extends React.Component
@@ -61,9 +61,9 @@ class Photo extends React.Component
     // and name it something like `9059f094ddb49c2b0fa6a254a6ebf2ad.png`, 
     // because we are using the `[hash]` file naming feature of Webpack url-loader
     // which (feature) is required to make browser caching work correctly
-    const image = require('../image.png')
+    const image_path = require('../image.png')
 
-    return <img src={image}/>
+    return <img src={image_path}/>
   }
 }
 ```
@@ -75,7 +75,7 @@ To solve this issue you use `webpack-isomorphic-tools` in your application and w
 
 In this particular case the `require()` call will return the real path to the image on the disk. It would be something like `../../build/9059f094ddb49c2b0fa6a254a6ebf2ad.png`. How did `webpack-isomorphic-tools` know this weird real file path? It's just a bit of magic.
 
-You get the idea now?
+So, you get the idea now?
 
 Aside all of that, `webpack-isomorphic-tools` is highly extensible, and finding the real paths for your assets is just the simplest example of what it's capable of. Using [custom configuration](#configuration) one can make `require()` calls (on the server) return virtually anything (not just a String, it may be a JSON object, for example).
 
