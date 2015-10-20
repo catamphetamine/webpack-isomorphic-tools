@@ -71,7 +71,7 @@ class Photo extends React.Component
 It works on the client because Webpack intelligently replaces all the `require()` calls for you.
 But it wouldn't work on the server because Node.js only knows how to `require()` javascript modules. It would just throw a `SyntaxError`.
 
-To solve this issue you use `webpack-isomorphic-tools` in your application and what it does is it makes the code above work on the server too (in the simplest case), so that you can have your isomorphic (universal) rendering working.
+To solve this issue you use `webpack-isomorphic-tools` in your application and what it does is it makes the code above work on the server too so that you can have your isomorphic (universal) rendering working.
 
 In this particular case the `require()` call will return the real path to the image on the disk. It would be something like `../../build/9059f094ddb49c2b0fa6a254a6ebf2ad.png`. How did `webpack-isomorphic-tools` know this weird real file path? It's just a bit of magic.
 
