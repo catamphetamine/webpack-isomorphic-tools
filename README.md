@@ -377,6 +377,9 @@ Available configuration parameters:
       //
       //  module             - a webpack stats module
       //
+      //                       (to understand what a "module" is
+      //                        read the "What's a "module"" section of this readme)
+      //
       //  regular_expression - a regular expression 
       //                       composed of this asset type's extensions
       //                       e.g. /\.scss$/, /\.(ico|gif)$/
@@ -407,6 +410,9 @@ Available configuration parameters:
       // arguments:
       //
       //  module  - a webpack stats module
+      //
+      //            (to understand what a "module" is
+      //             read the "What's a "module"" section of this readme)
       //
       //  options - various options
       //            (development mode flag,
@@ -440,6 +446,9 @@ Available configuration parameters:
       //
       //  module  - a webpack stats module
       //
+      //            (to understand what a "module" is
+      //             read the "What's a "module"" section of this readme)
+      //
       //  options - various options
       //            (development mode flag,
       //             debug mode flag,
@@ -469,6 +478,114 @@ Available configuration parameters:
   ...]
 }
 ```
+
+## What's a "module"
+
+A "module" is a Webpack entity. When Webpack compiles your code it splits it into "chunks" (which is irrelevant to this explanation). Every time you `require()` a file (it could be anything: a javascript file, or a css style, or an image) a `module` entry is created. And the file from where you `require()`d this file is called a "reason" for this "module". Also each `module` has a `name` and a `source`, along with a list of `chunks` it's in and a bunch of other miscellaneous irrelevant properties.
+
+For example, here's the content of the `webpack-stats.debug.json` file (which is generated along with `webpack-assets.json` in development mode) for a random "module".
+
+```javascript
+{
+  ...
+
+  "modules": [
+    {
+      "id": 0,
+      ...
+    },
+    {
+      "id": 1,
+      "name": "./~/fbjs/lib/invariant.js",
+      "source": "module.exports = global[\"undefined\"] = require(\"-!G:\\\\work\\\\isomorphic-demo\\\\node_modules\\\\fbjs\\\\lib\\\\invariant.js\");",
+
+      // the rest of the fields are irrelevant
+
+      "chunks": [
+        0
+      ],
+      "identifier": "G:\\work\\isomorphic-demo\\node_modules\\expose-loader\\index.js?undefined!G:\\work\\isomorphic-demo\\node_modules\\fbjs\\lib\\invariant.js",
+      "index": 27,
+      "index2": 7,
+      "size": 117,
+      "cacheable": true,
+      "built": true,
+      "optional": false,
+      "prefetched": false,
+      "assets": [],
+      "issuer": "G:\\work\\isomorphic-demo\\node_modules\\react\\lib\\ReactInstanceHandles.js",
+      "failed": false,
+      "errors": 0,
+      "warnings": 0,
+
+      "reasons": [
+        {
+          "moduleId": 418,
+          "moduleIdentifier": "G:\\work\\isomorphic-demo\\node_modules\\react\\lib\\ReactInstanceHandles.js",
+          "module": "./~/react/lib/ReactInstanceHandles.js",
+          "moduleName": "./~/react/lib/ReactInstanceHandles.js",
+          "type": "cjs require",
+          "userRequest": "fbjs/lib/invariant",
+          "loc": "17:16-45"
+        },
+        ...
+        {
+          "moduleId": 483,
+          "moduleIdentifier": "G:\\work\\isomorphic-demo\\node_modules\\react\\lib\\traverseAllChildren.js",
+          "module": "./~/react/lib/traverseAllChildren.js",
+          "moduleName": "./~/react/lib/traverseAllChildren.js",
+          "type": "cjs require",
+          "userRequest": "fbjs/lib/invariant",
+          "loc": "19:16-45"
+        }
+      ]
+    },
+
+    ...
+  ]
+}
+```
+
+Every module is "loaded" (decorated, transformed, replaced, etc) by a corresponding module "loader" specified in Webpack configuration file (`webpack.conf.js`) under the "module.loaders" path. For example, say, all JPG images in a project are loaded with a "url-loader":
+
+```javascript
+{
+  ...
+
+  module:
+  {
+    loaders:
+    [
+      ...
+
+      {
+        test   : /\.jpg$/,
+        loader : 'url-loader'
+      }
+    ]
+  },
+
+  ...
+}
+```
+
+This works on client: `require()` calls will return URLs for JPG images. The next step is to make `require()` calls to these JPG images also return URLs on the server, with the help of `webpack-isomorphic-tools`. So, the fields of interest of the `module` object would be `name` and `source`: first you find the modules of interest by their `name`s (in this case, the module `name`s would end in ".jpg") and then you parse the `source`s of those modules to extract the information you need (in this case that would be the real path to an image)
+
+The `module` object would look like this
+
+```javascript
+{
+  ...
+  "name": "./assets/images/husky.jpg",
+  "source": "module.exports = __webpack_public_path__ + \"9059f094ddb49c2b0fa6a254a6ebf2ad.jpg\""
+}
+```
+
+Therefore
+
+* the `filter` function would be `module => module.name.ends_with('.jpg')`
+* the `naming` function would be `module => module.name`
+* the `parser` function would be `module => build_folder_path + module.source.substring(first_quote_index, second_quote_index)`
 
 ## API
 
