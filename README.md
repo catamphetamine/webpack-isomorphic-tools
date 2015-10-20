@@ -481,6 +481,8 @@ Available configuration parameters:
 
 ## What's a "module"
 
+**This is an advanced topic on Webpack internals**
+
 A "module" is a Webpack entity. When Webpack compiles your code it splits it into "chunks" (which is irrelevant to this explanation). Every time you `require()` a file (it could be anything: a javascript file, or a css style, or an image) a `module` entry is created. And the file from where you `require()`d this file is called a "reason" for this "module". Also each `module` has a `name` and a `source`, along with a list of `chunks` it's in and a bunch of other miscellaneous irrelevant properties.
 
 For example, here's the content of the `webpack-stats.debug.json` file (which is generated along with `webpack-assets.json` in development mode) for a random "module".
@@ -569,7 +571,7 @@ When a `require()` call fires the corresponding module is "loaded" (decorated, t
 }
 ```
 
-This works on client: `require()` calls will return URLs for JPG images. The next step is to make `require()` calls to these JPG images also return URLs on the server, with the help of `webpack-isomorphic-tools`. So, the fields of interest of the `module` object would be `name` and `source`: first you find the modules of interest by their `name`s (in this case, the module `name`s would end in ".jpg") and then you parse the `source`s of those modules to extract the information you need (in this case that would be the real path to an image)
+This works on client: `require()` calls will return URLs for JPG images. The next step is to make `require()` calls to these JPG images behave the same way when this code is run on the server, with the help of `webpack-isomorphic-tools`. So, the fields of interest of the `module` object would be `name` and `source`: first you find the modules of interest by their `name`s (in this case, the module `name`s would end in ".jpg") and then you parse the `source`s of those modules to extract the information you need (in this case that would be the real path to an image)
 
 The `module` object would look like this
 
