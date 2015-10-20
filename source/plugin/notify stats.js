@@ -16,20 +16,19 @@ export default function notify_stats(stats, json)
 	// if there were any errors
 	if (json.errors.length > 0)
 	{
-		json.errors.forEach(error)
+		return json.errors.forEach(error)
 	}
+
 	// if there were any warnings
-	else if (json.warnings.length > 0)
+	if (json.warnings.length > 0)
 	{
 		json.warnings.forEach(warning)
 	}
+
 	// if it's ok
-	else
-	{
-		console.log(stats.toString
-		({
-			chunks: false,
-			colors: true
-		}))
-	}
+	console.log(stats.toString
+	({
+		chunks: false,
+		colors: true
+	}))
 }

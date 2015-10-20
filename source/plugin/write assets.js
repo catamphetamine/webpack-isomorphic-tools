@@ -177,6 +177,12 @@ function populate_assets(output, json, options, log)
 				// asset real path (or whatever else)
 				const parsed_asset = parser(module, options, log)
 
+				log.trace('-----------------------------------------------------------------')
+				log.trace(`Adding assset "${name}"`)
+				log.trace('-----------------------------------------------------------------')
+				log.trace('Module object', module)
+				log.trace('-----------------------------------------------------------------')
+
 				// check for naming collisions (just in case)
 				if (exists(set[name]))
 				{

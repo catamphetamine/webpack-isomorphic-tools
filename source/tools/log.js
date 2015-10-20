@@ -25,6 +25,15 @@ export default class Log
 		}
 	}
 
+	// outputs minor debugging info to the log
+	trace(...parameters)
+	{
+		if (this.options.debug)
+		{
+			console.log(colors.gray(this.preamble, '[trace]', generate_log_message(parameters)))
+		}
+	}
+
 	// outputs a warning to the log
 	warning(...parameters)
 	{
