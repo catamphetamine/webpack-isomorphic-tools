@@ -11,6 +11,20 @@
 
 Is a small helper module providing support for isomorphic (universal) rendering when using Webpack.
 
+## Topics
+
+- [What it does and why is it needed?](#what-it-does-and-why-is-it-needed)
+- [Getting down to business](#getting-down-to-business)
+- [Installation](#installation)
+- [Usage](#usage)
+- [A working example](#a-working-example)
+- [Configuration](#configuration)
+- [What's a "module"?](#whats-a-module)
+- [API](#api)
+- [Gotchas](#gotchas)
+- [References](#references)
+- [Contributing](#contributing)
+
 ## What it does and why is it needed?
 
 What is a web application? I would define it as a box with a bunch of inputs (keyboard events, mouse events) and a display as an output. A user walks into your website and your web application renders a "page" on his display.
@@ -61,7 +75,7 @@ To solve this issue you use `webpack-isomorphic-tools` in your application and w
 
 In this particular case the `require()` call will return the real path to the image on the disk. It would be something like `../../build/9059f094ddb49c2b0fa6a254a6ebf2ad.png`. How did `webpack-isomorphic-tools` know this weird real file path? It's just a bit of magic.
 
-## You get the idea now?
+You get the idea now?
 
 Aside all of that, `webpack-isomorphic-tools` is highly extensible, and finding the real paths for your assets is just the simplest example of what it's capable of. Using [custom configuration](#configuration) one can make `require()` calls (on the server) return virtually anything (not just a String, it may be a JSON object, for example).
 
@@ -378,7 +392,7 @@ Available configuration parameters:
       //  module             - a webpack stats module
       //
       //                       (to understand what a "module" is
-      //                        read the "What's a "module"" section of this readme)
+      //                        read the "What's a "module"?" section of this readme)
       //
       //  regular_expression - a regular expression 
       //                       composed of this asset type's extensions
@@ -412,7 +426,7 @@ Available configuration parameters:
       //  module  - a webpack stats module
       //
       //            (to understand what a "module" is
-      //             read the "What's a "module"" section of this readme)
+      //             read the "What's a "module"?" section of this readme)
       //
       //  options - various options
       //            (development mode flag,
@@ -447,7 +461,7 @@ Available configuration parameters:
       //  module  - a webpack stats module
       //
       //            (to understand what a "module" is
-      //             read the "What's a "module"" section of this readme)
+      //             read the "What's a "module"?" section of this readme)
       //
       //  options - various options
       //            (development mode flag,
@@ -479,7 +493,7 @@ Available configuration parameters:
 }
 ```
 
-## What's a "module"
+## What's a "module"?
 
 **This is an advanced topic on Webpack internals**
 
