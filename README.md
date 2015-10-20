@@ -546,7 +546,7 @@ For example, here's the content of the `webpack-stats.debug.json` file (which is
 }
 ```
 
-Every module is "loaded" (decorated, transformed, replaced, etc) by a corresponding module "loader" specified in Webpack configuration file (`webpack.conf.js`) under the "module.loaders" path. For example, say, all JPG images in a project are loaded with a "url-loader":
+When a `require()` call fires the corresponding module is "loaded" (decorated, transformed, replaced, etc) by a corresponding module "loader" specified in Webpack configuration file (`webpack.conf.js`) under the "module.loaders" path. For example, say, all JPG images in a project are loaded with a "url-loader":
 
 ```javascript
 {
