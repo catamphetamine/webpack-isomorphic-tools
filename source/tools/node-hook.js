@@ -5,12 +5,15 @@
 
 // based on https://github.com/gotwarlost/istanbul/blob/master/lib/hook.js
 
+// Also see: https://github.com/nodejs/node/blob/master/lib/module.js
+
 /*
  Copyright (c) 2012, Yahoo! Inc.  All rights reserved.
  Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
  */
 
 var fs = require('fs')
+var path = require('path')
 var Module = require('module')
 
 var serialize = require('./serialize-javascript')
@@ -64,21 +67,53 @@ function hook(extension, transform, options)
 
 	originalLoaders[extension] = Module._extensions[extension]
 
-	Module._extensions[extension] = function (module, filename)
+	Module._extensions[extension] = function(module, filename)
 	{
 		if (options.verbose)
 		{
 			console.log('transforming', filename)
 		}
 
+		var aborted = false
+
 		// var source = fs.readFileSync(filename, 'utf8')
 		var result = transform(filename, function fallback()
 		{
+			aborted = true
+
+			if (path.extname(filename) !== extension)
+			{
+				console.log('Trying to load "' + path.basename(filename) + '" as a "*' + extension + '"')
+			}
+
 			(originalLoaders[extension] || Module._extensions['.js'])(module, filename)
 		})
 
-		result = serialize(result)
-		module._compile('module.exports = ' + result, filename)
+		if (aborted)
+		{
+			return
+		}
+
+		// generate javascript module source code based on the `result` variable
+		var source = result
+		if (typeof source === 'string')
+		{
+			// if `result` is just a string, not a module definition,
+			// convert it to a module definition
+			if (source.indexOf('module.exports = ') < 0)
+			{
+				source = 'module.exports = ' + source
+			}
+		}
+		else
+		{
+			// if `result` is an object, convert it to a module definition
+			source = 'module.exports = ' + serialize(result)
+		}
+
+		// compile javascript module from its source
+		// https://github.com/nodejs/node/blob/master/lib/module.js#L379
+		module._compile(source, filename)
 	}
 
 	if (options.verbose)

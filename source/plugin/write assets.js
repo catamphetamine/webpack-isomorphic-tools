@@ -2,7 +2,7 @@ import fs     from 'fs'
 import path   from 'path'
 import mkdirp from 'mkdirp'
 
-import { exists, clone } from '../helpers'
+import { exists, clone, replace_all } from '../helpers'
 
 // writes webpack-assets.json file, which contains assets' file paths
 export default function write_assets(json, options, log)
@@ -96,7 +96,7 @@ function populate_assets(output, json, options, log)
 			// filter by extension
 			.filter(name => path.extname(name) === `.${extension}`)
 			// adjust the real path (can be http, filesystem)
-			.map(name => options.assets_base_path + name)
+			.map(name => options.assets_base_url + name)
 	}
 
 	// // output assets for all application javascript entry points
@@ -122,7 +122,9 @@ function populate_assets(output, json, options, log)
 	// one can supply a custom filter
 	const default_filter = (module, regular_expression) => regular_expression.test(module.name)
 	// one can supply a custom namer
-	const default_naming = (module) => module.name
+	const default_asset_path = (module) => module.name
+	// one can supply a custom parser
+	const default_parser = (module) => module.source
 
 	// put assets of all types into a single object for speeding up lookup by asset path
 
@@ -134,15 +136,15 @@ function populate_assets(output, json, options, log)
 		// one can supply his own filter
 		const filter = (asset_description.filter || default_filter) //.bind(this)
 		// one can supply his own parser
-		const parser = asset_description.parser //.bind(this)
+		const parser = (asset_description.parser || default_parser) //.bind(this)
 		// one can supply his own namer
-		const naming = (asset_description.naming || default_naming) //.bind(this)
+		const extract_asset_path = (asset_description.path || default_asset_path) //.bind(this)
 
-		// parser is required
-		if (!asset_description.parser)
-		{
-			throw new Error(`"parser" function is required for assets type "${asset_type}". See the Configuration section of the README for explanation.`)
-		}
+		// // parser is required
+		// if (!asset_description.parser)
+		// {
+		// 	throw new Error(`"parser" function is required for assets type "${asset_type}". See the Configuration section of the README for explanation.`)
+		// }
 
 		log.debug(`populating assets of type "${asset_type}"`)
 
@@ -172,31 +174,57 @@ function populate_assets(output, json, options, log)
 			})
 			.reduce((set, module) =>
 			{
-				// determine asset name
-				const name = naming(module, options, log)
-				// asset real path (or whatever else)
+				// determine asset real path
+				const asset_path = extract_asset_path(module, options, log)
+
+				// (no need to resolve require() paths because it just works as is)
+				//
+				// const resolve_require_paths = (module_source) =>
+				// {
+				// 	return module_source.replace(/(\s)require\("([^"]+)"\)/g, function(match, space_before, required_path)
+				// 	{
+				// 		const asset_folder = path.dirname(asset_path)
+				// 		const required_file_path = path.join(asset_folder, required_path)
+				//
+				// 		const required_file_absolute_path = path.resolve(options.project_folder, required_file_path)
+				// 		const node_modules_path = path.join(options.project_folder, 'node_modules')
+				//
+				// 		// if it's a require() call for a file inside "node_modules",
+				// 		// then adjust the required path accordingly
+				// 		if (required_file_absolute_path.indexOf(node_modules_path) === 0)
+				// 		{
+				// 			// account for the last '/'
+				// 			required_path = required_path.slice(node_modules_path.length + 1)
+				// 		}
+				// 		else
+				// 		{
+				// 			required_path = './' + replace_all(required_file_path, path.sep, '/')
+				// 		}
+				//
+				// 		return space_before + `require("${required_path}")`
+				// 	})
+				// }
+
+				// asset module source, or asset content (or whatever else)
 				const parsed_asset = parser(module, options, log)
 
-				log.trace('-----------------------------------------------------------------')
-				log.trace(`Adding assset "${name}"`)
-				log.trace('-----------------------------------------------------------------')
-				log.trace('Module object', module)
-				log.trace('-----------------------------------------------------------------')
+				log.trace(`Adding assset "${asset_path}", module id ${module.id} (in webpack-stats.debug.json)`)
 
 				// check for naming collisions (just in case)
-				if (exists(set[name]))
+				if (exists(set[asset_path]))
 				{
 					log.error('-----------------------------------------------------------------')
-					log.error(`Asset named "${name}" was overwritten because of naming collision`)
-					log.error(`Previous asset with this name:`)
-					log.error(set[name])
-					log.error(`New asset with this name:`)
+					log.error(`Asset with path "${asset_path}" was overwritten because of path collision.`)
+					log.error(`Use the "filter" function of this asset type to narrow the results.`)
+					log.error(`Previous asset with this path:`)
+					log.error(set[asset_path])
+					log.error(`New asset with this path:`)
 					log.error(parsed_asset)
 					log.error('-----------------------------------------------------------------')
 				}
 
 				// add this asset to the list
-				set[name] = parsed_asset
+				set[asset_path] = parsed_asset
 				// continue
 				return set
 			},

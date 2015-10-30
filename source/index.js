@@ -17,11 +17,6 @@ export default class webpack_isomorphic_tools
 		// take the passed in options
 		this.options = alias_camel_case(clone(options))
 
-		// a list of files which can be require()d normally on the server
-		// (for example, if you have require("./file.json") both in webpack and in the server code)
-		// (should work, not tested)
-		this.options.exclude = this.options.exclude || []
-
 		// used to keep track of cached assets and flush their caches on .refresh() call
 		this.cached_assets = []
 
@@ -154,21 +149,25 @@ export default class webpack_isomorphic_tools
 	{
 		this.log.debug('registering require() hooks for assets')
 
-		// for each user specified asset type which isn't for .js files
-		// (because '.js' files requiring already works natively)
-		Object.keys(this.options.assets).filter(asset_type =>
-		{
-			const description = this.options.assets[asset_type]
+		// for each user specified asset type 
+		Object.keys(this.options.assets)
 
-			if (description.extension)
-			{
-				return description.extension !== 'js'
-			}
-			else
-			{
-				return description.extensions.indexOf('js') < 0
-			}
-		})
+		// // which isn't for .js files
+		// // (because '.js' files requiring already works natively)
+		// .filter(asset_type =>
+		// {
+		// 	const description = this.options.assets[asset_type]
+		//
+		// 	if (description.extension)
+		// 	{
+		// 		return description.extension !== 'js'
+		// 	}
+		// 	else
+		// 	{
+		// 		return description.extensions.indexOf('js') < 0
+		// 	}
+		// })
+
 		// register a require hook for each file extension of this asset type
 		.forEach(asset_type =>
 		{
@@ -176,7 +175,7 @@ export default class webpack_isomorphic_tools
 			
 			for (let extension of description.extensions)
 			{
-				this.register_extension(extension)
+				this.register_extension(extension, description)
 			}
 		})
 
@@ -184,11 +183,82 @@ export default class webpack_isomorphic_tools
 		return this
 	}
 
+	// registers a require hook for a particular file extension
+	register_extension(extension, description)
+	{
+		this.log.debug(` registering a require() hook for *.${extension}`)
+
+		// place the require() hook for this extension
+		hook.hook(`.${extension}`, (path, fallback) => this.require(path, description, fallback))
+	}
+
+	// require()s an asset by a path
+	require(global_asset_path, description, fallback)
+	{
+		this.log.debug(`require() called for ${global_asset_path}`)
+
+		// sanity check
+		if (!this.options.project_path)
+		{
+			throw new Error(`You forgot to call the .server() method passing it your project's base path`)
+		}
+
+		// // if the require()d file is not part of the project - skip it
+		// // (should be faster, but who needs faster if the modules are cached by Node.js)
+		// if (!global_asset_path.indexOf(this.options.project_path) === 0)
+		// {
+		// 	this.log.debug(` skipping require call for ${asset_path} (not in project folder)`)
+		// 	return fallback()
+		// }
+
+		// // asset path relative to the project folder
+		// // (should be faster, but who needs faster if the modules are cached by Node.js)
+		// let asset_path = global_asset_path.slice(this.options.project_path.length + fs.sep.length)
+
+		// asset path relative to the project folder
+		let asset_path = path.relative(this.options.project_path, global_asset_path)
+
+		// for Windows:
+		//
+		// convert Node.js path to a correct Webpack path
+		asset_path = asset_path.replace(/\\/g, '/')
+		// add './' in the beginning if it's missing (for example, in case of Windows)
+		if (asset_path.indexOf('.') !== 0)
+		{
+			asset_path = './' + asset_path
+		}
+
+		// if this filename is in the user specified exceptions list
+		// (or is not in the user explicitly specified inclusion list)
+		// then fallback to the normal require() behaviour
+		if (!this.includes(asset_path, description) || this.excludes(asset_path, description))
+		{
+			this.log.debug(` skipping require call for ${asset_path}`)
+			return fallback()
+		}
+
+		// track cached assets (only in development mode)
+		if (this.options.development)
+		{
+			// mark this asset as cached
+			this.cached_assets.push(global_asset_path)
+		}
+
+		// webpack has a shortcut from "node_modules"
+		if (asset_path.indexOf('./node_modules/') === 0)
+		{
+			asset_path = asset_path.replace('./node_modules/', './~/')
+		}
+		
+		// perform the actual require() of this asset
+		return this._require(asset_path)
+	}
+
 	// is called when you require() your assets
 	// (or can be used manually without require hooks)
-	require(asset_path)
+	_require(asset_path)
 	{
-		this.log.debug(`requiring ${asset_path}`)
+		this.log.debug(` requiring ${asset_path}`)
 
 		// sanity check
 		if (!asset_path)
@@ -213,61 +283,17 @@ export default class webpack_isomorphic_tools
 		return undefined
 	}
 
-	// registers a require hook for a particular file extension
-	register_extension(extension)
-	{
-		this.log.debug(` registering a require() hook for *.${extension}`)
-
-		// place the require() hook for this extension
-		hook.hook(`.${extension}`, (asset_path, fallback) =>
-		{
-			this.log.debug(`require() hook fired for ${asset_path}`)
-
-			// for caching
-			const global_asset_path = asset_path
-
-			// sanity check
-			if (!this.options.project_path)
-			{
-				throw new Error(`You forgot to call the .server() method passing it your project's base path`)
-			}
-
-			// convert absolute path to relative path
-			asset_path = path.relative(this.options.project_path, asset_path)
-
-			// convert Windows path to a correct Webpack path
-			asset_path = asset_path.replace(/\\/g, '/')
-			// add './' in the beginning if it's missing (is the case on Windows for example)
-			if (asset_path.indexOf('.') !== 0)
-			{
-				asset_path = './' + asset_path
-			}
-
-			// if this filename is in the user specified exceptions list
-			// then fallback to the normal require() behaviour
-			if (this.excludes(asset_path))
-			{
-				this.log.debug(`skipping require call for ${asset_path}`)
-				return fallback()
-			}
-
-			// track cached assets (only in development mode)
-			if (this.options.development)
-			{
-				// mark this asset as cached
-				this.cached_assets.push(global_asset_path)
-			}
-			
-			// require() this asset (returns the real file path for this asset, e.g. an image)
-			return this.require(asset_path)
-		})
-	}
-
 	// Checks if the required path should be excluded from the custom require() hook
-	excludes(path)
+	excludes(path, options)
 	{
+		// if "exclude" parameter isn't specified, then exclude nothing
+		if (!exists(options.exclude))
+		{
+			return false
+		}
+
 		// for each exclusion case
-		for (let exclude of this.options.exclude)
+		for (let exclude of options.exclude)
 		{
 			// supports regular expressions
 			if (exclude instanceof RegExp)
@@ -277,17 +303,69 @@ export default class webpack_isomorphic_tools
 					return true
 				}
 			}
+			// check for a compex logic match
+			else if (typeof exclude === 'function')
+			{
+				if (exclude(path))
+				{
+					return true
+				}
+			}
 			// otherwise check for a simple textual match
 			else
 			{
-				if (exclude == path)
+				if (exclude === path)
 				{
 					return true
 				}
 			}
 		}
 
-		// so that it isn't undefined (for testing purpose)
+		// no matches found.
+		// returns false so that it isn't undefined (for testing purpose)
+		return false
+	}
+
+	// Checks if the required path should be included in the custom require() hook
+	includes(path, options)
+	{
+		// if "include" parameter isn't specified, then include everything
+		if (!exists(options.include))
+		{
+			return true
+		}
+
+		// for each inclusion case
+		for (let include of options.include)
+		{
+			// supports regular expressions
+			if (include instanceof RegExp)
+			{
+				if (include.test(path))
+				{
+					return true
+				}
+			}
+			// check for a compex logic match
+			else if (typeof include === 'function')
+			{
+				if (include(path))
+				{
+					return true
+				}
+			}
+			// otherwise check for a simple textual match
+			else
+			{
+				if (include === path)
+				{
+					return true
+				}
+			}
+		}
+
+		// no matches found.
+		// returns false so that it isn't undefined (for testing purpose)
 		return false
 	}
 

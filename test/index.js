@@ -27,7 +27,7 @@ const expected_webpack_assets =
 	},
 	"assets":
 	{
-		"./assets/images/husky.jpg": "/assets/9059f094ddb49c2b0fa6a254a6ebf2ad.jpg"
+		"./assets/images/husky.jpg": "var __webpack_public_path__ = \"/assets/\";\n\nmodule.exports = __webpack_public_path__ + \"9059f094ddb49c2b0fa6a254a6ebf2ad.jpg\""
 	}
 }
 
@@ -48,11 +48,9 @@ const webpack_configuration =
 	}
 }
 
-const isomorpher_settings = 
-{
+const isomorpher_settings = () =>
+({
 	// debug: true, 
-
-	exclude: ['kitten.jpg', /^\.\/node_modules\/*/],
 
 	webpack_assets_file_path: webpack_assets_path,
 
@@ -84,7 +82,7 @@ const isomorpher_settings =
 			parser: isomorpher_plugin.url_loader_parser
 		}
 	}
-}
+})
 
 // deletes webpack-assets.json if it exists
 function cleanup_webpack_assets()
@@ -140,8 +138,10 @@ describe('plugin', function()
 
 	it('should generate regular expressions', function()
 	{
-		const plugin = new isomorpher_plugin(isomorpher_settings)
-		const server_side = new isomorpher(isomorpher_settings)
+		const settings = isomorpher_settings()
+
+		const plugin = new isomorpher_plugin(settings)
+		const server_side = new isomorpher(settings)
 
 		// check resulting regular expressions
 
@@ -156,17 +156,49 @@ describe('plugin', function()
 		{
 			plugin.regular_expression(asset_type).toString().should.equal(regular_expressions[asset_type].toString())
 		}
+	})
+
+	it('should exclude files from require hooks', function()
+	{
+		const settings = isomorpher_settings()
+
+		settings.assets.images_and_fonts.exclude = ['kitten.jpg', /^\.\/node_modules\/*/, path => path === 'function test']
+
+		const plugin = new isomorpher_plugin(settings)
+		const server_side = new isomorpher(settings)
+
+		const excludes = path => server_side.excludes(path, settings.assets.images_and_fonts)
 
 		// check require() hooks exclusion
-		server_side.excludes('kitten.jpg.backup').should.be.false
-		server_side.excludes('kitten.jpg').should.be.true
-		server_side.excludes('./node_modules/fonts/style.css').should.be.true
-		server_side.excludes('source/node_modules/fonts/style.css').should.be.false
+		excludes('kitten.jpg.backup').should.be.false
+		excludes('kitten.jpg').should.be.true
+		excludes('./node_modules/fonts/style.css').should.be.true
+		excludes('source/node_modules/fonts/style.css').should.be.false
+		excludes('function test').should.be.true
+	})
+
+	it('should include files in require hooks', function()
+	{
+		const settings = isomorpher_settings()
+
+		settings.assets.images_and_fonts.include = ['kitten.jpg', /^\.\/node_modules\/*/, path => path === 'function test']
+
+		const plugin = new isomorpher_plugin(settings)
+		const server_side = new isomorpher(settings)
+
+		const includes = path => server_side.includes(path, settings.assets.images_and_fonts)
+
+		// check require() hooks inclusion
+		includes('kitten.jpg.backup').should.be.false
+		includes('kitten.jpg').should.be.true
+		includes('./node_modules/fonts/style.css').should.be.true
+		includes('source/node_modules/fonts/style.css').should.be.false
+		includes('function test').should.be.true
 	})
 
 	it('should generate correct webpack-assets.json', function(done)
 	{
-		const plugin = new isomorpher_plugin(isomorpher_settings)
+		const plugin = new isomorpher_plugin(isomorpher_settings())
 
 		plugin.apply
 		({
@@ -186,7 +218,7 @@ describe('plugin', function()
 	it('should wait for webpack-assets.json (callback)', function(done)
 	{
 		// ensure it waits for webpack-assets.json
-		new isomorpher(isomorpher_settings).server(webpack_configuration.context, () => callback(done))
+		new isomorpher(isomorpher_settings()).server(webpack_configuration.context, () => callback(done))
 
 		// create the webpack-assets.json
 		create_assets_file()
@@ -195,7 +227,7 @@ describe('plugin', function()
 	it('should wait for webpack-assets.json (promise)', function(done)
 	{
 		// ensure it waits for webpack-assets.json
-		new isomorpher(isomorpher_settings).server(webpack_configuration.context).then(() => callback(done))
+		new isomorpher(isomorpher_settings()).server(webpack_configuration.context).then(() => callback(done))
 
 		// create the webpack-assets.json
 		create_assets_file()

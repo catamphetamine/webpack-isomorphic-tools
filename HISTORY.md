@@ -1,3 +1,10 @@
+2.0.0 / 30.10.2015
+
+  * Introduced true and seamless Webpack module source parsing
+  * Renamed `naming` function to `path`
+  * Parsers: `url_loader_parser`, `css_loader_parser`, `css_modules_loader_parser`
+  * `exclude` now moved to individual asset types
+
 1.0.0, 1.0.1 / 19.10.2015
 ===================
 

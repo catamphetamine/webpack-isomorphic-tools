@@ -113,8 +113,8 @@ Plugin.prototype.apply = function(compiler)
 		throw new Error('You must specify ".output.publicPath" in your webpack configuration')
 	}
 
-	// assets base path (on disk or on the network)
-	const assets_base_path = webpack_configuration.output.publicPath
+	// // assets base path (on disk or on the network)
+	// const assets_base_path = webpack_configuration.output.publicPath
 
 	// when all is done
 	// https://github.com/webpack/docs/wiki/plugins
@@ -122,7 +122,7 @@ Plugin.prototype.apply = function(compiler)
 	{
 		var json = stats.toJson()
 
-		// output some info to the console if in developmetn mode
+		// output some info to the console if in development mode
 		if (plugin.options.development)
 		{
 			// outputs stats info to the console
@@ -136,7 +136,8 @@ Plugin.prototype.apply = function(compiler)
 			development         : plugin.options.development,
 			debug               : plugin.options.debug,
 			assets              : plugin.options.assets,
-			assets_base_path    : assets_base_path,
+			project_path        : plugin.options.project_path,
+			assets_base_url     : webpack_configuration.output.publicPath,
 			webpack_assets_path : webpack_assets_path,
 			output              : default_webpack_assets(),
 			regular_expressions : plugin.regular_expressions
@@ -145,26 +146,28 @@ Plugin.prototype.apply = function(compiler)
 	})
 }
 
-// a sample path parser for webpack url-loader
+// a sample module source parser for webpack url-loader
 // (works for images, fonts, and i guess for everything else, should work for any file type)
-Plugin.url_loader_parser = function(module, options)
+Plugin.url_loader_parser = function(module, options, log)
 {
-	// retain everything inside of double quotes.
-	// usually it's "data:image..." for embedded with the double quotes
-	// or __webpack_public_path__ + "..." for filesystem path
-	const double_qoute_index = module.source.indexOf('"')
-	let asset_path = module.source.slice(double_qoute_index + 1, -1)
+	return 'var __webpack_public_path__ = ' + JSON.stringify(options.assets_base_url) + ';' + '\n\n' + module.source
+}
 
-	// check if the file was embedded (small enough)
-	const is_embedded = asset_path.lastIndexOf('data:image', 0) === 0
-	if (!is_embedded)
-	{
-		// if it wasn't embedded then it's a file path so resolve it
-		asset_path = options.assets_base_path + asset_path
-	}
+// a sample module source parser for webpack css-loader
+// (without css-loader "modules" feature support)
+Plugin.css_loader_parser = function(module, options, log)
+{
+	return module.source + '; module.exports = module.exports.toString()'
+}
 
-	return asset_path
+// a sample module source parser for webpack css-loader
+// (with css-loader "modules" feature support)
+Plugin.css_modules_loader_parser = function(module, options, log)
+{
+	return module.source + '; module.exports = exports.locals; module.exports._style = exports.toString()'
 }
 
 // alias camel case for those who prefer it
-Plugin.urlLoaderParser = Plugin.url_loader_parser
+Plugin.urlLoaderParser        = Plugin.url_loader_parser
+Plugin.cssLoaderParser        = Plugin.css_loader_parser
+Plugin.cssModulesLoaderParser = Plugin.css_modules_loader_parser

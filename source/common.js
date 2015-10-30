@@ -43,6 +43,7 @@ export function normalize_options(options)
 
 			// normalize
 			description.extensions = [description.extension]
+			delete description.extension
 		}
 
 		// sanity check

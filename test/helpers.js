@@ -1,5 +1,5 @@
 import chai from 'chai'
-import { extend, alias_camel_case } from './../source/helpers'
+import { extend, alias_camel_case, replace_all } from './../source/helpers'
 
 chai.should()
 
@@ -65,5 +65,10 @@ describe('helpers', function()
 		}
 
 		alias_camel_case(a).should.deep.equal(camel_cased_a)
+	})
+
+	it('should replace strings', function()
+	{
+		replace_all('Testing \\ string', '\\', '-').should.equal('Testing - string')
 	})
 })

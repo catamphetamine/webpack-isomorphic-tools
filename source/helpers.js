@@ -63,3 +63,15 @@ export function alias_camel_case(object)
 
 	return object
 }
+
+function escape_regexp(string)
+{
+	const specials = new RegExp("[.*+?|()\\[\\]{}\\\\]", 'g')
+	return string.replace(specials, "\\$&")
+}
+
+export function replace_all(where, what, with_what)
+{
+	const regexp = new RegExp(escape_regexp(what), 'g')
+	return where.replace(regexp, with_what)
+}

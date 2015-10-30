@@ -266,6 +266,9 @@ export default class Html extends Component
           {Object.keys(assets.styles).map((style, i) =>
             <link href={assets.styles[style]} key={i} media="screen, projection"
                   rel="stylesheet" type="text/css"/>)}
+
+          {/* resolves the initial style flash (flicker) on page load in development mode */}
+          { Object.keys(assets.styles).is_empty() ? <style dangerouslySetInnerHTML={{__html: require('../assets/styles/main_style.css')}}/> : null }
         </head>
 
         <body>
@@ -309,9 +312,9 @@ export default class Html extends Component
 
   "assets":
   {
-    "./assets/images/cat.jpg": "/assets/9059f094ddb49c2b0fa6a254a6ebf2ad.jpg",
+    "./assets/images/cat.jpg": "var __webpack_public_path__ = \"http://localhost:3001/assets/\";\n\nmodule.exports = __webpack_public_path__ + \"/assets/9059f094ddb49c2b0fa6a254a6ebf2ad.jpg\"",
     
-    "./assets/images/icon/32x32.png": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQffBhcWAg6gFw6bAAAB60lEQVRIx+3UTUjUQRzG8c+u/n2BDe3lIJtQSuYhsPTQG+TFYLulguStoA5dPHYogoKigoi8dIsOCd0iiC4JFYFQBAVZEUgklWVQqam4vu1uF111d1310qWe0/yemfnyzPyG4b8KllQl6jWqNuX3nFNun/0qjJpYGRB1TkyRWu0C76Q0uKhOkT1aDfqSP0uxTpetR1i9e2Iq3HVUCQKt7tuWP0GDmDOGkfJd3GEbhFwzg6T3alR5lg0Ip0fVPhhKV2+UqfNcMu28sjlXggVAXEQoXZVKmlC2aGXETH5Ary3q026zPg8dtGnOKXPIi/x3MCJwUtyUqBN2uarXTi1+Cql1yqibuTKElsCaHBFBn1v6sU67RoGkHl3GciVYDNiuWVSphDEJYaSkRBSbNqLHI7PZgML0qNIFrz3OwqZAuQ6BB8KqRL01nA3YbdCVRW3L1KxGTx1zQMI3p01nAkqN5NnOkBrXJZw1qlOlj5mAlTQuqluXcRGTSrOPsJJeajOQzphaOyDucy47vGrAMvqLgCLlS97HmgH17mgRzFWhbEAq43/M1EYF2p1XoVAgMW8vdKFfmx0+LbO9WJNut3W44Ze4r/MTC6cKHBczutDhJSrxwyWDAntt9cRANoCwqLKcgJApAyZXfV//mP4AWg969geZ6qgAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTUtMDYtMjNUMjI6MDI6MTQrMDI6MDBG88r0AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE1LTA2LTIzVDIyOjAyOjE0KzAyOjAwN65ySAAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAASUVORK5CYII="
+    "./assets/images/icon/32x32.png": "var __webpack_public_path__ = \"http://localhost:3001/assets/\";\n\nmodule.exports = \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQffBhcWAg6gFw6bAAAB60lEQVRIx+3UTUjUQRzG8c+u/n2BDe3lIJtQSuYhsPTQG+TFYLulguStoA5dPHYogoKigoi8dIsOCd0iiC4JFYFQBAVZEUgklWVQqam4vu1uF111d1310qWe0/yemfnyzPyG4b8KllQl6jWqNuX3nFNun/0qjJpYGRB1TkyRWu0C76Q0uKhOkT1aDfqSP0uxTpetR1i9e2Iq3HVUCQKt7tuWP0GDmDOGkfJd3GEbhFwzg6T3alR5lg0Ip0fVPhhKV2+UqfNcMu28sjlXggVAXEQoXZVKmlC2aGXETH5Ary3q026zPg8dtGnOKXPIi/x3MCJwUtyUqBN2uarXTi1+Cql1yqibuTKElsCaHBFBn1v6sU67RoGkHl3GciVYDNiuWVSphDEJYaSkRBSbNqLHI7PZgML0qNIFrz3OwqZAuQ6BB8KqRL01nA3YbdCVRW3L1KxGTx1zQMI3p01nAkqN5NnOkBrXJZw1qlOlj5mAlTQuqluXcRGTSrOPsJJeajOQzphaOyDucy47vGrAMvqLgCLlS97HmgH17mgRzFWhbEAq43/M1EYF2p1XoVAgMW8vdKFfmx0+LbO9WJNut3W44Ze4r/MTC6cKHBczutDhJSrxwyWDAntt9cRANoCwqLKcgJApAyZXfV//mP4AWg969geZ6qgAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTUtMDYtMjNUMjI6MDI6MTQrMDI6MDBG88r0AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE1LTA2LTIzVDIyOjAyOjE0KzAyOjAwN65ySAAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAASUVORK5CYII=\""
   }
 }
 ```
@@ -364,12 +367,6 @@ Available configuration parameters:
   // (these aren't actually 'stats', these are some values derived from Webpack 'stats')
   webpack_assets_file_path: 'webpack-stats.json', // is 'webpack-assets.json' by default
 
-  // here you are able to add some file paths 
-  // for which the require() call will bypass webpack-isomorphic-tools
-  // (relative to the project base folder, e.g. ./sources/server/kitten.jpg.js)
-  // (also supports regular expressions, e.g. /^\.\/node_modules\/*/)
-  exclude: [],
-
   // here you can define all your asset types
   assets:
   {
@@ -381,6 +378,21 @@ Available configuration parameters:
     {
       // which file types belong to this asset type
       extension: 'png', // or extensions: ['png', 'jpg', ...],
+
+      // here you are able to add some file paths 
+      // for which the require() call will bypass webpack-isomorphic-tools
+      // (relative to the project base folder, e.g. ./sources/server/kitten.jpg.js)
+      // (also supports regular expressions, e.g. /^\.\/node_modules\/*/, 
+      //  and functions(path) { return true / false })
+      exclude: [],
+
+      // here you can specify manually the paths 
+      // for which the require() call will be processed by webpack-isomorphic-tools
+      // (relative to the project base folder, e.g. ./sources/server/kitten.jpg.js)
+      // (also supports regular expressions, e.g. /^\.\/node_modules\/*/, 
+      //  and functions(path) { return true / false }).
+      // in case of `include` only included paths will be processed by webpack-isomorphic-tools.
+      include: [],
 
       // [optional]
       // 
@@ -401,7 +413,8 @@ Available configuration parameters:
       //  options            - various options
       //                       (development mode flag,
       //                        debug mode flag,
-      //                        assets base path (on the disk or on the network),
+      //                        assets base url,
+      //                        project base folder,
       //                        regular_expressions{} for each asset type (by name),
       //                        webpack stats json object)
       //
@@ -419,7 +432,7 @@ Available configuration parameters:
       // [optional]
       //
       // transforms a webpack stats module name 
-      // to an asset name
+      // to an asset path (usually is the same thing)
       //
       // arguments:
       //
@@ -431,7 +444,8 @@ Available configuration parameters:
       //  options - various options
       //            (development mode flag,
       //             debug mode flag,
-      //             assets base path (on the disk or on the network),
+      //             assets base url,
+      //             project base folder,
       //             regular_expressions{} for each asset type (by name),
       //             webpack stats json object)
       //
@@ -441,7 +455,7 @@ Available configuration parameters:
       //
       // by default is: "return module.name"
       //
-      naming: function(module, options, log)
+      path: function(module, options, log)
       {
         return module.name
       },
@@ -454,7 +468,16 @@ Available configuration parameters:
       // when you require() these assets 
       // in your code later on.
       //
-      // in other words: require(...) = function(...) { ... return parser(...) }
+      // this is what you'll see as the asset value in webpack-assets.json: 
+      // { ..., path: parser(), ... }
+      //
+      // can be a CommonJS module source code:
+      // module.exports = ...what you export here is what you get when you require()...
+      //
+      // if it's not a CommonJS module (a string, a JSON object) 
+      // then it will be transformed to a CommonJS module source code.
+      //
+      // in other words: require(...) = function(...) { return eval(parser(...)) }
       //
       // arguments:
       //
@@ -466,7 +489,8 @@ Available configuration parameters:
       //  options - various options
       //            (development mode flag,
       //             debug mode flag,
-      //             assets base path (on the disk or on the network),
+      //             assets base url,
+      //             project base folder,
       //             regular_expressions{} for each asset type (by name),
       //             webpack stats json object)
       //
@@ -478,7 +502,8 @@ Available configuration parameters:
       {
         log.info('# module name', module.name)
         log.info('# module source', module.source)
-        log.info('# assets base path', options.assets_base_path)
+        log.info('# project path', options.project_path)
+        log.info('# assets base url', options.assets_base_url)
         log.info('# regular expressions', options.regular_expressions)
         log.info('# debug mode', options.debug)
         log.info('# development mode', options.development)
@@ -706,7 +731,15 @@ System.import('some_module')
 
 I'm currently unfamiliar with ES6 dynamic module loading system because I didn't research this question. Anyway it's still a draft specification so I guess good old `require()` is just fine to the time being.
 
-Also it's good to know that the way all this `require('./asset.whatever_extension')` magic is based on [Node.js require hooks](http://bahmutov.calepin.co/hooking-into-node-loader-for-fun-and-profit.html) and it works with `import`s only when your ES6 code is transpiled by Babel which simply replaces all the `import`s with `require()`s. For now, everyone out there uses Babel, both on client and server. But when the time comes for ES6 to be widely natively adopted, and when a good enough ES6 module loading specification is released, then I (or someone else) will step in and port this "require hook" to ES6 to work with `import`s.
+Also it's good to know that the way all this `require('./asset.whatever_extension')` magic is based on [Node.js require hooks](http://bahmutov.calepin.co/hooking-into-node-loader-for-fun-and-profit.html) and it works with `import`s only when your ES6 code is transpiled by Babel which simply replaces all the `import`s with `require()`s. For now, everyone out there uses Babel, both on client and server. But when the time comes for ES6 to be widely natively adopted, and when a good enough ES6 module loading specification is released, then I (or someone else) will port this "require hook" to ES6 to work with `import`s.
+
+### Error: Cannot find module
+
+This error means that the `require()`d path doesn't exist in the filesystem.
+
+### SyntaxError: Unexpected token ILLEGAL
+
+This probably means that in some asset module source there's a `require()` call to some file extension that isn't specified in 
 
 ## References
 
