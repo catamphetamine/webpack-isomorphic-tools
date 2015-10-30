@@ -167,6 +167,23 @@ Plugin.css_modules_loader_parser = function(module, options, log)
 	return module.source + '; module.exports = exports.locals; module.exports._style = exports.toString()'
 }
 
+// a filter for getting a css module when using it with style-loader
+//
+// in development mode there's webpack "style-loader",
+// so the module with module.name equal to the asset path is not what's needed
+// (because what that module does is it creates a <style/> tag on the page).
+// the module with the CSS styles is the one with a long name:
+Plugin.style_loader_filter = function(module, regular_expression, options, log)
+{
+	return regular_expression.test(module.name) && module.name.indexOf('./~/css-loader') === 0
+}
+
+// extracts css style file path
+Plugin.style_loader_path_extractor = function(module, options, log)
+{
+	return module.name.slice(module.name.lastIndexOf('!') + 1)
+}
+
 // alias camel case for those who prefer it
 Plugin.urlLoaderParser        = Plugin.url_loader_parser
 Plugin.cssLoaderParser        = Plugin.css_loader_parser

@@ -424,6 +424,11 @@ Available configuration parameters:
       //
       // by default is: "return regular_expression.test(module.name)"
       //
+      // premade utility filters:
+      //
+      // Webpack_isomorphic_tools_plugin.style_loader_filter
+      //  (for use with style-loader + css-loader)
+      //
       filter: function(module, regular_expression, options, log)
       {
         return regular_expression.test(module.name)
@@ -454,6 +459,11 @@ Available configuration parameters:
       // returns: a String
       //
       // by default is: "return module.name"
+      //
+      // premade utility path extractors:
+      //
+      // Webpack_isomorphic_tools_plugin.style_loader_path_extractor
+      //  (for use with style-loader + css-loader)
       //
       path: function(module, options, log)
       {
@@ -497,6 +507,21 @@ Available configuration parameters:
       //  log
       // 
       // returns: whatever (could be a filename, could be a JSON object, etc)
+      //
+      // premade utility parsers:
+      //
+      // Webpack_isomorphic_tools_plugin.url_loader_parser
+      //  (for use with url-loader or file-loader)
+      //  require() will return file URL
+      //
+      // Webpack_isomorphic_tools_plugin.css_loader_parser
+      //  (for use with css-loader when not using "modules" feature)
+      //  require() will return CSS style text
+      //
+      // Webpack_isomorphic_tools_plugin.css_modules_loader_parser
+      //  (for use with css-loader when using "modules" feature)
+      //  require() will return a JSON object map of style class names
+      //  which will also have a `_style` key containing CSS style text
       //
       parser: function(module, options, log)
       {
