@@ -102,7 +102,7 @@ function hook(extension, transform, options)
 			// convert it to a module definition
 			if (source.indexOf('module.exports = ') < 0)
 			{
-				source = 'module.exports = ' + source
+				source = 'module.exports = ' + JSON.stringify(source)
 			}
 		}
 		else

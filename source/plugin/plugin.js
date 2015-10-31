@@ -150,21 +150,21 @@ Plugin.prototype.apply = function(compiler)
 // (works for images, fonts, and i guess for everything else, should work for any file type)
 Plugin.url_loader_parser = function(module, options, log)
 {
-	return 'var __webpack_public_path__ = ' + JSON.stringify(options.assets_base_url) + ';' + '\n\n' + module.source
+	return 'var __webpack_public_path__ = ' + JSON.stringify(options.assets_base_url) + '; ' + module.source
 }
 
 // a sample module source parser for webpack css-loader
 // (without css-loader "modules" feature support)
 Plugin.css_loader_parser = function(module, options, log)
 {
-	return module.source + '; module.exports = module.exports.toString()'
+	return module.source + '\n module.exports = module.exports.toString();'
 }
 
 // a sample module source parser for webpack css-loader
 // (with css-loader "modules" feature support)
 Plugin.css_modules_loader_parser = function(module, options, log)
 {
-	return module.source + '; module.exports = exports.locals; module.exports._style = exports.toString()'
+	return module.source + '\n module.exports = exports.locals || {}; module.exports._style = exports.toString();'
 }
 
 // a filter for getting a css module when using it with style-loader

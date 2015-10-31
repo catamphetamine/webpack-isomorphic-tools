@@ -27,7 +27,7 @@ const expected_webpack_assets =
 	},
 	"assets":
 	{
-		"./assets/images/husky.jpg": "var __webpack_public_path__ = \"/assets/\";\n\nmodule.exports = __webpack_public_path__ + \"9059f094ddb49c2b0fa6a254a6ebf2ad.jpg\""
+		"./assets/images/husky.jpg": "var __webpack_public_path__ = \"/assets/\"; module.exports = __webpack_public_path__ + \"9059f094ddb49c2b0fa6a254a6ebf2ad.jpg\""
 	}
 }
 
