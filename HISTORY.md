@@ -1,4 +1,10 @@
-2.0.0, 2.0.1 / 30.10.2015
+2.1.0, 2.1.1 / 01.11.2015
+
+  * Added support for arbitrary path require()ing (even for the weirdest ones)
+  * Fixed a bug when webpack module sources didn't compile
+  * Webpack stats are now always generated and are needed too (both in production and development)
+
+2.0.0, 2.0.1, 2.0.2 / 30.10.2015
 
   * Introduced true and seamless Webpack module source parsing
   * Renamed `naming` function to `path`
