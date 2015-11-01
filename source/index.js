@@ -285,10 +285,10 @@ export default class webpack_isomorphic_tools
 			return
 		}
 
-		// generate javascript module source code based on the `result` variable
+		// generate javascript module source code based on the `source` variable
 		if (typeof source === 'string')
 		{
-			// if `result` is just a string, not a module definition,
+			// if `source` is just a string, not a module definition,
 			// convert it to a module definition
 			if (source.indexOf('module.exports = ') < 0)
 			{
@@ -297,8 +297,8 @@ export default class webpack_isomorphic_tools
 		}
 		else
 		{
-			// if `result` is an object, convert it to a module definition
-			source = 'module.exports = ' + serialize(result)
+			// if `source` is an object, convert it to a module definition
+			source = 'module.exports = ' + serialize(source)
 		}
 
 		return source
