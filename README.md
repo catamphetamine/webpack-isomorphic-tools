@@ -538,7 +538,7 @@ Available configuration parameters:
 
 ## What are Webpack stats?
 
-[Webpack stats](https://github.com/webpack/docs/wiki/node.js-api#stats) are a description of all the modules of a webpack build. Webpack stats are output to a file names `webpack-stats.json` in the same folder as your `webpack-assets.json` file. One may be interested in the contents of this file when writing custom `filter`, `path` or `parser` functions.
+[Webpack stats](https://github.com/webpack/docs/wiki/node.js-api#stats) are a description of all the modules of a webpack build. Webpack stats are output to a file names `webpack-stats.json` in the same folder as your `webpack-assets.json` file. One may be interested in the contents of this file when writing custom `filter`, `path` or `parser` functions. This file, along with `webpack-assets.json`, is needed for `webpack-isomorphic-tools` operation (both in development and production mode).
 
 ## What's a "module"?
 
