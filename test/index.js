@@ -218,7 +218,13 @@ describe('plugin', function()
 	it('should wait for webpack-assets.json (callback)', function(done)
 	{
 		// ensure it waits for webpack-assets.json
-		new isomorpher(isomorpher_settings()).server(webpack_configuration.context, () => callback(done))
+		const server_side = new isomorpher(isomorpher_settings())
+
+		server_side.server(webpack_configuration.context, () =>
+		{
+			server_side.undo()
+			callback(done)
+		})
 
 		// create the webpack-assets.json
 		create_assets_file()
@@ -227,7 +233,13 @@ describe('plugin', function()
 	it('should wait for webpack-assets.json (promise)', function(done)
 	{
 		// ensure it waits for webpack-assets.json
-		new isomorpher(isomorpher_settings()).server(webpack_configuration.context).then(() => callback(done))
+		const server_side = new isomorpher(isomorpher_settings())
+
+		server_side.server(webpack_configuration.context).then(() =>
+		{
+			server_side.undo()
+			callback(done)
+		})
 
 		// create the webpack-assets.json
 		create_assets_file()

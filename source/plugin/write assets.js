@@ -3,6 +3,7 @@ import path   from 'path'
 import mkdirp from 'mkdirp'
 
 import { exists, clone, replace_all } from '../helpers'
+import { webpack_stats_file_path as get_webpack_stats_file_path } from '../common'
 
 // writes webpack-assets.json file, which contains assets' file paths
 export default function write_assets(json, options, log)
@@ -25,16 +26,18 @@ export default function write_assets(json, options, log)
 	// create all the folders in the path if they don't exist
 	mkdirp.sync(path.dirname(options.webpack_assets_path))
 
-	// in debug mode, write webpack stats json for debugging purpose
-	if (options.debug)
-	{
-		const webpack_stats_file_path = path.resolve(path.dirname(options.webpack_assets_path), 'webpack-stats.debug.json')
+	// write webpack stats json for debugging purpose
+	// (and for evaluating webpack module require()s)
 
-		// write webpack stats file
-		log.debug(`writing webpack stats to ${webpack_stats_file_path}`)
-		// write the file (format the JSON for readability)
-		fs.writeFileSync(webpack_stats_file_path, JSON.stringify(json, null, 2))
-	}
+	// path to webpack stats file
+	const webpack_stats_file_path = get_webpack_stats_file_path(options.webpack_assets_path)
+
+	// write webpack stats file
+	log.debug(`writing webpack stats to ${webpack_stats_file_path}`)
+	// format the JSON for better readability in development mode
+	const webpack_stats_json = development ? JSON.stringify(json, null, 2) : JSON.stringify(json)
+	// write the file
+	fs.writeFileSync(webpack_stats_file_path, webpack_stats_json)
 
 	// the output object with assets
 	const output = options.output
@@ -44,7 +47,7 @@ export default function write_assets(json, options, log)
 
 	// write webpack assets info file
 	log.debug(`writing webpack assets info to ${options.webpack_assets_path}`)
-	// format the JSON for readability if in debug mode
+	// format the JSON for better readability if in debug mode
 	const assets_info = development ? JSON.stringify(output, null, 2) : JSON.stringify(output)
 	// write the file
 	fs.writeFileSync(options.webpack_assets_path, assets_info)

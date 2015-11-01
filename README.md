@@ -348,20 +348,13 @@ Available configuration parameters:
   development: true, // is false by default
 
   // debug mode.
-  // when set to true, lets you see debugging messages in the console,
-  // and also outputs 'webpack-stats.debug.json' file with Webpack stats.
-  // (you'll be interested in the contents of this file 
-  //  in case you're writing your own filter, naming or parser 
-  //  for some asset type)
+  // when set to true, lets you see debugging messages in the console.
   debug: true, // is false by default
 
   // By default it creates 'webpack-assets.json' file at 
   // webpack_configuration.context (which is your project folder).
   // You can change the assets file path as you wish
   // (therefore changing both folder and filename).
-  // 
-  // The folder derived from this parameter will also be used
-  // to store 'webpack-stats.debug.json' file in case you're in debug mode
   //
   // (relative to webpack_configuration.context which is your project folder)
   // (these aren't actually 'stats', these are some values derived from Webpack 'stats')
@@ -543,13 +536,17 @@ Available configuration parameters:
 }
 ```
 
+## What are Webpack stats?
+
+[Webpack stats](https://github.com/webpack/docs/wiki/node.js-api#stats) are a description of all the modules of a webpack build. Webpack stats are output to a file names `webpack-stats.json` in the same folder as your `webpack-assets.json` file. One may be interested in the contents of this file when writing custom `filter`, `path` or `parser` functions.
+
 ## What's a "module"?
 
 **This is an advanced topic on Webpack internals**
 
 A "module" is a Webpack entity. When Webpack compiles your code it splits it into "chunks" (which is irrelevant to this explanation). Every time you `require()` a file (it could be anything: a javascript file, or a css style, or an image) a `module` entry is created. And the file from where you `require()`d this file is called a "reason" for this "module". Also each `module` has a `name` and a `source`, along with a list of `chunks` it's in and a bunch of other miscellaneous irrelevant properties.
 
-For example, here's the content of the `webpack-stats.debug.json` file (which is generated along with `webpack-assets.json` in development mode) for a random "module".
+For example, here's the content of the `webpack-stats.json` file (which is generated along with `webpack-assets.json`) for a random "module".
 
 ```javascript
 {
@@ -709,7 +706,7 @@ Make sure you add this to your `.gitignore`
 
 ```
 # webpack-isomorphic-tools
-/webpack-stats.debug.json
+/webpack-stats.json
 /webpack-assets.json
 ```
 
@@ -760,7 +757,7 @@ Also it's good to know that the way all this `require('./asset.whatever_extensio
 
 ### Error: Cannot find module
 
-This error means that the `require()`d path doesn't exist in the filesystem.
+This error means that the `require()`d path doesn't exist in the filesystem and also wasn't found in `webpack-stats.json`.
 
 ### SyntaxError: Unexpected token ILLEGAL
 
