@@ -1,4 +1,4 @@
-2.1.0, 2.1.1 / 01.11.2015
+2.1.0, 2.1.1, 2.1.2 / 01.11.2015
 
   * Added support for arbitrary path require()ing (even for the weirdest ones)
   * Fixed a bug when webpack module sources didn't compile
