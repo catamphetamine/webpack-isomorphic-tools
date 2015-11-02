@@ -249,7 +249,7 @@ export default class webpack_isomorphic_tools
 		// if the asset source wasn't found - return an empty CommonJS module
 		if (!exists(source))
 		{
-			return
+			return 'module.exports = undefined'
 		}
 
 		// generate javascript module source code based on the `source` variable
