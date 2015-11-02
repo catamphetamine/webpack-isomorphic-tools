@@ -25,17 +25,17 @@ export default function write_assets(json, options, log)
 	}
 
 	// write webpack stats json for debugging purpose
-	if (options.debug)
+	if (development)
 	{
 		// path to webpack stats file
 		const webpack_stats_file_path = get_webpack_stats_file_path(options.webpack_assets_path)
 
 		// write webpack stats file
 		log.debug(`writing webpack stats to ${webpack_stats_file_path}`)
-		// format the JSON for better readability in development mode
-		const webpack_stats_json = development ? JSON.stringify(json, null, 2) : JSON.stringify(json)
+
 		// write the file
-		fs.outputFileSync(webpack_stats_file_path, webpack_stats_json)
+		// (format the JSON for better readability)
+		fs.outputFileSync(webpack_stats_file_path, JSON.stringify(json, null, 2))
 	}
 
 	// the output object with assets
@@ -277,7 +277,9 @@ function populate_assets(output, json, options, log)
 			{
 				if (reason.userRequest === required_path)
 				{
-					return module.source
+					// also resolve "ReferenceError: __webpack_public_path__ is not defined".
+					// because it may be a url-loaded resource (e.g. a font inside a style).
+					return options.define_webpack_public_path() + module.source
 				}
 			}
 		}

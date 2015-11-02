@@ -47,6 +47,11 @@ Plugin.prototype.regular_expression = function(asset_type)
 // creates a regular expression for this file extension (or these file extensions)
 Plugin.regular_expression = function(extensions)
 {
+	if (!(extensions instanceof Array))
+	{
+		throw new Error(`You were expected to pass a list of extensions (an array). Instead got: ${extensions}. Maybe you were looking for the instance method istead of the class method of this plugin?`)
+	}
+
 	let matcher
 	if (extensions.length > 1)
 	{
@@ -140,17 +145,39 @@ Plugin.prototype.apply = function(compiler)
 			assets_base_url     : webpack_configuration.output.publicPath,
 			webpack_assets_path : webpack_assets_path,
 			output              : default_webpack_assets(),
-			regular_expressions : plugin.regular_expressions
+			regular_expressions : plugin.regular_expressions,
+
+			define_webpack_public_path : () => define_webpack_public_path(plugin.options.assets_base_url)
 		},
 		plugin.log)
 	})
+}
+
+function define_webpack_public_path(assets_base_url)
+{
+	return 'var __webpack_public_path__ = ' + JSON.stringify(assets_base_url) + ';\n'
+}
+
+function webpack_stats_file_path(webpack_assets_file_path)
+{
+	// default webpack stats file name
+	let webpack_stats_file_name = 'webpack-stats.json'
+
+	// resolve a possible file name collision
+	if (path.basename(webpack_assets_file_path) === webpack_stats_file_name)
+	{
+		webpack_stats_file_name = 'webpack-stats.debug.json'
+	}
+
+	// path to webpack stats file
+	return path.resolve(path.dirname(webpack_assets_file_path), webpack_stats_file_name)
 }
 
 // a sample module source parser for webpack url-loader
 // (works for images, fonts, and i guess for everything else, should work for any file type)
 Plugin.url_loader_parser = function(module, options, log)
 {
-	return 'var __webpack_public_path__ = ' + JSON.stringify(options.assets_base_url) + '; ' + module.source
+	return define_webpack_public_path(options.assets_base_url) + module.source
 }
 
 // a sample module source parser for webpack css-loader
