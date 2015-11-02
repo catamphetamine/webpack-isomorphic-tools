@@ -1,4 +1,4 @@
-2.2.0, 2.2.1, 2.2.2, 2.2.3 / 02.11.2015
+2.2.0, 2.2.1, 2.2.2, 2.2.3, 2.2.4 / 02.11.2015
 ===================
 
   * Asset CommonJS module source codes are now compiled at Webpack build stage (in a Webpack plugin)
