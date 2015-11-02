@@ -1,3 +1,8 @@
+2.2.0 / 02.11.2015
+
+  * Asset CommonJS module source codes are now compiled at Webpack build stage (in a Webpack plugin)
+  * webpack-assets.json are now pretty
+
 2.1.0, 2.1.1, 2.1.2 / 01.11.2015
 
   * Added support for arbitrary path require()ing (even for the weirdest ones)
