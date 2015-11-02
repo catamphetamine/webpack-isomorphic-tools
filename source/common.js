@@ -53,18 +53,3 @@ export function normalize_options(options)
 		}
 	}
 }
-
-export function webpack_stats_file_path(webpack_assets_file_path)
-{
-	// default webpack stats file name
-	let webpack_stats_file_name = 'webpack-stats.json'
-
-	// resolve a possible file name collision
-	if (path.basename(webpack_assets_file_path) === webpack_stats_file_name)
-	{
-		webpack_stats_file_name = 'webpack-stats.debug.json'
-	}
-
-	// path to webpack stats file
-	return path.resolve(path.dirname(webpack_assets_file_path), webpack_stats_file_name)
-}

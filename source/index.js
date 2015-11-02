@@ -1,12 +1,12 @@
 import path   from 'path'
 import fs     from 'fs'
 
-import Require_hacker from './tools/require hacker'
+import Require_hacker from 'require-hacker'
 import serialize      from './tools/serialize-javascript'
 import Log            from './tools/log'
 
 import { exists, clone, alias_camel_case } from './helpers'
-import { default_webpack_assets, normalize_options, webpack_stats_file_path as get_webpack_stats_file_path } from './common'
+import { default_webpack_assets, normalize_options } from './common'
 
 // using ES6 template strings
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/template_strings
@@ -89,9 +89,6 @@ export default class webpack_isomorphic_tools
 		// this.log.debug(` (was cached: ${typeof(require.cache[this.webpack_assets_path]) !== 'undefined'})`)
 		delete require.cache[this.webpack_assets_path]
 
-		// flush webpack stats cache
-		delete require.cache[get_webpack_stats_file_path(this.webpack_assets_path)]
-
 		// uncache cached assets
 		for (let path of this.cached_assets)
 		{
@@ -156,7 +153,7 @@ export default class webpack_isomorphic_tools
 		this.log.debug('registering require() hooks for assets')
 
 		// hacking Node.js require() calls
-		this.require_hacker = new Require_hacker(this.options)
+		this.require_hacker = new Require_hacker({ debug: this.options.debug })
 
 		// for each user specified asset type,
 		// register a require() hook for each file extension of this asset type
@@ -169,36 +166,6 @@ export default class webpack_isomorphic_tools
 				this.register_extension(extension, description)
 			}
 		}
-
-		// path to webpack stats file
-		const webpack_stats_file_path = get_webpack_stats_file_path(this.webpack_assets_path)
-
-		// register a special require() hook for requiring() raw webpack modules
-		this.webpack_module_resolver = this.require_hacker.resolver('webpack-module', (required_path, flush_cache) =>
-		{
-			// read webpack stats
-			const webpack_stats = require(webpack_stats_file_path)
-
-			// find a webpack module which has a reason with this path
-			for (let module of webpack_stats.modules)
-			{
-				for (let reason of module.reasons)
-				{
-					if (reason.userRequest === required_path)
-					{
-						// return `${module.name}.${protocol}`
-
-						// flush cache in development mode
-						if (this.options.development)
-						{
-							flush_cache()
-						}
-
-						return module.source
-					}
-				}
-			}
-		})
 
 		// allows method chaining
 		return this
@@ -286,22 +253,7 @@ export default class webpack_isomorphic_tools
 		}
 
 		// generate javascript module source code based on the `source` variable
-		if (typeof source === 'string')
-		{
-			// if `source` is just a string, not a module definition,
-			// convert it to a module definition
-			if (source.indexOf('module.exports = ') < 0)
-			{
-				source = 'module.exports = ' + JSON.stringify(source)
-			}
-		}
-		else
-		{
-			// if `source` is an object, convert it to a module definition
-			source = 'module.exports = ' + serialize(source)
-		}
-
-		return source
+		return 'module.exports = ' + serialize(source)
 	}
 
 	// returns asset source by path (looks it up in webpack-assets.json)
@@ -321,7 +273,7 @@ export default class webpack_isomorphic_tools
 		// find this asset in the real file path list
 		const asset = assets[asset_path]
 		
-		// if the real path was found in the list - return it
+		// if the asset was found in the list - return it
 		if (exists(asset))
 		{
 			return asset
@@ -339,11 +291,8 @@ export default class webpack_isomorphic_tools
 		// unregister a require() hook for each file extension of this asset type
 		for (let hook of this.hooks)
 		{
-			hook.unhook()
+			hook.unmount()
 		}
-
-		// unregister the special require() hook for requiring() raw webpack modules
-		this.webpack_module_resolver.undo()
 	}
 
 	// Checks if the required path should be excluded from the custom require() hook

@@ -27,11 +27,13 @@ const expected_webpack_assets =
 	},
 	"assets":
 	{
-		"./assets/images/husky.jpg": "var __webpack_public_path__ = \"/assets/\"; module.exports = __webpack_public_path__ + \"9059f094ddb49c2b0fa6a254a6ebf2ad.jpg\""
+		"./assets/husky.jpg": "/assets/9059f094ddb49c2b0fa6a254a6ebf2ad.jpg",
+		"./assets/style.scss": "body {} .child {} head {}",
+		"./assets/child.scss": ".child {}"
 	}
 }
 
-const webpack_stats = require(path.resolve(__dirname, 'webpack-stats.json'))
+const webpack_stats = require(path.resolve(__dirname, 'webpack-stats.stub.json'))
 
 const webpack_configuration =
 {
@@ -58,13 +60,11 @@ const isomorpher_settings = () =>
 	{
 		javascript:
 		{
-			extension: 'js',
-			parser: () => true
+			extension: 'js'
 		},
 		styles:
 		{
-			extension: 'scss',
-			parser: () => true
+			extension: 'scss'
 		},
 		images_and_fonts:
 		{

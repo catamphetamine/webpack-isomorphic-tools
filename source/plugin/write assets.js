@@ -1,9 +1,10 @@
-import fs     from 'fs'
+import fs     from 'fs-extra'
 import path   from 'path'
-import mkdirp from 'mkdirp'
+
+import Require_hacker from 'require-hacker'
+import serialize      from '../tools/serialize-javascript'
 
 import { exists, clone, replace_all } from '../helpers'
-import { webpack_stats_file_path as get_webpack_stats_file_path } from '../common'
 
 // writes webpack-assets.json file, which contains assets' file paths
 export default function write_assets(json, options, log)
@@ -23,21 +24,19 @@ export default function write_assets(json, options, log)
 		log.debug(' (development mode is on)')
 	}
 
-	// create all the folders in the path if they don't exist
-	mkdirp.sync(path.dirname(options.webpack_assets_path))
-
 	// write webpack stats json for debugging purpose
-	// (and for evaluating webpack module require()s)
+	if (options.debug)
+	{
+		// path to webpack stats file
+		const webpack_stats_file_path = get_webpack_stats_file_path(options.webpack_assets_path)
 
-	// path to webpack stats file
-	const webpack_stats_file_path = get_webpack_stats_file_path(options.webpack_assets_path)
-
-	// write webpack stats file
-	log.debug(`writing webpack stats to ${webpack_stats_file_path}`)
-	// format the JSON for better readability in development mode
-	const webpack_stats_json = development ? JSON.stringify(json, null, 2) : JSON.stringify(json)
-	// write the file
-	fs.writeFileSync(webpack_stats_file_path, webpack_stats_json)
+		// write webpack stats file
+		log.debug(`writing webpack stats to ${webpack_stats_file_path}`)
+		// format the JSON for better readability in development mode
+		const webpack_stats_json = development ? JSON.stringify(json, null, 2) : JSON.stringify(json)
+		// write the file
+		fs.outputFileSync(webpack_stats_file_path, webpack_stats_json)
+	}
 
 	// the output object with assets
 	const output = options.output
@@ -50,7 +49,7 @@ export default function write_assets(json, options, log)
 	// format the JSON for better readability if in debug mode
 	const assets_info = development ? JSON.stringify(output, null, 2) : JSON.stringify(output)
 	// write the file
-	fs.writeFileSync(options.webpack_assets_path, assets_info)
+	fs.outputFileSync(options.webpack_assets_path, assets_info)
 }
 
 // populates the output object with assets
@@ -129,7 +128,11 @@ function populate_assets(output, json, options, log)
 	// one can supply a custom parser
 	const default_parser = (module) => module.source
 
-	// put assets of all types into a single object for speeding up lookup by asset path
+	// 1st pass
+	const parsed_assets = {}
+
+	// global paths to parsed asset paths
+	const global_paths_to_parsed_asset_paths = {}
 
 	// for each user specified asset type
 	for (let asset_type of Object.keys(options.assets))
@@ -138,18 +141,32 @@ function populate_assets(output, json, options, log)
 
 		// one can supply his own filter
 		const filter = (asset_description.filter || default_filter) //.bind(this)
+		// one can supply his own path parser
+		const extract_asset_path = (asset_description.path || default_asset_path) //.bind(this)
 		// one can supply his own parser
 		const parser = (asset_description.parser || default_parser) //.bind(this)
-		// one can supply his own namer
-		const extract_asset_path = (asset_description.path || default_asset_path) //.bind(this)
 
-		// // parser is required
-		// if (!asset_description.parser)
-		// {
-		// 	throw new Error(`"parser" function is required for assets type "${asset_type}". See the Configuration section of the README for explanation.`)
-		// }
+		// guard agains typos, etc
+		
+		// for filter
+		if (!asset_description.filter)
+		{
+			log.debug(`No filter specified for "${asset_type}" assets. Using a default one.`)
+		}
+		
+		// for path parser
+		if (!asset_description.path)
+		{
+			log.debug(`No path parser specified for "${asset_type}" assets. Using a default one.`)
+		}
+		
+		// for parser
+		if (!asset_description.parser)
+		{
+			log.debug(`No parser specified for "${asset_type}" assets. Using a default one.`)
+		}
 
-		log.debug(`populating assets of type "${asset_type}"`)
+		log.debug(`parsing assets of type "${asset_type}"`)
 
 		// timer start
 		const began_at = new Date().getTime()
@@ -228,12 +245,75 @@ function populate_assets(output, json, options, log)
 
 				// add this asset to the list
 				set[asset_path] = parsed_asset
+
+				// add path mapping
+				global_paths_to_parsed_asset_paths[path.resolve(options.project_path, asset_path)] = asset_path
+
 				// continue
 				return set
 			},
-			output.assets)
+			parsed_assets)
 
 		// timer stop
 		log.debug(` time taken: ${new Date().getTime() - began_at} ms`)
 	}
+
+	// instantiate require() hooker
+	const require_hacker = new Require_hacker({ debug: options.debug })
+
+	// register a special require() hook for requiring() raw webpack modules
+	const require_hook = require_hacker.resolver('webpack-module', (required_path, flush_cache) =>
+	{
+		// find an asset with this path
+		if (exists(global_paths_to_parsed_asset_paths[required_path]))
+		{
+			return parsed_assets[global_paths_to_parsed_asset_paths[required_path]]
+		}
+
+		// find a webpack module which has a reason with this path
+		for (let module of json.modules)
+		{
+			for (let reason of module.reasons)
+			{
+				if (reason.userRequest === required_path)
+				{
+					return module.source
+				}
+			}
+		}
+	},
+	{ precede_node_loader: true })
+
+	log.debug(`compiling assets`)
+
+	// timer start
+	const began_at = new Date().getTime()
+
+	// evaluate parsed assets source code
+	for (let asset_path of Object.keys(parsed_assets))
+	{
+		// set asset value
+		output.assets[asset_path] = require(path.resolve(options.project_path, asset_path))
+	}
+
+	// unmount the previously installed require() hook
+	require_hook.unmount()
+
+	// timer stop
+	log.debug(` time taken: ${new Date().getTime() - began_at} ms`)
+}
+
+function get_webpack_stats_file_path(webpack_assets_file_path)
+{
+	// default webpack stats file name
+	let webpack_stats_file_name = 'webpack-stats.json'
+
+	// resolve a possible file name collision
+	if (path.basename(webpack_assets_file_path) === webpack_stats_file_name)
+	{
+		webpack_stats_file_name = 'webpack-stats.debug.json'
+	}
+
+	// path to webpack stats file
+	return path.resolve(path.dirname(webpack_assets_file_path), webpack_stats_file_name)
 }
