@@ -279,7 +279,7 @@ function populate_assets(output, json, options, log)
 				{
 					// also resolve "ReferenceError: __webpack_public_path__ is not defined".
 					// because it may be a url-loaded resource (e.g. a font inside a style).
-					return options.define_webpack_public_path() + module.source
+					return options.define_webpack_public_path + module.source
 				}
 			}
 		}

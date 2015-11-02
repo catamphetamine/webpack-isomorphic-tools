@@ -139,7 +139,7 @@ Plugin.prototype.apply = function(compiler)
 			// (only needed in development mode)
 			notify_stats(stats, json)
 		}
-
+		
 		// write webpack-assets.json with assets info
 		write_assets(json,
 		{ 
@@ -152,7 +152,7 @@ Plugin.prototype.apply = function(compiler)
 			output              : default_webpack_assets(),
 			regular_expressions : plugin.regular_expressions,
 
-			define_webpack_public_path : () => define_webpack_public_path(plugin.options.assets_base_url)
+			define_webpack_public_path : define_webpack_public_path(webpack_configuration.output.publicPath)
 		},
 		plugin.log)
 	})
