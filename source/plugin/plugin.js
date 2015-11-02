@@ -41,6 +41,11 @@ export default function Plugin(options)
 // creates a regular expression for this file extension (or these file extensions)
 Plugin.prototype.regular_expression = function(asset_type)
 {
+	if (!exists(this.regular_expressions[asset_type]))
+	{
+		throw new Error(`There's no asset type "${asset_type}" defined in webpack-isomorphic-tools configuration. Perhaps you didn't spell it correctly.`)
+	}
+
 	return this.regular_expressions[asset_type]
 }
 
