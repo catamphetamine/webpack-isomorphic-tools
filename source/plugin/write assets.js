@@ -262,7 +262,7 @@ function populate_assets(output, json, options, log)
 	const require_hacker = new Require_hacker({ debug: options.debug })
 
 	// register a special require() hook for requiring() raw webpack modules
-	const require_hook = require_hacker.resolver('webpack-module', (required_path, flush_cache) =>
+	const require_hook = require_hacker.resolver('webpack-module', (required_path) =>
 	{
 		// find an asset with this path
 		if (exists(global_paths_to_parsed_asset_paths[required_path]))
