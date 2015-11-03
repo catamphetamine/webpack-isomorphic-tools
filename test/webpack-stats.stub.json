@@ -75,6 +75,24 @@
 		[{
 			"userRequest": "-!!/cryptic/path/&!./assets/child.scss"
 		}],
-		"source": "module.exports = \".child {}\""
+		"source": "module.exports = \".child { background: url(\" + __webpack_public_path__ + \"test.jpg) }\""
+	},
+	{
+		"id": 6,
+		"name": "./assets/test.text_parser_test",
+		"reasons": 
+		[{
+			"userRequest": "./assets/test.text_parser_test"
+		}],
+		"source": "...whatever..."
+	},
+	{
+		"id": 7,
+		"name": "./assets/test.object_parser_test",
+		"reasons": 
+		[{
+			"userRequest": "./assets/test.object_parser_test"
+		}],
+		"source": "...whatever..."
 	}]
 }

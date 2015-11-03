@@ -139,7 +139,7 @@ Plugin.prototype.apply = function(compiler)
 			// (only needed in development mode)
 			notify_stats(stats, json)
 		}
-		
+
 		// write webpack-assets.json with assets info
 		write_assets(json,
 		{ 
@@ -150,17 +150,10 @@ Plugin.prototype.apply = function(compiler)
 			assets_base_url     : webpack_configuration.output.publicPath,
 			webpack_assets_path : webpack_assets_path,
 			output              : default_webpack_assets(),
-			regular_expressions : plugin.regular_expressions,
-
-			define_webpack_public_path : define_webpack_public_path(webpack_configuration.output.publicPath)
+			regular_expressions : plugin.regular_expressions
 		},
 		plugin.log)
 	})
-}
-
-function define_webpack_public_path(assets_base_url)
-{
-	return 'var __webpack_public_path__ = ' + JSON.stringify(assets_base_url) + ';\n'
 }
 
 function webpack_stats_file_path(webpack_assets_file_path)
@@ -182,7 +175,7 @@ function webpack_stats_file_path(webpack_assets_file_path)
 // (works for images, fonts, and i guess for everything else, should work for any file type)
 Plugin.url_loader_parser = function(module, options, log)
 {
-	return define_webpack_public_path(options.assets_base_url) + module.source
+	return module.source
 }
 
 // a sample module source parser for webpack css-loader

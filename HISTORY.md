@@ -1,3 +1,9 @@
+2.2.6 / 03.11.2015
+===================
+
+  * Fixed `parser`s returning not javascript module source but text, objects, etc
+  * .url_loader_parser now is equal to the default parser
+
 2.2.5 / 03.11.2015
 ===================
 

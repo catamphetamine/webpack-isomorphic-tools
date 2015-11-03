@@ -5,6 +5,7 @@ import Require_hacker from 'require-hacker'
 import serialize      from '../tools/serialize-javascript'
 
 import { exists, clone, replace_all } from '../helpers'
+import { to_javascript_module_source } from '../common'
 
 // writes webpack-assets.json file, which contains assets' file paths
 export default function write_assets(json, options, log)
@@ -124,9 +125,9 @@ function populate_assets(output, json, options, log)
 	// one can supply a custom filter
 	const default_filter = (module, regular_expression) => regular_expression.test(module.name)
 	// one can supply a custom namer
-	const default_asset_path = (module) => module.name
+	const default_asset_path = module => module.name
 	// one can supply a custom parser
-	const default_parser = (module) => module.source
+	const default_parser = module => module.source
 
 	// 1st pass
 	const parsed_assets = {}
@@ -134,34 +135,39 @@ function populate_assets(output, json, options, log)
 	// global paths to parsed asset paths
 	const global_paths_to_parsed_asset_paths = {}
 
+	// define __webpack_public_path__ webpack variable
+	// (resolves "ReferenceError: __webpack_public_path__ is not defined")
+	const define_webpack_public_path = 'var __webpack_public_path__ = ' + JSON.stringify(options.assets_base_url) + ';\n'
+
 	// for each user specified asset type
 	for (let asset_type of Object.keys(options.assets))
 	{
-		const asset_description = options.assets[asset_type]
+		// asset type settings
+		const asset_type_settings = options.assets[asset_type]
 
 		// one can supply his own filter
-		const filter = (asset_description.filter || default_filter) //.bind(this)
+		const filter = (asset_type_settings.filter || default_filter) //.bind(this)
 		// one can supply his own path parser
-		const extract_asset_path = (asset_description.path || default_asset_path) //.bind(this)
+		const extract_asset_path = (asset_type_settings.path || default_asset_path) //.bind(this)
 		// one can supply his own parser
-		const parser = (asset_description.parser || default_parser) //.bind(this)
+		const parser = (asset_type_settings.parser || default_parser) //.bind(this)
 
 		// guard agains typos, etc
 		
 		// for filter
-		if (!asset_description.filter)
+		if (!asset_type_settings.filter)
 		{
 			log.debug(`No filter specified for "${asset_type}" assets. Using a default one.`)
 		}
 		
 		// for path parser
-		if (!asset_description.path)
+		if (!asset_type_settings.path)
 		{
 			log.debug(`No path parser specified for "${asset_type}" assets. Using a default one.`)
 		}
 		
 		// for parser
-		if (!asset_description.parser)
+		if (!asset_type_settings.parser)
 		{
 			log.debug(`No parser specified for "${asset_type}" assets. Using a default one.`)
 		}
@@ -244,7 +250,10 @@ function populate_assets(output, json, options, log)
 				}
 
 				// add this asset to the list
-				set[asset_path] = parsed_asset
+				//
+				// also resolve "ReferenceError: __webpack_public_path__ is not defined".
+				// because it may be a url-loaded resource (e.g. a font inside a style).
+				set[asset_path] = define_webpack_public_path + to_javascript_module_source(parsed_asset)
 
 				// add path mapping
 				global_paths_to_parsed_asset_paths[path.resolve(options.project_path, asset_path)] = asset_path
@@ -279,7 +288,7 @@ function populate_assets(output, json, options, log)
 				{
 					// also resolve "ReferenceError: __webpack_public_path__ is not defined".
 					// because it may be a url-loaded resource (e.g. a font inside a style).
-					return options.define_webpack_public_path + module.source
+					return define_webpack_public_path + module.source
 				}
 			}
 		}

@@ -2,11 +2,10 @@ import path   from 'path'
 import fs     from 'fs'
 
 import Require_hacker from 'require-hacker'
-import serialize      from './tools/serialize-javascript'
 import Log            from './tools/log'
 
 import { exists, clone, alias_camel_case } from './helpers'
-import { default_webpack_assets, normalize_options } from './common'
+import { default_webpack_assets, normalize_options, to_javascript_module_source } from './common'
 
 // using ES6 template strings
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/template_strings
@@ -239,21 +238,7 @@ export default class webpack_isomorphic_tools
 		}
 		
 		// return CommonJS module source for this asset
-		return this.postprocess(this.asset_source(asset_path))
-	}
-
-	// postprocesses asset source.
-	// returns a CommonJS modules source.
-	postprocess(source)
-	{
-		// if the asset source wasn't found - return an empty CommonJS module
-		if (!exists(source))
-		{
-			return 'module.exports = undefined'
-		}
-
-		// generate javascript module source code based on the `source` variable
-		return 'module.exports = ' + serialize(source)
+		return to_javascript_module_source(this.asset_source(asset_path))
 	}
 
 	// returns asset source by path (looks it up in webpack-assets.json)

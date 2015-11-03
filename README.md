@@ -154,8 +154,7 @@ export default
   {
     images:
     {
-      extensions: ['png', 'jpg', 'gif', 'ico', 'svg'],
-      parser: Webpack_isomorphic_tools_plugin.url_loader_parser // see Configuration and API sections for more info on this parameter
+      extensions: ['png', 'jpg', 'gif', 'ico', 'svg']
     }
   }
 }
@@ -506,6 +505,7 @@ Available configuration parameters:
       // Webpack_isomorphic_tools_plugin.url_loader_parser
       //  (for use with url-loader or file-loader)
       //  require() will return file URL
+      //  (is equal to the default parser, i.e. no parser)
       //
       // Webpack_isomorphic_tools_plugin.css_loader_parser
       //  (for use with css-loader when not using "modules" feature)

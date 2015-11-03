@@ -28,8 +28,10 @@ const expected_webpack_assets =
 	"assets":
 	{
 		"./assets/husky.jpg": "/assets/9059f094ddb49c2b0fa6a254a6ebf2ad.jpg",
-		"./assets/style.scss": "body {} .child {} head {}",
-		"./assets/child.scss": ".child {}"
+		"./assets/style.scss": "body {} .child { background: url(/assets/test.jpg) } head {}",
+		"./assets/child.scss": ".child { background: url(/assets/test.jpg) }",
+		"./assets/test.text_parser_test": "text parser test",
+		"./assets/test.object_parser_test.extra": { one: 1 }
 	}
 }
 
@@ -78,8 +80,18 @@ const isomorpher_settings = () =>
 				'eot',
 				'ttf',
 				'svg'
-			],
-			parser: isomorpher_plugin.url_loader_parser
+			]
+		},
+		text_parser_test:
+		{
+			extension: 'text_parser_test',
+			parser: module => 'text parser test'
+		},
+		object_parser_test:
+		{
+			extension: 'object_parser_test',
+			path: module => module.name + '.extra',
+			parser: module => ({ one: 1 })
 		}
 	}
 })
@@ -101,14 +113,10 @@ function cleanup_webpack_assets()
 	}
 }
 
-// creates webpack-assets.json after a short delay
+// writes webpack-assets.json
 function create_assets_file()
 {
-	setTimeout(function()
-	{
-		fs.writeFileSync(webpack_assets_path, expected_webpack_assets)
-	},
-	150)
+	fs.writeFileSync(webpack_assets_path, expected_webpack_assets)
 }
 
 // to be fired when webpack-assets.json is created
@@ -226,8 +234,8 @@ describe('plugin', function()
 			callback(done)
 		})
 
-		// create the webpack-assets.json
-		create_assets_file()
+		// create the webpack-assets.json (after a short delay)
+		setTimeout(create_assets_file, 150)
 	})
 
 	it('should wait for webpack-assets.json (promise)', function(done)
@@ -241,7 +249,24 @@ describe('plugin', function()
 			callback(done)
 		})
 
+		// create the webpack-assets.json (after a short delay)
+		setTimeout(create_assets_file, 150)
+	})
+
+	it('should require assets on server', function(done)
+	{
 		// create the webpack-assets.json
 		create_assets_file()
+
+		// ensure it waits for webpack-assets.json
+		const server_side = new isomorpher(isomorpher_settings())
+
+		server_side.server(webpack_configuration.context, () =>
+		{
+			require('./assets/husky.jpg').should.equal(expected_webpack_assets.assets['./assets/husky.jpg'])
+
+			server_side.undo()
+			callback(done)
+		})
 	})
 })
