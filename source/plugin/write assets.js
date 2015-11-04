@@ -26,7 +26,7 @@ export default function write_assets(json, options, log)
 	}
 
 	// write webpack stats json for debugging purpose
-	if (development)
+	if (options.debug)
 	{
 		// path to webpack stats file
 		const webpack_stats_file_path = get_webpack_stats_file_path(options.webpack_assets_path)

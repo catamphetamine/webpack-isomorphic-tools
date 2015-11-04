@@ -538,9 +538,13 @@ Available configuration parameters:
 }
 ```
 
+## What are webpack-assets.json?
+
+This file is needed for `webpack-isomorphic-tools` operation on server. It is created by a custom Webpack plugin and is then read from the filesystem by `webpack-isomorphic-tools` server instance. When you `require(path_to_an_asset)` an asset on server then what you get is simply what's there in this file corresponding to this `path_to_an_asset` key (under the `assets` section).
+
 ## What are Webpack stats?
 
-[Webpack stats](https://github.com/webpack/docs/wiki/node.js-api#stats) are a description of all the modules in a Webpack build. When running in development mode Webpack stats are output to a file named `webpack-stats.json` in the same folder as your `webpack-assets.json` file. One may be interested in the contents of this file when writing custom `filter`, `path` or `parser` functions. This file is not needed for operation, it's just some debugging information.
+[Webpack stats](https://github.com/webpack/docs/wiki/node.js-api#stats) are a description of all the modules in a Webpack build. When running in debug mode Webpack stats are output to a file named `webpack-stats.json` in the same folder as your `webpack-assets.json` file. One may be interested in the contents of this file when writing custom `filter`, `path` or `parser` functions. This file is not needed for operation, it's just some debugging information.
 
 ## What's a "module"?
 
