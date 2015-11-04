@@ -462,7 +462,7 @@ Available configuration parameters:
         return module.name
       },
 
-      // [required]
+      // [optional]
       // 
       // parses a webpack stats module object
       // for an asset of this asset type
@@ -499,6 +499,8 @@ Available configuration parameters:
       //  log
       // 
       // returns: whatever (could be a filename, could be a JSON object, etc)
+      //
+      // by default is: "return module.source"
       //
       // premade utility parsers:
       //
