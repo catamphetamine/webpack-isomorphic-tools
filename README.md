@@ -322,7 +322,7 @@ And that's it, now you can `require()` your assets "isomorphically" (both on cli
 
 ## A working example
 
-`webpack-isomorphic-tools` are featured in [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example).
+`webpack-isomorphic-tools` are featured in [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example/blob/master/webpack/webpack-isomorphic-tools.js#L64-L96).
 
 Also for a comprehensive example of isomorphic React rendering you can look at [this sample project](https://github.com/halt-hammerzeit/webapp) (see the Quick Start section of the readme)
 
