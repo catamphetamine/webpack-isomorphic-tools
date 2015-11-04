@@ -1,3 +1,8 @@
+2.2.7 / 04.11.2015
+===================
+
+  * `webpack-stats.json` are now output only in debug mode
+
 2.2.6 / 03.11.2015
 ===================
 
