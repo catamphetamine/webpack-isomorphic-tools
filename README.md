@@ -322,16 +322,16 @@ And that's it, now you can `require()` your assets "isomorphically" (both on cli
 
 ## A working example
 
-`webpack-isomorphic-tools` are featured in [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example/blob/master/webpack/webpack-isomorphic-tools.js#L64-L96).
+`webpack-isomorphic-tools` are featured in [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example/blob/master/webpack/webpack-isomorphic-tools.js#L64-L96). There it is used to `require()` images and CSS styles (in the form of CSS `modules`).
 
-Also for a comprehensive example of isomorphic React rendering you can look at [this sample project](https://github.com/halt-hammerzeit/webapp) (see the Quick Start section of the readme)
+Also for a comprehensive example of isomorphic React rendering you can look at [this sample project](https://github.com/halt-hammerzeit/webapp) (see the Quick Start section of the readme). There it is used to `require()` images and CSS stylesheet contents.
 
 Some source code guidance for the aforementioned project:
 
 * [webpack-isomorphic-tools configuration](https://github.com/halt-hammerzeit/webapp/blob/master/webpack/isomorphic.js)
-* [webpack-isomorphic-tools client initialization](https://github.com/halt-hammerzeit/webapp/blob/master/webpack/development%20server.js)
-* [webpack-isomorphic-tools server initialization](https://github.com/halt-hammerzeit/webapp/blob/master/code/server/entry.js)
-* [webpage rendering express middleware](https://github.com/halt-hammerzeit/webapp/blob/master/code/server/webpage%20rendering.js)
+* [webpack-isomorphic-tools client initialization](https://github.com/halt-hammerzeit/webapp/blob/master/webpack/development%20server.js#L48)
+* [webpack-isomorphic-tools server initialization](https://github.com/halt-hammerzeit/webapp/blob/master/code/page-server/entry.js#L9-L17)
+* [webpage rendering express middleware](https://github.com/halt-hammerzeit/webapp/blob/master/code/page-server/webpage%20rendering.js)
 * [the Html file](https://github.com/halt-hammerzeit/webapp/blob/master/code/client/html.js)
 
 ## Configuration
