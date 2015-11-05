@@ -5,7 +5,7 @@ import notify_stats  from './notify stats'
 
 import Log from './../tools/log'
 
-import { exists, clone, alias_camel_case } from './../helpers'
+import { exists, clone, convert_from_camel_case } from './../helpers'
 
 import { default_webpack_assets, normalize_options } from './../common'
 
@@ -13,7 +13,7 @@ import { default_webpack_assets, normalize_options } from './../common'
 export default function Plugin(options)
 {
 	// take the passed in options
-	this.options = alias_camel_case(clone(options))
+	this.options = convert_from_camel_case(clone(options))
 
 	// add missing fields, etc
 	normalize_options(this.options)
@@ -77,6 +77,7 @@ Plugin.prototype.development = function(flag)
 	// set development mode flag
 	this.options.development = exists(flag) ? flag : true
 
+	/* istanbul ignore else */
 	if (this.options.development)
 	{
 		this.log.debug('entering development mode')
@@ -93,9 +94,6 @@ Plugin.prototype.development = function(flag)
 // applies the plugin to the Webpack build
 Plugin.prototype.apply = function(compiler)
 {
-	// selfie
-	const plugin = this
-
 	// Webpack configuration
 	const webpack_configuration = compiler.options
 
@@ -106,10 +104,10 @@ Plugin.prototype.apply = function(compiler)
 	}
 
 	// project base path, required to output webpack-assets.json
-	plugin.options.project_path = webpack_configuration.context
+	this.options.project_path = webpack_configuration.context
 
 	// resolve webpack-assets.json file path
-	const webpack_assets_path = path.resolve(plugin.options.project_path, plugin.options.webpack_assets_file_path)
+	const webpack_assets_path = path.resolve(this.options.project_path, this.options.webpack_assets_file_path)
 
 	// validate webpack configuration
 	if (!webpack_configuration.output)
@@ -125,6 +123,9 @@ Plugin.prototype.apply = function(compiler)
 
 	// // assets base path (on disk or on the network)
 	// const assets_base_path = webpack_configuration.output.publicPath
+
+	// selfie
+	const plugin = this
 
 	// when all is done
 	// https://github.com/webpack/docs/wiki/plugins
@@ -154,21 +155,6 @@ Plugin.prototype.apply = function(compiler)
 		},
 		plugin.log)
 	})
-}
-
-function webpack_stats_file_path(webpack_assets_file_path)
-{
-	// default webpack stats file name
-	let webpack_stats_file_name = 'webpack-stats.json'
-
-	// resolve a possible file name collision
-	if (path.basename(webpack_assets_file_path) === webpack_stats_file_name)
-	{
-		webpack_stats_file_name = 'webpack-stats.debug.json'
-	}
-
-	// path to webpack stats file
-	return path.resolve(path.dirname(webpack_assets_file_path), webpack_stats_file_name)
 }
 
 // a sample module source parser for webpack url-loader

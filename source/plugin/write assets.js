@@ -320,6 +320,7 @@ function get_webpack_stats_file_path(webpack_assets_file_path)
 	let webpack_stats_file_name = 'webpack-stats.json'
 
 	// resolve a possible file name collision
+	/* istanbul ignore if */
 	if (path.basename(webpack_assets_file_path) === webpack_stats_file_name)
 	{
 		webpack_stats_file_name = 'webpack-stats.debug.json'

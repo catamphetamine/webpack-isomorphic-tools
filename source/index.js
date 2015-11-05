@@ -4,7 +4,7 @@ import fs     from 'fs'
 import Require_hacker from 'require-hacker'
 import Log            from './tools/log'
 
-import { exists, clone, alias_camel_case } from './helpers'
+import { exists, clone, convert_from_camel_case } from './helpers'
 import { default_webpack_assets, normalize_options, to_javascript_module_source } from './common'
 
 // using ES6 template strings
@@ -20,7 +20,7 @@ export default class webpack_isomorphic_tools
 	constructor(options)
 	{
 		// take the passed in options
-		this.options = alias_camel_case(clone(options))
+		this.options = convert_from_camel_case(clone(options))
 
 		// add missing fields, etc
 		normalize_options(this.options)
@@ -185,6 +185,7 @@ export default class webpack_isomorphic_tools
 		this.log.debug(`require() called for ${global_asset_path}`)
 
 		// sanity check
+		/* istanbul ignore if */
 		if (!this.options.project_path)
 		{
 			throw new Error(`You forgot to call the .server() method passing it your project's base path`)
@@ -247,6 +248,7 @@ export default class webpack_isomorphic_tools
 		this.log.debug(` requiring ${asset_path}`)
 
 		// sanity check
+		/* istanbul ignore if */
 		if (!asset_path)
 		{
 			return undefined

@@ -6,6 +6,8 @@ import fs from 'fs'
 import isomorpher from '../source/index'
 import isomorpher_plugin from '../source/plugin/plugin'
 
+import { extend } from './../source/helpers'
+
 import Log from '../source/tools/log'
 
 chai.should()
@@ -111,12 +113,27 @@ function cleanup_webpack_assets()
 			throw new Error('Failed to delete webpack-assets.json')
 		}
 	}
+
+	const webpack_stats_path = path.resolve(path.dirname(webpack_assets_path), 'webpack-stats.json')
+
+	// delete webpack-stats.json if it exists
+	if (fs.existsSync(webpack_stats_path))
+	{
+		// delete it
+		fs.unlinkSync(webpack_stats_path)
+
+		// ensure webpack-stats.json was deleted
+		if (fs.existsSync(webpack_stats_path))
+		{
+			throw new Error('Failed to delete webpack-stats.json')
+		}
+	}
 }
 
 // writes webpack-assets.json
-function create_assets_file()
+function create_assets_file(data = expected_webpack_assets)
 {
-	fs.writeFileSync(webpack_assets_path, expected_webpack_assets)
+	fs.writeFileSync(webpack_assets_path, JSON.stringify(data))
 }
 
 // to be fired when webpack-assets.json is created
@@ -148,7 +165,7 @@ describe('plugin', function()
 	{
 		const settings = isomorpher_settings()
 
-		const plugin = new isomorpher_plugin(settings)
+		const plugin = new isomorpher_plugin(settings).development()
 		const server_side = new isomorpher(settings)
 
 		// check resulting regular expressions
@@ -228,9 +245,13 @@ describe('plugin', function()
 		// ensure it waits for webpack-assets.json
 		const server_side = new isomorpher(isomorpher_settings())
 
+		// run server side instance
 		server_side.server(webpack_configuration.context, () =>
 		{
+			// unmount require() hooks
 			server_side.undo()
+
+			// done
 			callback(done)
 		})
 
@@ -241,11 +262,15 @@ describe('plugin', function()
 	it('should wait for webpack-assets.json (promise)', function(done)
 	{
 		// ensure it waits for webpack-assets.json
-		const server_side = new isomorpher(isomorpher_settings())
+		const server_side = new isomorpher(isomorpher_settings()).development(false)
 
+		// run server side instance
 		server_side.server(webpack_configuration.context).then(() =>
 		{
+			// unmount require() hooks
 			server_side.undo()
+
+			// done
 			callback(done)
 		})
 
@@ -261,12 +286,176 @@ describe('plugin', function()
 		// ensure it waits for webpack-assets.json
 		const server_side = new isomorpher(isomorpher_settings())
 
+		// install require() hooks
 		server_side.server(webpack_configuration.context, () =>
 		{
+			// /node_modules use case
+			require('./node_modules/whatever.jpg')
+
+			// verify asset value
 			require('./assets/husky.jpg').should.equal(expected_webpack_assets.assets['./assets/husky.jpg'])
 
+			// unmount require() hooks
 			server_side.undo()
+
+			// done
 			callback(done)
 		})
+	})
+
+	it('should refresh assets in development mode', function(done)
+	{
+		// create the webpack-assets.json
+		create_assets_file()
+
+		// ensure it waits for webpack-assets.json
+		const server_side = new isomorpher(isomorpher_settings()).development()
+
+		// install require() hooks
+		server_side.server(webpack_configuration.context, () =>
+		{
+			// verify asset value
+			require('./assets/husky.jpg').should.equal(expected_webpack_assets.assets['./assets/husky.jpg'])
+
+			// new asset data
+			const data = extend({}, expected_webpack_assets,
+			{
+				assets:
+				{
+					"./assets/husky.jpg": "woof"
+				}
+			})
+
+			// create the webpack-assets.json
+			create_assets_file(data)
+
+			// refresh assets
+			server_side.refresh()
+
+			// verify that assets are refreshed
+			require('./assets/husky.jpg').should.equal(data.assets['./assets/husky.jpg'])
+
+			// unmount require() hooks
+			server_side.undo()
+
+			// done
+			callback(done)
+		})
+	})
+
+	it('should not refresh assets in production mode', function(done)
+	{
+		// create the webpack-assets.json
+		create_assets_file()
+
+		// ensure it waits for webpack-assets.json
+		const server_side = new isomorpher(isomorpher_settings())
+
+		// install require() hooks
+		server_side.server(webpack_configuration.context, () =>
+		{
+			// refresh assets
+			const refresh = () => server_side.refresh()
+
+			// verify that refresh is not permitted in production mode
+			refresh.should.throw('.refresh() called in production mode')
+
+			// unmount require() hooks
+			server_side.undo()
+
+			// done
+			callback(done)
+		})
+	})
+
+	it('should return undefined for assets which are absent from webpack stats', function(done)
+	{
+		// create the webpack-assets.json
+		create_assets_file()
+
+		// ensure it waits for webpack-assets.json
+		const server_side = new isomorpher(isomorpher_settings()).development()
+
+		// install require() hooks
+		server_side.server(webpack_configuration.context, () =>
+		{
+			// verify asset value
+			(typeof require('./assets/absent.jpg')).should.equal('undefined')
+
+			// unmount require() hooks
+			server_side.undo()
+
+			// done
+			callback(done)
+		})
+	})
+
+	it('should validate options', function()
+	{
+		let options = {}
+
+		const instantiate = () => new isomorpher(options)
+
+		instantiate.should.throw('You must specify "assets" parameter')
+
+		options = { whatever: true }
+
+		instantiate.should.throw('Unknown configuration parameter')
+
+		options = { debug: 'true' }
+
+		instantiate.should.throw('must be a boolean')
+
+		options = { assets: 'true' }
+
+		instantiate.should.throw('must be an object')
+
+		options = { debug: true, webpack_assets_file_path: true }
+
+		instantiate.should.throw('must be a string')
+
+		options = { assets: { images: {} } }
+
+		instantiate.should.throw('You must specify file extensions')
+
+		options = { assets: { images: { extension: ['jpg'] } } }
+
+		instantiate.should.throw('Use "extensions" key')
+
+		options = { assets: { images: { extension: true } } }
+
+		instantiate.should.throw('must be a string')
+
+		options = { assets: { images: { extension: 'jpg', whatever: true } } }
+
+		instantiate.should.throw('Unknown property "whatever"')
+
+		options = { assets: { images: { extension: 'jpg', exclude: true } } }
+
+		instantiate.should.throw('must be an array')
+
+		options = { assets: { images: { extension: 'jpg', exclude: [true] } } }
+
+		instantiate.should.throw('Unsupported object type for exclusion "true"')
+
+		options = { assets: { images: { extension: 'jpg', include: true } } }
+
+		instantiate.should.throw('must be an array')
+
+		options = { assets: { images: { extension: 'jpg', include: [true] } } }
+
+		instantiate.should.throw('Unsupported object type for inclusion "true"')
+
+		options = { assets: { images: { extension: 'jpg', filter: true } } }
+
+		instantiate.should.throw('"filter" must be a function')
+
+		options = { assets: { images: { extension: 'jpg', path: 'true' } } }
+
+		instantiate.should.throw('"path" must be a function')
+
+		options = { assets: { images: { extension: 'jpg', parser: undefined } } }
+
+		instantiate.should.throw('"parser" must be a function')
 	})
 })

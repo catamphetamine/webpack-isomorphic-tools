@@ -36,9 +36,9 @@
     "webpack-merge": "^0.1.2"
   },
   "scripts": {
-    "test": "mocha --compilers js:babel/register-without-polyfill --colors --bail --reporter spec test/",
-    "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --compilers js:babel/register-without-polyfill --colors --reporter dot test/",
-    "test-travis": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --compilers js:babel/register --colors --reporter spec test/",
+    "test": "mocha --compilers js:babel/register-without-polyfill --colors --bail --reporter spec test/ --recursive",
+    "test-coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --compilers js:babel/register-without-polyfill --colors --reporter dot test/ --recursive",
+    "test-travis": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --compilers js:babel/register --colors --reporter spec test/ --recursive",
     "gh-pages": "webpack --action=gh-pages --colors --config ./config",
     "deploy-gh-pages": "TARGET=gh-pages node ./config/deploy-gh-pages.js",
     "clean-for-build": "rimraf ./babel-transpiled-modules/**/*",
