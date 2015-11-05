@@ -14,5 +14,12 @@ describe('log', function()
 		log.trace('trace')
 		log.warning('warning')
 		log.error('error')
+		log.error(new Error('error'))
+		log.error({ key: 'error'}, 'error')
+		log.error(undefined)
+
+		new Log('test', { debug: false })
+
+		log.trace('no trace')
 	})
 })
