@@ -18,8 +18,9 @@ describe('log', function()
 		log.error({ key: 'error'}, 'error')
 		log.error(undefined)
 
-		new Log('test', { debug: false })
+		const log_info = new Log('test', { debug: false })
 
-		log.trace('no trace')
+		log_info.trace('no trace')
+		log_info.debug('no debug')
 	})
 })
