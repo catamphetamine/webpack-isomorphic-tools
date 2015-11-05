@@ -666,13 +666,13 @@ Takes an object with options (see [Configuration](#configuration) section above)
 
 #### .development(true or false or undefined -> true)
 
-(both Webpack plugin and server tools)
+(both Webpack plugin instance and server tools instance)
 
 Is it development mode or is it production mode? By default it's production mode. But if you're instantiating `webpack-isomorphic-tools/plugin` for use in Webpack development configuration, or if you're instantiating `webpack-isomorphic-tools` on server when you're developing your project, then you should call this method to enable asset hot reloading (and disable asset caching). It should be called right after the constructor.
 
 #### .regular_expression(asset_type)
 
-(Webpack plugin)
+(Webpack plugin instance)
 
 Returns the regular expression for this asset type (based on this asset type's `extension` (or `extensions`))
 
@@ -684,7 +684,7 @@ A parser (see [Configuration](#configuration) section above) for Webpack [url-lo
 
 #### .server(project_path, [callback])
 
-(server tools)
+(server tools instance)
 
 Initializes a server-side instance of `webpack-isomorphic-tools` with the base path for your project and makes all the server-side `require()` calls work. The `project_path` parameter must be identical to the `context` parameter of your Webpack configuration and is needed to locate `webpack-assets.json` (contains the assets info) which is output by Webpack process.
 
@@ -694,15 +694,21 @@ To fix this you can put your application server code into a `callback` and pass 
 
 #### .refresh()
 
-(server tools)
+(server tools instance)
 
 Refreshes your assets info (re-reads `webpack-assets.json` from disk) and also flushes cache for all the previously `require()`d assets
 
 #### .assets()
 
-(server tools)
+(server tools instance)
 
 Returns the contents of `webpack-assets.json` which is created by `webpack-isomorphic-tools` in your project base folder
+
+#### .alias(aliases)
+
+(server tools instance)
+
+Makes `webpack-isomorphic-tools` aware of Webpack [aliasing](https://webpack.github.io/docs/resolving.html#aliasing) feature. The `aliases` parameter corresponds to `resolve.alias` in your Webpack configuration. If this method is used it must be called before the `.server()` method.
 
 ## Gotchas
 
@@ -809,6 +815,13 @@ npm run watch
 
 in a terminal. This will watch the file system and run tests automatically 
 whenever you save a js file.
+
+## To do
+
+ * Proper testing for `log` (output to a variable rather than `console`)
+ * Proper testing for `notify_stats` (output to a `log` variable)
+ * Proper testing for parsers (using `eval()` CommonJS module compilation)
+ * Proper testing for `require('./node_modules/whatever.jpg')` test case
 
 ## License
 

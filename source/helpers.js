@@ -1,6 +1,15 @@
 // // if the variable is defined
 export const exists = what => typeof what !== 'undefined'
 
+// used for JSON object type checking
+const object_constructor = {}.constructor
+
+// detects a JSON object
+export function is_object(object)
+{
+	return exists(object) && (object !== null) && object.constructor === object_constructor
+}
+
 // extends the first object with 
 /* istanbul ignore next: some weird transpiled code, not testable */
 export function extend(...objects)
@@ -17,9 +26,14 @@ export function extend(...objects)
 
 	for (let key of Object.keys(from))
 	{
-		if (typeof from[key] === 'object' && exists(to[key]))
+		if (is_object(from[key]))
 		{
-			to[key] = extend(to[key], from[key])
+			if (!is_object(to[key]))
+			{
+				to[key] = {}
+			}
+
+			extend(to[key], from[key])
 		}
 		else
 		{
@@ -87,4 +101,15 @@ export function replace_all(where, what, with_what)
 {
 	const regexp = new RegExp(escape_regexp(what), 'g')
 	return where.replace(regexp, with_what)
+}
+
+export function starts_with(string, substring)
+{
+	return string.indexOf(substring) === 0
+}
+
+export function ends_with(string, substring)
+{
+	const index = string.lastIndexOf(substring)
+	return index >= 0 && index === string.length - substring.length
 }

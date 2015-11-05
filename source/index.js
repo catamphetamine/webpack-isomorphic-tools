@@ -4,7 +4,7 @@ import fs     from 'fs'
 import Require_hacker from 'require-hacker'
 import Log            from './tools/log'
 
-import { exists, clone, convert_from_camel_case } from './helpers'
+import { exists, clone, convert_from_camel_case, starts_with } from './helpers'
 import { default_webpack_assets, normalize_options, to_javascript_module_source } from './common'
 
 // using ES6 template strings
@@ -24,6 +24,9 @@ export default class webpack_isomorphic_tools
 
 		// add missing fields, etc
 		normalize_options(this.options)
+
+		// hacking Node.js require() calls
+		this.require_hacker = new Require_hacker({ debug: this.options.debug })
 
 		// logging
 		this.log = new Log('webpack-isomorphic-tools', { debug: this.options.debug })
@@ -99,6 +102,48 @@ export default class webpack_isomorphic_tools
 		this.cached_assets = []
 	}
 
+	// Makes `webpack-isomorphic-tools` aware of Webpack aliasing feature.
+	// https://webpack.github.io/docs/resolving.html#aliasing
+	// The `aliases` parameter corresponds to `resolve.alias` 
+	// in your Webpack configuration. 
+	// If this method is used it must be called before the `.server()` method.
+	alias(aliases)
+	{
+		// sanity check
+		if (this.hooks.length > 0)
+		{
+			throw new Error(`The .alias() method must be called before the .server() method`)
+		}
+
+		// mount require() hook
+		this.alias_hook = this.require_hacker.resolver('aliasing', path =>
+		{
+			// if it's a path to a file - don't interfere
+			if (starts_with(path, '.') || starts_with(path, '/'))
+			{
+				return
+			}
+
+			// extract module name from the path
+			const slash_index = path.indexOf('/')
+			const module_name = slash_index >= 0 ? path.substring(0, slash_index) : path
+			const rest = slash_index >= 0 ? path.substring(slash_index) : ''
+
+			// find an alias
+			const alias = aliases[module_name]
+
+			// if an alias is found, require() the correct path
+			if (alias)
+			{
+				return require(alias + rest)
+			}
+		},
+		{ precede_node_loader: true })
+
+		// allows method chaining
+		return this
+	}
+
 	// Initializes server-side instance of `webpack-isomorphic-tools` 
 	// with the base path for your project, then calls `.register()`,
 	// and after that calls .wait_for_assets(callback).
@@ -150,9 +195,6 @@ export default class webpack_isomorphic_tools
 	register()
 	{
 		this.log.debug('registering require() hooks for assets')
-
-		// hacking Node.js require() calls
-		this.require_hacker = new Require_hacker({ debug: this.options.debug })
 
 		// for each user specified asset type,
 		// register a require() hook for each file extension of this asset type
@@ -279,6 +321,12 @@ export default class webpack_isomorphic_tools
 		for (let hook of this.hooks)
 		{
 			hook.unmount()
+		}
+
+		// unmount the aliasing hook (if mounted)
+		if (this.alias_hook)
+		{
+			this.alias_hook.unmount()
 		}
 	}
 

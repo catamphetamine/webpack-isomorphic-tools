@@ -8,6 +8,28 @@ import { extend } from '../../source/helpers'
 
 chai.should()
 
+const webpack_stats = require(path.resolve(__dirname, '../webpack-stats.stub.json'))
+
+const expected_webpack_assets = 
+{
+	"javascript":
+	{
+		"main": "/assets/main.6c2b37c0fc8c0592e2d3.js"
+	},
+	"styles":
+	{
+		"main": "/assets/main.6c2b37c0fc8c0592e2d3.css"
+	},
+	"assets":
+	{
+		"./assets/husky.jpg": "/assets/9059f094ddb49c2b0fa6a254a6ebf2ad.jpg",
+		"./assets/style.scss": "body {} .child { background: url(/assets/test.jpg) } head {}",
+		"./assets/child.scss": ".child { background: url(/assets/test.jpg) }",
+		"./assets/test.text_parser_test": "text parser test",
+		"./assets/test.object_parser_test.extra": { one: 1 }
+	}
+}
+
 const webpack_configuration =
 {
 	context: __dirname,
@@ -23,17 +45,14 @@ const webpack_configuration =
 	}
 }
 
-// // writes webpack-assets.json
-// function create_assets_file(data = expected_webpack_assets)
-// {
-// 	fs.writeFileSync(webpack_assets_path, JSON.stringify(data))
-// }
-
 const webpack_assets_path = path.resolve(__dirname, '../webpack-assets.json')
 
 // deletes webpack-assets.json if it exists
 function cleanup_webpack_assets()
 {
+	// clear require() cache
+	delete require.cache[webpack_assets_path]
+
 	// delete webpack-assets.json if it exists
 	if (fs.existsSync(webpack_assets_path))
 	{
@@ -48,6 +67,9 @@ function cleanup_webpack_assets()
 	}
 
 	const webpack_stats_path = path.resolve(path.dirname(webpack_assets_path), 'webpack-stats.json')
+
+	// clear require() cache
+	delete require.cache[webpack_stats_path]
 
 	// delete webpack-stats.json if it exists
 	if (fs.existsSync(webpack_stats_path))
@@ -114,9 +136,26 @@ describe('plugin', function()
 		cleanup_webpack_assets()
 	})
 
-	after(function()
+	afterEach(function()
 	{
 		cleanup_webpack_assets()
+	})
+
+	it('should generate correct webpack-assets.json', function(done)
+	{
+		new plugin(settings()).apply
+		({
+			options: webpack_configuration,
+
+			plugin: function(phase, callback)
+			{
+				callback({ toJson: () => webpack_stats })
+
+				require(webpack_assets_path).should.deep.equal(expected_webpack_assets)
+
+				done()
+			}
+		})
 	})
 
 	it('should throw errors for misconfiguration', function(done)

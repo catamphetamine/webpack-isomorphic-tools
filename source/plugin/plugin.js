@@ -52,7 +52,7 @@ Plugin.prototype.regular_expression = function(asset_type)
 // creates a regular expression for this file extension (or these file extensions)
 Plugin.regular_expression = function(extensions)
 {
-	if (!(extensions instanceof Array))
+	if (!Array.isArray(extensions))
 	{
 		throw new Error(`You were expected to pass a list of extensions (an array). Instead got: ${extensions}. Maybe you were looking for the instance method istead of the class method of this plugin?`)
 	}

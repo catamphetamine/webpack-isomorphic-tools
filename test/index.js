@@ -17,7 +17,7 @@ const log = new Log('testing', { debug: true })
 
 const webpack_assets_path = path.resolve(__dirname, 'webpack-assets.json')
 
-const expected_webpack_assets = 
+const webpack_assets = 
 {
 	"javascript":
 	{
@@ -36,8 +36,6 @@ const expected_webpack_assets =
 		"./assets/test.object_parser_test.extra": { one: 1 }
 	}
 }
-
-const webpack_stats = require(path.resolve(__dirname, 'webpack-stats.stub.json'))
 
 const webpack_configuration =
 {
@@ -101,6 +99,9 @@ const isomorpher_settings = () =>
 // deletes webpack-assets.json if it exists
 function cleanup_webpack_assets()
 {
+	// clear require() cache
+	delete require.cache[webpack_assets_path]
+
 	// delete webpack-assets.json if it exists
 	if (fs.existsSync(webpack_assets_path))
 	{
@@ -113,38 +114,12 @@ function cleanup_webpack_assets()
 			throw new Error('Failed to delete webpack-assets.json')
 		}
 	}
-
-	const webpack_stats_path = path.resolve(path.dirname(webpack_assets_path), 'webpack-stats.json')
-
-	// delete webpack-stats.json if it exists
-	if (fs.existsSync(webpack_stats_path))
-	{
-		// delete it
-		fs.unlinkSync(webpack_stats_path)
-
-		// ensure webpack-stats.json was deleted
-		if (fs.existsSync(webpack_stats_path))
-		{
-			throw new Error('Failed to delete webpack-stats.json')
-		}
-	}
 }
 
 // writes webpack-assets.json
-function create_assets_file(data = expected_webpack_assets)
+function create_assets_file(data = webpack_assets)
 {
 	fs.writeFileSync(webpack_assets_path, JSON.stringify(data))
-}
-
-// to be fired when webpack-assets.json is created
-function callback(done)
-{
-	if (!fs.existsSync(webpack_assets_path))
-	{
-		return done(new Error('Should have waited for webpack-assets.json'))
-	}
-
-	done()
 }
 
 describe('plugin', function()
@@ -154,7 +129,7 @@ describe('plugin', function()
 		cleanup_webpack_assets()
 	})
 
-	after(function()
+	afterEach(function()
 	{
 		cleanup_webpack_assets()
 	})
@@ -221,25 +196,6 @@ describe('plugin', function()
 		includes('function test').should.be.true
 	})
 
-	it('should generate correct webpack-assets.json', function(done)
-	{
-		const plugin = new isomorpher_plugin(isomorpher_settings())
-
-		plugin.apply
-		({
-			options: webpack_configuration,
-
-			plugin: function(phase, callback)
-			{
-				callback({ toJson: () => webpack_stats })
-
-				require(webpack_assets_path).should.deep.equal(expected_webpack_assets)
-
-				done()
-			}
-		})
-	})
-
 	it('should wait for webpack-assets.json (callback)', function(done)
 	{
 		// ensure it waits for webpack-assets.json
@@ -251,8 +207,14 @@ describe('plugin', function()
 			// unmount require() hooks
 			server_side.undo()
 
+			// verify webpack-assets.json exists
+			if (!fs.existsSync(webpack_assets_path))
+			{
+				return done(new Error('Should have waited for webpack-assets.json'))
+			}
+
 			// done
-			callback(done)
+			done()
 		})
 
 		// create the webpack-assets.json (after a short delay)
@@ -270,8 +232,14 @@ describe('plugin', function()
 			// unmount require() hooks
 			server_side.undo()
 
+			// verify webpack-assets.json exists
+			if (!fs.existsSync(webpack_assets_path))
+			{
+				return done(new Error('Should have waited for webpack-assets.json'))
+			}
+
 			// done
-			callback(done)
+			done()
 		})
 
 		// create the webpack-assets.json (after a short delay)
@@ -289,17 +257,18 @@ describe('plugin', function()
 		// install require() hooks
 		server_side.server(webpack_configuration.context, () =>
 		{
-			// /node_modules use case
+			// checks '/node_modules' -> '/~' case.
+			// to do: should be a proper check
 			require('./node_modules/whatever.jpg')
 
 			// verify asset value
-			require('./assets/husky.jpg').should.equal(expected_webpack_assets.assets['./assets/husky.jpg'])
+			require('./assets/husky.jpg').should.equal(webpack_assets.assets['./assets/husky.jpg'])
 
 			// unmount require() hooks
 			server_side.undo()
 
 			// done
-			callback(done)
+			done()
 		})
 	})
 
@@ -315,16 +284,18 @@ describe('plugin', function()
 		server_side.server(webpack_configuration.context, () =>
 		{
 			// verify asset value
-			require('./assets/husky.jpg').should.equal(expected_webpack_assets.assets['./assets/husky.jpg'])
+			require('./assets/husky.jpg').should.equal(webpack_assets.assets['./assets/husky.jpg'])
 
 			// new asset data
-			const data = extend({}, expected_webpack_assets,
+			const data = extend({}, webpack_assets,
 			{
 				assets:
 				{
 					"./assets/husky.jpg": "woof"
 				}
 			})
+
+			// throw new Error('intended')
 
 			// create the webpack-assets.json
 			create_assets_file(data)
@@ -339,7 +310,68 @@ describe('plugin', function()
 			server_side.undo()
 
 			// done
-			callback(done)
+			done()
+		})
+	})
+
+	it('should throw an error if alias() called after server()', function(done)
+	{
+		// create the webpack-assets.json
+		create_assets_file()
+
+		// aliasing node_modules
+		const aliases = { 'original_module_name': 'aliased_module_name' }
+
+		// ensure it waits for webpack-assets.json
+		const server_side = new isomorpher(isomorpher_settings()).development().alias(aliases)
+
+		// install require() hooks
+		server_side.server(webpack_configuration.context, () =>
+		{
+			const alias_call = () => server_side.alias({ from: 'to' })
+
+			// verify the error
+			alias_call.should.throw('The .alias() method must be called before the .server() method')
+
+			// unmount require() hooks
+			server_side.undo()
+
+			// done
+			done()
+		})
+	})
+
+	it('should correctly require aliased paths', function(done)
+	{
+		// https://webpack.github.io/docs/resolving.html#aliasing
+
+		// create the webpack-assets.json
+		create_assets_file()
+
+		// aliasing node_modules
+		const aliases = { 'original_module_name': 'aliased_module_name' }
+
+		// ensure it waits for webpack-assets.json
+		const server_side = new isomorpher(isomorpher_settings()).development().alias(aliases)
+
+		// install require() hooks
+		server_side.server(webpack_configuration.context, () =>
+		{
+			// verify aliasing
+
+			const test = path => () => require(path)
+
+			test('original_module_name/assets/husky.jpg').should.throw('aliased_module_name/assets/husky.jpg')
+			test('original_module_name').should.throw('aliased_module_name')
+			test('module_name_not_aliased').should.throw('module_name_not_aliased')
+			test('./original_module_name').should.throw('/original_module_name')
+			test('/original_module_name').should.throw('/original_module_name')
+
+			// unmount require() hooks
+			server_side.undo()
+
+			// done
+			done()
 		})
 	})
 
@@ -364,11 +396,11 @@ describe('plugin', function()
 			server_side.undo()
 
 			// done
-			callback(done)
+			done()
 		})
 	})
 
-	it('should return undefined for assets which are absent from webpack stats', function(done)
+	it('should return undefined for assets which are absent from webpack assets', function(done)
 	{
 		// create the webpack-assets.json
 		create_assets_file()
@@ -386,7 +418,7 @@ describe('plugin', function()
 			server_side.undo()
 
 			// done
-			callback(done)
+			done()
 		})
 	})
 
