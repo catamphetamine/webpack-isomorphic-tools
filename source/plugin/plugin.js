@@ -131,6 +131,8 @@ Plugin.prototype.apply = function(compiler)
 	// https://github.com/webpack/docs/wiki/plugins
 	compiler.plugin('done', function(stats)
 	{
+		plugin.log.debug('------------------- Started -------------------')
+
 		var json = stats.toJson()
 
 		// output some info to the console if in development mode
@@ -155,6 +157,8 @@ Plugin.prototype.apply = function(compiler)
 			regular_expressions : plugin.regular_expressions
 		},
 		plugin.log)
+
+		plugin.log.debug('------------------- Finished -------------------')
 	})
 }
 

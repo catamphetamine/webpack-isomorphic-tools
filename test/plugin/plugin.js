@@ -156,7 +156,7 @@ describe('plugin', function()
 
 			plugin: function(phase, callback)
 			{
-				callback({ toJson: () => webpack_stats })
+				callback({ toJson: () => webpack_stats, toString: () => 'stats' })
 
 				require(webpack_assets_path).should.deep.equal(expected_webpack_assets)
 
@@ -218,30 +218,34 @@ describe('plugin', function()
 
 			plugin: function(phase, callback)
 			{
-				callback({ toJson: () =>
-				{
-					const stats =
+				callback
+				({
+					toJson: () =>
 					{
-						errors: [],
-						warnings: [],
-						assetsByChunkName: { main: 'main' },
-						modules: 
-						[{
-							id: 1,
-							name: 'whatever.jpg',
-							source: undefined
-						}, {
-							id: 2,
-							name: 'kitten.jpg',
-							source: 'blah'
-						}, {
-							id: 3,
-							name: 'kitten.jpg',
-							source: 'blah'
-						}]
-					} 
-					return stats
-				}})
+						const stats =
+						{
+							errors: [],
+							warnings: [],
+							assetsByChunkName: { main: 'main' },
+							modules: 
+							[{
+								id: 1,
+								name: 'whatever.jpg',
+								source: undefined
+							}, {
+								id: 2,
+								name: 'kitten.jpg',
+								source: 'blah'
+							}, {
+								id: 3,
+								name: 'kitten.jpg',
+								source: 'blah'
+							}]
+						} 
+						return stats
+					},
+					toString: () => 'stats'
+				})
 
 				done()
 			}

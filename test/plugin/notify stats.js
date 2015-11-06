@@ -8,10 +8,10 @@ describe('notify stats', function()
 	it('should notify stats', function()
 	{
 		// some errors
-		notify_stats({ a: true }, { errors: ['test error'] })
+		notify_stats({ toString: () => 'stats info' }, { errors: ['test error'] })
 
 		// some warnings
-		notify_stats({ a: true }, { errors: [], warnings: ['test warning'] })
+		notify_stats({ toString: () => 'stats info' }, { errors: [], warnings: ['test warning'] })
 
 		// no errors and warnings
 		notify_stats({ toString: () => 'stats info' }, { errors: [], warnings: [] })

@@ -308,8 +308,7 @@ function populate_assets(output, json, options, log)
 				}
 			}
 		}
-	},
-	{ precede_node_loader: true })
+	})
 
 	log.debug(`compiling assets`)
 

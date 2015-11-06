@@ -124,8 +124,7 @@ export default class webpack_isomorphic_tools
 				const result = require(aliased_path)
 				return require_hacker.to_javascript_module_source(result)
 			}
-		},
-		{ precede_node_loader: true })
+		})
 
 		// allows method chaining
 		return this
