@@ -1,8 +1,6 @@
 import path from 'path'
 
-import serialize from './tools/serialize-javascript'
-
-import { exists } from './helpers'
+import { is_object, exists, starts_with } from './helpers'
 
 // returns a stub for webpack-assets.json if it doesn't exist yet
 // (because node.js and webpack are being run in parallel in development mode)
@@ -27,7 +25,7 @@ export function normalize_options(options)
 		switch (key)
 		{
 			case 'assets':
-				if (typeof options[key] !== 'object')
+				if (!is_object(options[key]))
 				{
 					throw new Error(`"${key}" configuration parameter must be ` + `an object`)
 				}
@@ -47,6 +45,13 @@ export function normalize_options(options)
 				}
 				break
 
+			case 'alias':
+				if (!is_object(options[key]))
+				{
+					throw new Error(`"${key}" configuration parameter must be ` + `an object`)
+				}
+				break
+
 			default:
 				throw new Error(`Unknown configuration parameter "${key}"`)
 		}
@@ -61,6 +66,18 @@ export function normalize_options(options)
 
 	// webpack-assets.json path, relative to the project base path
 	options.webpack_assets_file_path = options.webpack_assets_file_path || 'webpack-assets.json'	
+
+	// if Webpack aliases are supplied, validate them
+	if (options.alias)
+	{
+		for (let key of Object.keys(options.alias))
+		{
+			if (typeof options.alias[key] !== 'string')
+			{
+				throw new Error(`Invalid alias for "${key}": "${options.alias[key]}"`)
+			}
+		}
+	}
 
 	// generate names (if required) for each user defined asset type, normalize extensions
 	for (let asset_type of Object.keys(options.assets))
@@ -149,28 +166,25 @@ export function normalize_options(options)
 	}
 }
 
-// returns a CommonJS modules source.
-export function to_javascript_module_source(source)
+export function alias(path, aliases)
 {
-	// if the asset source wasn't found - return an empty CommonJS module
-	if (!exists(source))
+	// if it's a path to a file - don't interfere
+	if (starts_with(path, '.') || starts_with(path, '/'))
 	{
-		return 'module.exports = undefined'
+		return
 	}
 
-	// if it's already a common js module source
-	if (typeof source === 'string' && is_a_module_declaration(source))
+	// extract module name from the path
+	const slash_index = path.indexOf('/')
+	const module_name = slash_index >= 0 ? path.substring(0, slash_index) : path
+	const rest = slash_index >= 0 ? path.substring(slash_index) : ''
+
+	// find an alias
+	const alias = aliases[module_name]
+
+	// if an alias is found, require() the correct path
+	if (alias)
 	{
-		return source
+		return alias + rest
 	}
-
-	// generate javascript module source code based on the `source` variable
-	return 'module.exports = ' + serialize(source)
-}
-
-// detect if it is a CommonJS module declaration
-function is_a_module_declaration(source)
-{
-	return source.indexOf('module.exports = ') === 0 ||
-		/\s+module\.exports = .+/.test(source)
 }

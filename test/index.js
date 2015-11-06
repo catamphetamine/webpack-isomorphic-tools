@@ -314,33 +314,6 @@ describe('plugin', function()
 		})
 	})
 
-	it('should throw an error if alias() called after server()', function(done)
-	{
-		// create the webpack-assets.json
-		create_assets_file()
-
-		// aliasing node_modules
-		const aliases = { 'original_module_name': 'aliased_module_name' }
-
-		// ensure it waits for webpack-assets.json
-		const server_side = new isomorpher(isomorpher_settings()).development().alias(aliases)
-
-		// install require() hooks
-		server_side.server(webpack_configuration.context, () =>
-		{
-			const alias_call = () => server_side.alias({ from: 'to' })
-
-			// verify the error
-			alias_call.should.throw('The .alias() method must be called before the .server() method')
-
-			// unmount require() hooks
-			server_side.undo()
-
-			// done
-			done()
-		})
-	})
-
 	it('should correctly require aliased paths', function(done)
 	{
 		// https://webpack.github.io/docs/resolving.html#aliasing
@@ -351,8 +324,10 @@ describe('plugin', function()
 		// aliasing node_modules
 		const aliases = { 'original_module_name': 'aliased_module_name' }
 
+		const settings = extend({}, isomorpher_settings(), { alias: aliases })
+
 		// ensure it waits for webpack-assets.json
-		const server_side = new isomorpher(isomorpher_settings()).development().alias(aliases)
+		const server_side = new isomorpher(settings).development()
 
 		// install require() hooks
 		server_side.server(webpack_configuration.context, () =>

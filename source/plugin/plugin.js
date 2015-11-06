@@ -147,6 +147,7 @@ Plugin.prototype.apply = function(compiler)
 			development         : plugin.options.development,
 			debug               : plugin.options.debug,
 			assets              : plugin.options.assets,
+			alias               : plugin.options.alias,
 			project_path        : plugin.options.project_path,
 			assets_base_url     : webpack_configuration.output.publicPath,
 			webpack_assets_path : webpack_assets_path,

@@ -1,11 +1,11 @@
 import fs     from 'fs-extra'
 import path   from 'path'
 
-import Require_hacker from 'require-hacker'
+import require_hacker from 'require-hacker'
 import serialize      from '../tools/serialize-javascript'
 
 import { exists, clone, replace_all } from '../helpers'
-import { to_javascript_module_source } from '../common'
+import { alias } from '../common'
 
 // writes webpack-assets.json file, which contains assets' file paths
 export default function write_assets(json, options, log)
@@ -253,7 +253,7 @@ function populate_assets(output, json, options, log)
 				//
 				// also resolve "ReferenceError: __webpack_public_path__ is not defined".
 				// because it may be a url-loaded resource (e.g. a font inside a style).
-				set[asset_path] = define_webpack_public_path + to_javascript_module_source(parsed_asset)
+				set[asset_path] = define_webpack_public_path + require_hacker.to_javascript_module_source(parsed_asset)
 
 				// add path mapping
 				global_paths_to_parsed_asset_paths[path.resolve(options.project_path, asset_path)] = asset_path
@@ -267,12 +267,28 @@ function populate_assets(output, json, options, log)
 		log.debug(` time taken: ${new Date().getTime() - began_at} ms`)
 	}
 
-	// instantiate require() hooker
-	const require_hacker = new Require_hacker({ debug: options.debug })
-
 	// register a special require() hook for requiring() raw webpack modules
-	const require_hook = require_hacker.resolver('webpack-module', (required_path) =>
+	const require_hook = require_hacker.global_hook('webpack-module', (required_path) =>
 	{
+		// if Webpack aliases are supplied
+		if (options.alias)
+		{
+			// alias the path
+			const aliased_path = alias(required_path, options.alias)
+
+			// if an alias is found, require() the correct path
+			if (aliased_path)
+			{
+				log.debug(`alias found for ${required_path}, resolving to ${aliased_path}`)
+
+				const global_path = require('module')._resolveFilename(aliased_path, module)
+				log.debug(` global path for aliased module is ${global_path}`)
+				
+				const result = require(global_path) // require(aliased_path)
+				return require_hacker.to_javascript_module_source(result)
+			}
+		}
+
 		// find an asset with this path
 		if (exists(global_paths_to_parsed_asset_paths[required_path]))
 		{

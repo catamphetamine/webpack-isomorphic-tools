@@ -1,3 +1,4 @@
+module.exports = 
 {
 	"hash": "6c2b37c0fc8c0592e2d3",
 	"publicPath": "http://127.0.0.1:3001/assets/",
@@ -63,6 +64,7 @@
 			"userRequest": "./assets/style.scss"
 		}],
 		"source": "module.exports = \"body {} \" + require(\"-!!/cryptic/path/&!./assets/child.scss\") + \" head {}\""
+		//  + \" \" + require(\"original_module_name/style.scss\")
 	},
 	{
 		"id": 5,
@@ -77,8 +79,21 @@
 		}],
 		"source": "module.exports = \".child { background: url(\" + __webpack_public_path__ + \"test.jpg) }\""
 	},
+	// {
+	// 	"id": 6,
+	// 	"identifier": "...whatever...",
+	// 	"name": "/path/to/aliased_module_name/style.scss",
+	// 	"chunks": [0],
+	// 	"assets": [],
+	// 	"issuer": "...whatever...",
+	// 	"reasons": 
+	// 	[{
+	// 		"userRequest": "_original_module_name/style.scss"
+	// 	}],
+	// 	"source": "module.exports = \".aliased {}\""
+	// },
 	{
-		"id": 6,
+		"id": 101,
 		"name": "./assets/test.text_parser_test",
 		"reasons": 
 		[{
@@ -87,7 +102,7 @@
 		"source": "...whatever..."
 	},
 	{
-		"id": 7,
+		"id": 102,
 		"name": "./assets/test.object_parser_test",
 		"reasons": 
 		[{

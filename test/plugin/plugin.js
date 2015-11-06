@@ -24,7 +24,9 @@ const expected_webpack_assets =
 	{
 		"./assets/husky.jpg": "/assets/9059f094ddb49c2b0fa6a254a6ebf2ad.jpg",
 		"./assets/style.scss": "body {} .child { background: url(/assets/test.jpg) } head {}",
+		// "./assets/style.scss": "body {} .child { background: url(/assets/test.jpg) } .aliased {} head {}",
 		"./assets/child.scss": ".child { background: url(/assets/test.jpg) }",
+		// "/path/to/aliased_module_name/style.scss": ".aliased {}",
 		"./assets/test.text_parser_test": "text parser test",
 		"./assets/test.object_parser_test.extra": { one: 1 }
 	}
@@ -143,7 +145,12 @@ describe('plugin', function()
 
 	it('should generate correct webpack-assets.json', function(done)
 	{
-		new plugin(settings()).apply
+		// aliasing node_modules
+		const aliases = { 'original_module_name': 'aliased_module_name' }
+
+		const plugin_settings = extend({}, settings(), { alias: aliases })
+
+		new plugin(plugin_settings).apply
 		({
 			options: webpack_configuration,
 

@@ -1,11 +1,11 @@
 import path   from 'path'
 import fs     from 'fs'
 
-import Require_hacker from 'require-hacker'
+import require_hacker from 'require-hacker'
 import Log            from './tools/log'
 
 import { exists, clone, convert_from_camel_case, starts_with } from './helpers'
-import { default_webpack_assets, normalize_options, to_javascript_module_source } from './common'
+import { default_webpack_assets, normalize_options, alias } from './common'
 
 // using ES6 template strings
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/template_strings
@@ -25,8 +25,11 @@ export default class webpack_isomorphic_tools
 		// add missing fields, etc
 		normalize_options(this.options)
 
-		// hacking Node.js require() calls
-		this.require_hacker = new Require_hacker({ debug: this.options.debug })
+		// if Webpack aliases are supplied, enable aliasing
+		if (this.options.alias)
+		{
+			this.enable_aliasing()
+		}
 
 		// logging
 		this.log = new Log('webpack-isomorphic-tools', { debug: this.options.debug })
@@ -107,35 +110,19 @@ export default class webpack_isomorphic_tools
 	// The `aliases` parameter corresponds to `resolve.alias` 
 	// in your Webpack configuration. 
 	// If this method is used it must be called before the `.server()` method.
-	alias(aliases)
+	enable_aliasing()
 	{
-		// sanity check
-		if (this.hooks.length > 0)
-		{
-			throw new Error(`The .alias() method must be called before the .server() method`)
-		}
-
 		// mount require() hook
-		this.alias_hook = this.require_hacker.resolver('aliasing', path =>
+		this.alias_hook = require_hacker.global_hook('aliasing', path =>
 		{
-			// if it's a path to a file - don't interfere
-			if (starts_with(path, '.') || starts_with(path, '/'))
-			{
-				return
-			}
-
-			// extract module name from the path
-			const slash_index = path.indexOf('/')
-			const module_name = slash_index >= 0 ? path.substring(0, slash_index) : path
-			const rest = slash_index >= 0 ? path.substring(slash_index) : ''
-
-			// find an alias
-			const alias = aliases[module_name]
+			// alias the path
+			const aliased_path = alias(path, this.options.alias)
 
 			// if an alias is found, require() the correct path
-			if (alias)
+			if (aliased_path)
 			{
-				return require(alias + rest)
+				const result = require(aliased_path)
+				return require_hacker.to_javascript_module_source(result)
 			}
 		},
 		{ precede_node_loader: true })
@@ -218,11 +205,11 @@ export default class webpack_isomorphic_tools
 		this.log.debug(` registering a require() hook for *.${extension}`)
 
 		// place the require() hook for this extension
-		this.hooks.push(this.require_hacker.hook(extension, (path, fallback) => this.require(path, description, fallback)))
+		this.hooks.push(require_hacker.hook(extension, path => this.require(path, description)))
 	}
 
 	// require()s an asset by a path
-	require(global_asset_path, description, fallback)
+	require(global_asset_path, description)
 	{
 		this.log.debug(`require() called for ${global_asset_path}`)
 
@@ -238,7 +225,7 @@ export default class webpack_isomorphic_tools
 		// if (!global_asset_path.indexOf(this.options.project_path) === 0)
 		// {
 		// 	this.log.debug(` skipping require call for ${asset_path} (not in project folder)`)
-		// 	return fallback()
+		// 	return
 		// }
 
 		// // asset path relative to the project folder
@@ -260,11 +247,11 @@ export default class webpack_isomorphic_tools
 
 		// if this filename is in the user specified exceptions list
 		// (or is not in the user explicitly specified inclusion list)
-		// then fallback to the normal require() behaviour
+		// then fall back to the normal require() behaviour
 		if (!this.includes(asset_path, description) || this.excludes(asset_path, description))
 		{
 			this.log.debug(` skipping require call for ${asset_path}`)
-			return fallback()
+			return
 		}
 
 		// track cached assets (only in development mode)
@@ -281,7 +268,7 @@ export default class webpack_isomorphic_tools
 		}
 		
 		// return CommonJS module source for this asset
-		return to_javascript_module_source(this.asset_source(asset_path))
+		return require_hacker.to_javascript_module_source(this.asset_source(asset_path))
 	}
 
 	// returns asset source by path (looks it up in webpack-assets.json)

@@ -359,6 +359,14 @@ Available configuration parameters:
   // (these aren't actually 'stats', these are some values derived from Webpack 'stats')
   webpack_assets_file_path: 'webpack-stats.json', // is 'webpack-assets.json' by default
 
+  // 
+  alias: 
+#### .alias(aliases)
+
+(server tools instance)
+
+Makes `webpack-isomorphic-tools` aware of Webpack [aliasing](https://webpack.github.io/docs/resolving.html#aliasing) feature. The `aliases` parameter corresponds to `resolve.alias` in your Webpack configuration. If this method is used it must be called before the `.server()` method.
+
   // here you can define all your asset types
   assets:
   {
@@ -704,12 +712,6 @@ Refreshes your assets info (re-reads `webpack-assets.json` from disk) and also f
 
 Returns the contents of `webpack-assets.json` which is created by `webpack-isomorphic-tools` in your project base folder
 
-#### .alias(aliases)
-
-(server tools instance)
-
-Makes `webpack-isomorphic-tools` aware of Webpack [aliasing](https://webpack.github.io/docs/resolving.html#aliasing) feature. The `aliases` parameter corresponds to `resolve.alias` in your Webpack configuration. If this method is used it must be called before the `.server()` method.
-
 ## Gotchas
 
 ### .gitignore
@@ -807,7 +809,7 @@ After developing, the full test suite can be evaluated by running:
 npm test
 ```
 
-While actively developing, one can use
+While actively developing, one can use (personally I don't use it)
 
 ```sh
 npm run watch
@@ -815,6 +817,18 @@ npm run watch
 
 in a terminal. This will watch the file system and run tests automatically 
 whenever you save a js file.
+
+When you're ready to test your new functionality on a real project, you can run
+
+```sh
+npm pack
+```
+
+It will `build`, `test` and then create a `.tgz` archive which you can then install in your project folder
+
+```sh
+npm install [module name with version].tar.gz
+```
 
 ## To do
 
