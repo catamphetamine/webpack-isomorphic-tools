@@ -5,7 +5,7 @@ import require_hacker from 'require-hacker'
 import Log            from './tools/log'
 
 import { exists, clone, convert_from_camel_case, starts_with } from './helpers'
-import { default_webpack_assets, normalize_options, alias } from './common'
+import { default_webpack_assets, normalize_options, alias_hook, normalize_asset_path, webpack_path } from './common'
 
 // using ES6 template strings
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/template_strings
@@ -29,6 +29,12 @@ export default class webpack_isomorphic_tools
 		if (this.options.alias)
 		{
 			this.enable_aliasing()
+		}
+
+		// set require-hacker debug mode if run in debug mode
+		if (this.options.debug)
+		{
+			require_hacker.log.options.debug = true
 		}
 
 		// logging
@@ -113,17 +119,9 @@ export default class webpack_isomorphic_tools
 	enable_aliasing()
 	{
 		// mount require() hook
-		this.alias_hook = require_hacker.global_hook('aliasing', path =>
+		this.alias_hook = require_hacker.global_hook('aliasing', (path, module) =>
 		{
-			// alias the path
-			const aliased_path = alias(path, this.options.alias)
-
-			// if an alias is found, require() the correct path
-			if (aliased_path)
-			{
-				const result = require(aliased_path)
-				return require_hacker.to_javascript_module_source(result)
-			}
+			return alias_hook(path, module, this.options.project_path, this.options.alias, this.log)
 		})
 
 		// allows method chaining
@@ -219,30 +217,8 @@ export default class webpack_isomorphic_tools
 			throw new Error(`You forgot to call the .server() method passing it your project's base path`)
 		}
 
-		// // if the require()d file is not part of the project - skip it
-		// // (should be faster, but who needs faster if the modules are cached by Node.js)
-		// if (!global_asset_path.indexOf(this.options.project_path) === 0)
-		// {
-		// 	this.log.debug(` skipping require call for ${asset_path} (not in project folder)`)
-		// 	return
-		// }
-
-		// // asset path relative to the project folder
-		// // (should be faster, but who needs faster if the modules are cached by Node.js)
-		// let asset_path = global_asset_path.slice(this.options.project_path.length + fs.sep.length)
-
-		// asset path relative to the project folder
-		let asset_path = path.relative(this.options.project_path, global_asset_path)
-
-		// for Windows:
-		//
-		// convert Node.js path to a correct Webpack path
-		asset_path = asset_path.replace(/\\/g, '/')
-		// add './' in the beginning if it's missing (for example, in case of Windows)
-		if (asset_path.indexOf('.') !== 0)
-		{
-			asset_path = './' + asset_path
-		}
+		// possibly convert global asset path to local-to-the-project asset path
+		const asset_path = normalize_asset_path(global_asset_path, this.options.project_path)
 
 		// if this filename is in the user specified exceptions list
 		// (or is not in the user explicitly specified inclusion list)
@@ -259,15 +235,9 @@ export default class webpack_isomorphic_tools
 			// mark this asset as cached
 			this.cached_assets.push(global_asset_path)
 		}
-
-		// webpack has a shortcut from "node_modules"
-		if (asset_path.indexOf('./node_modules/') === 0)
-		{
-			asset_path = asset_path.replace('./node_modules/', './~/')
-		}
 		
 		// return CommonJS module source for this asset
-		return require_hacker.to_javascript_module_source(this.asset_source(asset_path))
+		return require_hacker.to_javascript_module_source(this.asset_source(webpack_path(asset_path)))
 	}
 
 	// returns asset source by path (looks it up in webpack-assets.json)

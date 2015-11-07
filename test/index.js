@@ -33,7 +33,9 @@ const webpack_assets =
 		"./assets/style.scss": "body {} .child { background: url(/assets/test.jpg) } head {}",
 		"./assets/child.scss": ".child { background: url(/assets/test.jpg) }",
 		"./assets/test.text_parser_test": "text parser test",
-		"./assets/test.object_parser_test.extra": { one: 1 }
+		"./assets/test.object_parser_test.extra": { one: 1 },
+		"./~/whatever.jpg": 1,
+		"./~/aliased_module_name/test.jpg": true
 	}
 }
 
@@ -259,7 +261,7 @@ describe('plugin', function()
 		{
 			// checks '/node_modules' -> '/~' case.
 			// to do: should be a proper check
-			require('./node_modules/whatever.jpg')
+			require('./node_modules/whatever.jpg').should.equal(1)
 
 			// verify asset value
 			require('./assets/husky.jpg').should.equal(webpack_assets.assets['./assets/husky.jpg'])
@@ -326,6 +328,9 @@ describe('plugin', function()
 
 		const settings = extend({}, isomorpher_settings(), { alias: aliases })
 
+		// will be checked against this value
+		const aliased_module_name_result = require('aliased_module_name')
+
 		// ensure it waits for webpack-assets.json
 		const server_side = new isomorpher(settings).development()
 
@@ -334,10 +339,14 @@ describe('plugin', function()
 		{
 			// verify aliasing
 
+			// should take the value from filesystem
+			require('original_module_name').should.equal(aliased_module_name_result)
+
+			// should take the value from webpack-assets.json
+			require('original_module_name/test.jpg').should.equal(true)
+
 			const test = path => () => require(path)
 
-			test('original_module_name/assets/husky.jpg').should.throw('aliased_module_name/assets/husky.jpg')
-			test('original_module_name').should.throw('aliased_module_name')
 			test('module_name_not_aliased').should.throw('module_name_not_aliased')
 			test('./original_module_name').should.throw('/original_module_name')
 			test('/original_module_name').should.throw('/original_module_name')

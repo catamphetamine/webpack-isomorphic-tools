@@ -1,4 +1,7 @@
 import path from 'path'
+import fs from 'fs'
+
+import require_hacker from 'require-hacker'
 
 import { is_object, exists, starts_with } from './helpers'
 
@@ -166,7 +169,37 @@ export function normalize_options(options)
 	}
 }
 
-export function alias(path, aliases)
+// alias the path and require() the correct file if an alias is found
+export function alias_hook(path, module, project_path, aliases, log)
+{
+	// possibly alias the path
+	const aliased_path = alias(path, aliases)
+
+	// return if an alias not found
+	if (!aliased_path)
+	{
+		return
+	}
+
+	// if an alias is found, require() the correct path
+	log.debug(`alias found for "${path}", resolving to path "${aliased_path}"`)
+
+	// resolve the path to a real filesystem path (resolves `npm link`, etc)
+	const global_path = require_hacker.resolve(aliased_path, module)
+	log.debug(` global path for the aliased module is ${global_path}`)
+
+	// possibly convert global asset path to local-to-the-project asset path.
+	const asset_path = normalize_asset_path(global_path, project_path)
+	log.debug(` normalized path for the aliased module is ${asset_path}`)
+
+	const result = module.require(asset_path)
+	log.debug(` the path was found`)
+
+	return require_hacker.to_javascript_module_source(result)
+}
+
+// alias the path provided the aliases map
+function alias(path, aliases)
 {
 	// if it's a path to a file - don't interfere
 	if (starts_with(path, '.') || starts_with(path, '/'))
@@ -187,4 +220,45 @@ export function alias(path, aliases)
 	{
 		return alias + rest
 	}
+}
+
+// possibly converts global asset path to local-to-the-project asset path
+export function normalize_asset_path(global_asset_path, project_path)
+{
+	// if this path is outside project folder,
+	// return it as a global path
+	if (!starts_with(global_asset_path, project_path + path.sep))
+	{
+		return { asset_path: global_asset_path }
+	}
+
+	// this path is inside project folder,
+	// convert it to a relative path
+
+	// asset path relative to the project folder
+	let asset_path = path.relative(project_path, global_asset_path)
+
+	// for Windows:
+	//
+	// convert Node.js path to a correct Webpack path
+	asset_path = asset_path.replace(/\\/g, '/')
+	// add './' in the beginning if it's missing (for example, in case of Windows)
+	if (asset_path.indexOf('.') !== 0)
+	{
+		asset_path = './' + asset_path
+	}
+
+	return asset_path
+}
+
+// replaces inner node_modules with ~
+export function webpack_path(asset_path)
+{
+	// webpack has a shortcut from "node_modules"
+	if (starts_with(asset_path, './node_modules/'))
+	{
+		asset_path = asset_path.replace('./node_modules/', './~/')
+	}
+
+	return asset_path
 }

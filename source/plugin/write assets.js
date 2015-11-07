@@ -5,7 +5,7 @@ import require_hacker from 'require-hacker'
 import serialize      from '../tools/serialize-javascript'
 
 import { exists, clone, replace_all } from '../helpers'
-import { alias } from '../common'
+import { alias_hook } from '../common'
 
 // writes webpack-assets.json file, which contains assets' file paths
 export default function write_assets(json, options, log)
@@ -102,26 +102,6 @@ function populate_assets(output, json, options, log)
 			.map(name => options.assets_base_url + name)
 	}
 
-	// // output assets for all application javascript entry points
-	// Object.keys(this.options.entry).forEach(chunk_name =>
-	// {
-	// 	let entry = this.options.entry[chunk_name]
-	// 	if (Array.isArray(entry))
-	// 	{
-	// 		entry = entry[entry.length - 1]
-	// 	}
-	//
-	// 	output.javascript[entry] = get_assets(chunk_name, 'js')[0]
-	// 	// the second asset is usually a source map
-	// })
-
-	// // omit node_modules contents and internal webpack modules
-	// const modules = json.modules.filter(module =>
-	// {
-	// 	return module.name.indexOf('.') === 0 && module.name.indexOf('./~/') !== 0
-	// 	// return module.name.indexOf('./~/') !== 0 && module.name.indexOf('(webpack)') !== 0
-	// })
-
 	// one can supply a custom filter
 	const default_filter = (module, regular_expression) => regular_expression.test(module.name)
 	// one can supply a custom namer
@@ -203,34 +183,6 @@ function populate_assets(output, json, options, log)
 				// determine asset real path
 				const asset_path = extract_asset_path(module, options, log)
 
-				// (no need to resolve require() paths because it just works as is)
-				//
-				// const resolve_require_paths = (module_source) =>
-				// {
-				// 	return module_source.replace(/(\s)require\("([^"]+)"\)/g, function(match, space_before, required_path)
-				// 	{
-				// 		const asset_folder = path.dirname(asset_path)
-				// 		const required_file_path = path.join(asset_folder, required_path)
-				//
-				// 		const required_file_absolute_path = path.resolve(options.project_folder, required_file_path)
-				// 		const node_modules_path = path.join(options.project_folder, 'node_modules')
-				//
-				// 		// if it's a require() call for a file inside "node_modules",
-				// 		// then adjust the required path accordingly
-				// 		if (required_file_absolute_path.indexOf(node_modules_path) === 0)
-				// 		{
-				// 			// account for the last '/'
-				// 			required_path = required_path.slice(node_modules_path.length + 1)
-				// 		}
-				// 		else
-				// 		{
-				// 			required_path = './' + replace_all(required_file_path, path.sep, '/')
-				// 		}
-				//
-				// 		return space_before + `require("${required_path}")`
-				// 	})
-				// }
-
 				// asset module source, or asset content (or whatever else)
 				const parsed_asset = parser(module, options, log)
 
@@ -268,32 +220,29 @@ function populate_assets(output, json, options, log)
 	}
 
 	// register a special require() hook for requiring() raw webpack modules
-	const require_hook = require_hacker.global_hook('webpack-module', (required_path) =>
+	const require_hook = require_hacker.global_hook('webpack-module', (required_path, module) =>
 	{
 		// if Webpack aliases are supplied
 		if (options.alias)
 		{
-			// alias the path
-			const aliased_path = alias(required_path, options.alias)
+			// possibly alias the path
+			const aliased_path_source = alias_hook(required_path, module, options.project_path, options.alias, log)
 
-			// if an alias is found, require() the correct path
-			if (aliased_path)
+			// if an alias is found
+			if (aliased_path_source)
 			{
-				log.debug(`alias found for ${required_path}, resolving to ${aliased_path}`)
-
-				const global_path = require('module')._resolveFilename(aliased_path, module)
-				log.debug(` global path for aliased module is ${global_path}`)
-				
-				const result = require(global_path) // require(aliased_path)
-				return require_hacker.to_javascript_module_source(result)
+				return aliased_path_source
 			}
 		}
 
 		// find an asset with this path
 		if (exists(global_paths_to_parsed_asset_paths[required_path]))
 		{
+			log.debug(`found in parsed assets`)
 			return parsed_assets[global_paths_to_parsed_asset_paths[required_path]]
 		}
+
+		log.debug(`not found in parsed assets, searching in webpack stats`)
 
 		// find a webpack module which has a reason with this path
 		for (let module of json.modules)
@@ -302,6 +251,8 @@ function populate_assets(output, json, options, log)
 			{
 				if (reason.userRequest === required_path)
 				{
+					log.debug(` found in webpack stats, module id ${module.id}`)
+
 					// also resolve "ReferenceError: __webpack_public_path__ is not defined".
 					// because it may be a url-loaded resource (e.g. a font inside a style).
 					return define_webpack_public_path + module.source
