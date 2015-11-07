@@ -1,3 +1,8 @@
+2.2.11 / 07.11.2015
+===================
+
+  * Refactored and made better the support for Webpack "aliasing" feature
+
 2.2.8, 2.2.9, 2.2.10 / 06.11.2015
 ===================
 
