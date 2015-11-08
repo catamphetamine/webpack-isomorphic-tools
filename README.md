@@ -707,10 +707,21 @@ The `module` object for an image would look like this
 Therefore, in this simple case, in `webpack-isomorphic-tools` configuration file we create an "images" asset type with extension "jpg" and these parameters:
 
 * the `filter` function would be `module => module.name.ends_with('.jpg')` (and it's the default `filter` if no `filter` is specified)
-* the `path` function would be `module => module.name` (and it's the default `path` parser if no `path` parser is specified)
+* the `path` parser function would be `module => module.name` (and it's the default `path` parser if no `path` parser is specified)
 * the `parser` function would be `module => module.source` (and it's the default `parser` if no `parser` is specified)
 
-When the javascript `source` code returned by this `parser` function gets compiled by `webpack-isomorphic-tools` it will yeild a valid CommonJS javascript module which will return the URL for this image.
+When the javascript `source` code returned by this `parser` function gets compiled by `webpack-isomorphic-tools` it will yeild a valid CommonJS javascript module which will return the URL for this image, resulting in the following piece of `webpack-assets.json`:
+
+```
+{
+  ...
+  assets:
+  {
+     "./assets/images/husky.jpg": "/assets/9059f094ddb49c2b0fa6a254a6ebf2ad.jpg",
+     ...
+  }
+}
+```
 
 ## API
 
