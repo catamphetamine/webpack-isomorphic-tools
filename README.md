@@ -723,6 +723,8 @@ When the javascript `source` code returned by this `parser` function gets compil
 }
 ```
 
+And so when you later `require("./assets/images/husky.jpg")` in your server code it will return `"/assets/9059f094ddb49c2b0fa6a254a6ebf2ad.jpg"` and that's it.
+
 ## API
 
 #### Constructor
