@@ -19,6 +19,8 @@ Is a small helper module providing support for isomorphic (universal) rendering 
 - [Usage](#usage)
 - [A working example](#a-working-example)
 - [Configuration](#configuration)
+- [What are webpack-assets.json?](#what-are-webpack-assetsjson)
+- [What are Webpack stats?](#what-are-webpack-stats)
 - [What's a "module"?](#whats-a-module)
 - [API](#api)
 - [Gotchas](#gotchas)
