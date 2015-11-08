@@ -346,10 +346,12 @@ Available configuration parameters:
   // see the API section below for method .development()
   // for more explanation about what "development" mode does
   // and when is it needed.
+  //
   development: true, // is false by default
 
   // debug mode.
   // when set to true, lets you see debugging messages in the console.
+  //
   debug: true, // is false by default
 
   // By default it creates 'webpack-assets.json' file at 
@@ -359,26 +361,31 @@ Available configuration parameters:
   //
   // (relative to webpack_configuration.context which is your project folder)
   // (these aren't actually 'stats', these are some values derived from Webpack 'stats')
+  //
   webpack_assets_file_path: 'webpack-stats.json', // is 'webpack-assets.json' by default
 
-  // 
-  alias: 
-#### .alias(aliases)
-
-(server tools instance)
-
-Makes `webpack-isomorphic-tools` aware of Webpack [aliasing](https://webpack.github.io/docs/resolving.html#aliasing) feature. The `aliases` parameter corresponds to `resolve.alias` in your Webpack configuration. If this method is used it must be called before the `.server()` method.
+  // Makes `webpack-isomorphic-tools` aware of Webpack aliasing feature
+  // (if you use it)
+  // https://webpack.github.io/docs/resolving.html#aliasing
+  //
+  // The `alias` parameter corresponds to `resolve.alias` 
+  // in your Webpack configuration.
+  //
+  alias: webpack_configuration.resolve.alias, // is {} by default
 
   // here you can define all your asset types
+  //
   assets:
   {
     // asset_type will appear in:
     //  * webpack-assets.json
     //  * .assets() method call result
     //  * .regular_expression(asset_type) method call
+    //
     asset_type: 
     {
       // which file types belong to this asset type
+      //
       extension: 'png', // or extensions: ['png', 'jpg', ...],
 
       // here you are able to add some file paths 
@@ -386,6 +393,7 @@ Makes `webpack-isomorphic-tools` aware of Webpack [aliasing](https://webpack.git
       // (relative to the project base folder, e.g. ./sources/server/kitten.jpg.js)
       // (also supports regular expressions, e.g. /^\.\/node_modules\/*/, 
       //  and functions(path) { return true / false })
+      //
       exclude: [],
 
       // here you can specify manually the paths 
@@ -394,6 +402,7 @@ Makes `webpack-isomorphic-tools` aware of Webpack [aliasing](https://webpack.git
       // (also supports regular expressions, e.g. /^\.\/node_modules\/*/, 
       //  and functions(path) { return true / false }).
       // in case of `include` only included paths will be processed by webpack-isomorphic-tools.
+      //
       include: [],
 
       // [optional]
