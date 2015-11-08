@@ -479,15 +479,25 @@ Makes `webpack-isomorphic-tools` aware of Webpack [aliasing](https://webpack.git
       // in your code later on.
       //
       // this is what you'll see as the asset value in webpack-assets.json: 
-      // { ..., path: parser(), ... }
+      // { ..., path(): compile(parser()), ... }
       //
       // can be a CommonJS module source code:
-      // module.exports = ...what you export here is what you get when you require()...
+      // module.exports = ...what you export here is 
+      //                     what you get when you require() this asset...
       //
-      // if it's not a CommonJS module (a string, a JSON object) 
-      // then it will be transformed to a CommonJS module source code.
+      // if the returned value is not a CommonJS module source code
+      // (it may be a string, a JSON object, whatever) 
+      // then it will be transformed into a CommonJS module source code.
       //
-      // in other words: require(...) = function(...) { return eval(parser(...)) }
+      // in other words: 
+      //
+      // // making of webpack-assets.json
+      // for each type of configuration.assets
+      //   modules.filter(type.filter).for_each (module)
+      //     assets[type.path()] = compile(type.parser(module))
+      //
+      // // requiring assets in your code
+      // require(path) = (path) => return assets[path]
       //
       // arguments:
       //
@@ -550,6 +560,32 @@ Makes `webpack-isomorphic-tools` aware of Webpack [aliasing](https://webpack.git
 
 This file is needed for `webpack-isomorphic-tools` operation on server. It is created by a custom Webpack plugin and is then read from the filesystem by `webpack-isomorphic-tools` server instance. When you `require(path_to_an_asset)` an asset on server then what you get is simply what's there in this file corresponding to this `path_to_an_asset` key (under the `assets` section).
 
+Pseudocode: 
+
+```
+// requiring assets in your code
+require(path) = (path) => return assets[path]
+```
+
+Therefore, if you get such a message in the console:
+
+```
+[webpack-isomorphic-tools] [error] asset not found: ./~/react-toolbox/lib/font_icon/style.scss
+```
+
+Then it means that the asset you requested (`require()`d) is absent from your `webpack-assets.json` which in turn means that you haven't placed this asset to your `webpack-assets.json` in the first place. How to place an asset into `webpack-assets.json`?
+
+Pseudocode: 
+
+```
+// making of webpack-assets.json inside the Webpack plugin
+for each type of configuration.assets
+  modules.filter(type.filter).for_each (module)
+    assets[type.path()] = compile(type.parser(module))
+```
+
+Therefore, if you get the "asset not found" error, first check your `webpack-assets.json` and second check your `webpack-isomorphic-tools` configuration section for this asset type: are your `filter`, `path` and `parser` functions correct?
+
 ## What are Webpack stats?
 
 [Webpack stats](https://github.com/webpack/docs/wiki/node.js-api#stats) are a description of all the modules in a Webpack build. When running in debug mode Webpack stats are output to a file named `webpack-stats.json` in the same folder as your `webpack-assets.json` file. One may be interested in the contents of this file when writing custom `filter`, `path` or `parser` functions. This file is not needed for operation, it's just some debugging information.
@@ -558,9 +594,9 @@ This file is needed for `webpack-isomorphic-tools` operation on server. It is cr
 
 **This is an advanced topic on Webpack internals**
 
-A "module" is a Webpack entity. When Webpack compiles your code it splits it into "chunks" (which is irrelevant to this explanation). Every time you `require()` a file (it could be anything: a javascript file, or a css style, or an image) a `module` entry is created. And the file from where you `require()`d this file is called a "reason" for this "module". Also each `module` has a `name` and a `source`, along with a list of `chunks` it's in and a bunch of other miscellaneous irrelevant properties.
+A "module" is a Webpack entity. One of the main features of Webpack is code splitting. When Webpack builds your code it splits it into "chunks" - large portions of code which can be downloaded separately later on (if needed) therefore reducing the initial page load time for your website visitor. These big "chunks" aren't monolithic and in their turn are composed of "modules" which are: standard CommonJS javascript modules you `require()` every day, pictures, stylesheets, etc. Every time you `require()` something (it could be anything: an npm module, a javascript file, or a css style, or an image) a `module` entry is created by Webpack. And the file where this `require()` call originated is called a `reason` for this `require()`d `module`. Each `module` entry has a `name` and a `source` code, along with a list of `chunks` it's in and a bunch of other miscellaneous irrelevant properties.
 
-For example, here's the content of the `webpack-stats.json` file (which is generated along with `webpack-assets.json`) for a random "module".
+For example, here's a piece of an example `webpack-stats.json` file (which is generated along with `webpack-assets.json` in debug mode). Here you can see a random `module` entry created by Webpack.
 
 ```javascript
 {
@@ -623,9 +659,17 @@ For example, here's the content of the `webpack-stats.json` file (which is gener
 }
 ```
 
-When a `require()` call fires the corresponding module is "loaded" (decorated, transformed, replaced, etc) by a corresponding module "loader" specified in Webpack configuration file (`webpack.conf.js`) under the "module.loaders" path. For example, say, all JPG images in a project are loaded with a "url-loader":
+Judging by its `reasons` and their `userRequest`s one can deduce that this `module` is `require()`d by many other `module`s in this project and the code triggering this `module` entry creation could look something like this
 
 ```javascript
+var invariant = require('fbjs/lib/invariant')
+```
+
+Every time you `require()` anything in your code, Webpack detects it during build process and the `require()`d `module` is "loaded" (decorated, transformed, replaced, etc) by a corresponding module "loader" (or loaders) specified in Webpack configuration file (`webpack.conf.js`) under the "module.loaders" path. For example, say, all JPG images in a project are configured to be loaded with a "url-loader":
+
+```javascript
+// Webpack configuration
+module.exports =
 {
   ...
 
@@ -646,9 +690,9 @@ When a `require()` call fires the corresponding module is "loaded" (decorated, t
 }
 ```
 
-This works on client: `require()` calls will return URLs for JPG images. The next step is to make `require()` calls to these JPG images behave the same way when this code is run on the server, with the help of `webpack-isomorphic-tools`. So, the fields of interest of the `module` object would be `name` and `source`: first you find the modules of interest by their `name`s (in this case, the module `name`s would end in ".jpg") and then you parse the `source`s of those modules to extract the information you need (in this case that would be the real path to an image)
+This works on client: `require()` calls will return URLs for JPG images. The next step is to make `require()` calls to these JPG images behave the same way when this code is run on the server, with the help of `webpack-isomorphic-tools`. So, the fields of interest of the `module` object would be `name` and `source`: first you find the modules of interest by their `name`s (in this case, the module `name`s would end in ".jpg") and then you parse the `source`s of those modules to extract the information you need (in this case that would be the real path to an image).
 
-The `module` object would look like this
+The `module` object for an image would look like this
 
 ```javascript
 {
@@ -658,11 +702,13 @@ The `module` object would look like this
 }
 ```
 
-Therefore
+Therefore, in this simple case, in `webpack-isomorphic-tools` configuration file we create an "images" asset type with extension "jpg" and these parameters:
 
-* the `filter` function would be `module => module.name.ends_with('.jpg')`
-* the `naming` function would be `module => module.name`
-* the `parser` function would be `module => build_folder_path + module.source.substring(first_quote_index, second_quote_index)`
+* the `filter` function would be `module => module.name.ends_with('.jpg')` (and it's the default `filter` if no `filter` is specified)
+* the `path` function would be `module => module.name` (and it's the default `path` parser if no `path` parser is specified)
+* the `parser` function would be `module => module.source` (and it's the default `parser` if no `parser` is specified)
+
+When the javascript `source` code returned by this `parser` function gets compiled by `webpack-isomorphic-tools` it will yeild a valid CommonJS javascript module which will return the URL for this image.
 
 ## API
 

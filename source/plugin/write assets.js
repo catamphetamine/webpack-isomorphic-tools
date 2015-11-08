@@ -13,7 +13,7 @@ export default function write_assets(json, options, log)
 	// take the passed in options
 	options = clone(options)
 
-	// make webpack stats accessible for asset functions (parser, naming, filter)
+	// make webpack stats accessible for asset functions (parser, path, filter)
 	options.webpack_stats = json
 
 	log.debug('running write assets webpack plugin')
