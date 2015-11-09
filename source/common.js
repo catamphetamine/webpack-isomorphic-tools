@@ -229,7 +229,7 @@ export function normalize_asset_path(global_asset_path, project_path)
 	// return it as a global path
 	if (!starts_with(global_asset_path, project_path + path.sep))
 	{
-		return { asset_path: global_asset_path }
+		return global_asset_path
 	}
 
 	// this path is inside project folder,
