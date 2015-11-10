@@ -193,7 +193,7 @@ export function alias_hook(path, module, project_path, aliases, log)
 	log.debug(` normalized path for the aliased module is ${asset_path}`)
 
 	const result = module.require(asset_path)
-	log.debug(` the path was found`)
+	// log.debug(` the path was found`)
 
 	return require_hacker.to_javascript_module_source(result)
 }
