@@ -672,23 +672,22 @@ Available configuration parameters:
         return regex.test(module.name)
       },
 
-      // How to correctly transform kinda weird `module.name`
-      // of the `module` created by Webpack "css-loader" 
-      // into the correct asset path:
+      // How to correctly transform `module.name`s
+      // into correct asset paths
       path: function(module, options, log)
       {
         if (options.development)
         {
           // In development mode there's Webpack "style-loader",
-          // so the correct asset path is not simply equal to `module.name`
-          // of the `module` created by Webpack "css-loader":
-          // `module.name` of this `module` is kinda weird 
-          // and this path extractor extracts the correct asset path from the `module.name`
+          // so `module.name`s of the `module`s created by Webpack "css-loader"
+          // (those picked by the `filter` function above)
+          // will be kinda weird, and this path extractor extracts 
+          // the correct asset paths from these kinda weird `module.name`s
           return WebpackIsomorphicToolsPlugin.style_loader_path_extractor(module, options, log);
         }
 
         // in production mode there's no Webpack "style-loader",
-        // so the `module.name` will be equal to the asset path
+        // so `module.name`s will be equal to correct asset paths
         return module.name
       },
 
