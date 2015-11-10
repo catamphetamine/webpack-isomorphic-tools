@@ -42,6 +42,7 @@ export function normalize_options(options)
 				break
 
 			case 'webpack_assets_file_path':
+			case 'webpack_stats_file_path':
 				if (typeof options[key] !== 'string')
 				{
 					throw new Error(`"${key}" configuration parameter must be ` + `a string`)
@@ -69,6 +70,9 @@ export function normalize_options(options)
 
 	// webpack-assets.json path, relative to the project base path
 	options.webpack_assets_file_path = options.webpack_assets_file_path || 'webpack-assets.json'	
+
+	// webpack-stats.json path, relative to the project base path
+	options.webpack_stats_file_path = options.webpack_stats_file_path || 'webpack-stats.json'	
 
 	// if Webpack aliases are supplied, validate them
 	if (options.alias)
@@ -122,33 +126,18 @@ export function normalize_options(options)
 					break
 
 				case 'exclude':
-					if (!Array.isArray(description[key]))
-					{
-						throw new Error(`"${key}" must be an array for asset type "${asset_type}"`)
-					}
-					for (let exclusion of description[key])
-					{
-						if (typeof exclusion !== 'string' 
-							&& !(exclusion instanceof RegExp)
-							&& typeof exclusion !== 'function')
-						{
-							throw new Error(`Unsupported object type for exclusion "${exclusion}" for asset type "${asset_type}"`)
-						}
-					}
-					break
-
 				case 'include':
 					if (!Array.isArray(description[key]))
 					{
 						throw new Error(`"${key}" must be an array for asset type "${asset_type}"`)
 					}
-					for (let inclusion of description[key])
+					for (let clusion of description[key])
 					{
-						if (typeof inclusion !== 'string' 
-							&& !(inclusion instanceof RegExp)
-							&& typeof inclusion !== 'function')
+						if (typeof clusion !== 'string' 
+							&& !(clusion instanceof RegExp)
+							&& typeof clusion !== 'function')
 						{
-							throw new Error(`Unsupported object type for inclusion "${inclusion}" for asset type "${asset_type}"`)
+							throw new Error(`Unsupported object type for exclusion/inclusion "${clusion}" for asset type "${asset_type}"`)
 						}
 					}
 					break

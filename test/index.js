@@ -430,6 +430,10 @@ describe('plugin', function()
 
 		instantiate.should.throw('must be a string')
 
+		options = { debug: true, webpack_stats_file_path: true }
+
+		instantiate.should.throw('must be a string')
+
 		options = { assets: { images: {} } }
 
 		instantiate.should.throw('You must specify file extensions')
@@ -452,7 +456,7 @@ describe('plugin', function()
 
 		options = { assets: { images: { extension: 'jpg', exclude: [true] } } }
 
-		instantiate.should.throw('Unsupported object type for exclusion "true"')
+		instantiate.should.throw('Unsupported object type for exclusion/inclusion "true"')
 
 		options = { assets: { images: { extension: 'jpg', include: true } } }
 
@@ -460,7 +464,7 @@ describe('plugin', function()
 
 		options = { assets: { images: { extension: 'jpg', include: [true] } } }
 
-		instantiate.should.throw('Unsupported object type for inclusion "true"')
+		instantiate.should.throw('Unsupported object type for exclusion/inclusion "true"')
 
 		options = { assets: { images: { extension: 'jpg', filter: true } } }
 

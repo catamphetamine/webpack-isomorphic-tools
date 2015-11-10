@@ -8,7 +8,7 @@ import { extend } from '../../source/helpers'
 
 chai.should()
 
-const webpack_stats = require(path.resolve(__dirname, '../webpack-stats.stub.json'))
+const webpack_stats = require(path.resolve(__dirname, 'webpack-stats.json'))
 
 const expected_webpack_assets = 
 {
@@ -48,6 +48,7 @@ const webpack_configuration =
 }
 
 const webpack_assets_path = path.resolve(__dirname, '../webpack-assets.json')
+const webpack_stats_path = path.resolve(__dirname, 'webpack-stats.json')
 
 // deletes webpack-assets.json if it exists
 function cleanup_webpack_assets()
@@ -67,8 +68,6 @@ function cleanup_webpack_assets()
 			throw new Error('Failed to delete webpack-assets.json')
 		}
 	}
-
-	const webpack_stats_path = path.resolve(path.dirname(webpack_assets_path), 'webpack-stats.json')
 
 	// clear require() cache
 	delete require.cache[webpack_stats_path]
@@ -92,6 +91,7 @@ const settings = () =>
 	// debug: true, 
 
 	webpack_assets_file_path: webpack_assets_path,
+	webpack_stats_file_path: webpack_stats_path,
 
 	assets:
 	{

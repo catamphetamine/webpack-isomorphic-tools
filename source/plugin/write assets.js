@@ -28,15 +28,12 @@ export default function write_assets(json, options, log)
 	// write webpack stats json for debugging purpose
 	if (options.debug)
 	{
-		// path to webpack stats file
-		const webpack_stats_file_path = get_webpack_stats_file_path(options.webpack_assets_path)
-
 		// write webpack stats file
-		log.debug(`writing webpack stats to ${webpack_stats_file_path}`)
+		log.debug(`writing webpack stats to ${options.webpack_stats_path}`)
 
 		// write the file
 		// (format the JSON for better readability)
-		fs.outputFileSync(webpack_stats_file_path, JSON.stringify(json, null, 2))
+		fs.outputFileSync(options.webpack_stats_path, JSON.stringify(json, null, 2))
 	}
 
 	// the output object with assets
@@ -278,20 +275,4 @@ function populate_assets(output, json, options, log)
 
 	// timer stop
 	log.debug(` time taken: ${new Date().getTime() - began_at} ms`)
-}
-
-function get_webpack_stats_file_path(webpack_assets_file_path)
-{
-	// default webpack stats file name
-	let webpack_stats_file_name = 'webpack-stats.json'
-
-	// resolve a possible file name collision
-	/* istanbul ignore if */
-	if (path.basename(webpack_assets_file_path) === webpack_stats_file_name)
-	{
-		webpack_stats_file_name = 'webpack-stats.debug.json'
-	}
-
-	// path to webpack stats file
-	return path.resolve(path.dirname(webpack_assets_file_path), webpack_stats_file_name)
 }

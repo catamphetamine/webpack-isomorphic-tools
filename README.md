@@ -361,9 +361,17 @@ Available configuration parameters:
   // (therefore changing both folder and filename).
   //
   // (relative to webpack_configuration.context which is your project folder)
-  // (these aren't actually 'stats', these are some values derived from Webpack 'stats')
   //
-  webpack_assets_file_path: 'webpack-stats.json', // is 'webpack-assets.json' by default
+  webpack_assets_file_path: 'webpack-assets.json',
+
+  // By default, when running in debug mode, it creates 'webpack-stats.json' file at 
+  // webpack_configuration.context (which is your project folder).
+  // You can change the stats file path as you wish
+  // (therefore changing both folder and filename).
+  //
+  // (relative to webpack_configuration.context which is your project folder)
+  //
+  webpack_stats_file_path: 'webpack-stats.json',
 
   // Makes `webpack-isomorphic-tools` aware of Webpack aliasing feature
   // (if you use it)

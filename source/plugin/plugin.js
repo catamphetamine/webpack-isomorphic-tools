@@ -109,6 +109,9 @@ Plugin.prototype.apply = function(compiler)
 	// resolve webpack-assets.json file path
 	const webpack_assets_path = path.resolve(this.options.project_path, this.options.webpack_assets_file_path)
 
+	// resolve webpack-stats.json file path
+	const webpack_stats_path = path.resolve(this.options.project_path, this.options.webpack_stats_file_path)
+
 	// validate webpack configuration
 	if (!webpack_configuration.output)
 	{
@@ -153,6 +156,7 @@ Plugin.prototype.apply = function(compiler)
 			project_path        : plugin.options.project_path,
 			assets_base_url     : webpack_configuration.output.publicPath,
 			webpack_assets_path : webpack_assets_path,
+			webpack_stats_path  : webpack_stats_path,
 			output              : default_webpack_assets(),
 			regular_expressions : plugin.regular_expressions
 		},
