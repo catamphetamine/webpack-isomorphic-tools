@@ -188,11 +188,7 @@ export function alias_hook(path, module, project_path, aliases, log)
 	const global_path = require_hacker.resolve(aliased_path, module)
 	log.debug(` global path for the aliased module is ${global_path}`)
 
-	// convert global asset path to local-to-the-project asset path.
-	const asset_path = normalize_asset_path(global_path, project_path)
-	log.debug(` normalized path for the aliased module is ${asset_path}`)
-
-	const result = module.require(asset_path)
+	const result = module.require(global_path)
 	// log.debug(` the path was found`)
 
 	return require_hacker.to_javascript_module_source(result)
