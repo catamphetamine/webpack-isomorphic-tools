@@ -217,7 +217,7 @@ export default class webpack_isomorphic_tools
 			throw new Error(`You forgot to call the .server() method passing it your project's base path`)
 		}
 
-		// possibly convert global asset path to local-to-the-project asset path
+		// convert global asset path to local-to-the-project asset path
 		const asset_path = normalize_asset_path(global_asset_path, this.options.project_path)
 
 		// if this filename is in the user specified exceptions list

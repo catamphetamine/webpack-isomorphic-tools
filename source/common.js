@@ -188,7 +188,7 @@ export function alias_hook(path, module, project_path, aliases, log)
 	const global_path = require_hacker.resolve(aliased_path, module)
 	log.debug(` global path for the aliased module is ${global_path}`)
 
-	// possibly convert global asset path to local-to-the-project asset path.
+	// convert global asset path to local-to-the-project asset path.
 	const asset_path = normalize_asset_path(global_path, project_path)
 	log.debug(` normalized path for the aliased module is ${asset_path}`)
 
@@ -222,15 +222,15 @@ function alias(path, aliases)
 	}
 }
 
-// possibly converts global asset path to local-to-the-project asset path
+// converts global asset path to local-to-the-project asset path
 export function normalize_asset_path(global_asset_path, project_path)
 {
-	// if this path is outside project folder,
-	// return it as a global path
-	if (!starts_with(global_asset_path, project_path + path.sep))
-	{
-		return global_asset_path
-	}
+	// // if this path is outside project folder,
+	// // return it as a global path
+	// if (!starts_with(global_asset_path, project_path + path.sep))
+	// {
+	// 	return global_asset_path
+	// }
 
 	// this path is inside project folder,
 	// convert it to a relative path
