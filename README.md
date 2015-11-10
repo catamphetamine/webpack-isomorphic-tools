@@ -19,6 +19,7 @@ Is a small helper module providing support for isomorphic (universal) rendering 
 - [Usage](#usage)
 - [A working example](#a-working-example)
 - [Configuration](#configuration)
+- [Configuration examples](#configuration-examples)
 - [What are webpack-assets.json?](#what-are-webpack-assetsjson)
 - [What are Webpack stats?](#what-are-webpack-stats)
 - [What's a "module"?](#whats-a-module)
@@ -567,6 +568,149 @@ Available configuration parameters:
 }
 ```
 
+## Configuration examples
+
+#### url-loader / file-loader (images, fonts, etc)
+
+```javascript
+{
+  assets:
+  {
+    images:
+    {
+      extensions: ['png', 'jpg']
+    },
+
+    fonts:
+    {
+      extensions: ['woff', 'ttf']
+    }
+  }
+}
+```
+
+#### style-loader (standard CSS stylesheets)
+
+```javascript
+{
+  assets:
+  {
+    styles:
+    {
+      extensions: ['less', 'scss'],
+
+      // which `module`s to parse CSS from:
+      filter: function(module, regular_expression, options, log)
+      {
+        if (options.development)
+        {
+          // In development mode there's Webpack "style-loader",
+          // which outputs `module`s with `module.name == asset_path`,
+          // but those `module`s do not contain CSS text.
+          //
+          // The `module`s containing CSS text are 
+          // the ones loaded with Webpack "css-loader".
+          // (which have kinda weird `module.name`)
+          //
+          // Therefore using a non-default `filter` function here.
+          //
+          return webpack_isomorphic_tools_plugin.style_loader_filter(module, regular_expression, options, log)
+        }
+
+        // In production mode there will be no CSS text at all
+        // because all styles will be extracted by Webpack Extract Text Plugin
+        // into a .css file (as per Webpack configuration).
+        //
+        // Therefore in production mode `filter` function always returns non-`true`.
+      },
+
+      // How to correctly transform kinda weird `module.name`
+      // of the `module` created by Webpack "css-loader" 
+      // into the correct asset path:
+      path: webpack_isomorphic_tools_plugin.style_loader_path_extractor,
+
+      // How to extract these Webpack `module`s' javascript `source` code.
+      // basically takes `module.source` and modifies `module.exports` a little.
+      parser: webpack_isomorphic_tools_plugin.css_loader_parser
+    }
+  }
+}
+```
+
+#### style-loader (CSS stylesheets with "CSS modules" feature)
+
+```javascript
+{
+  assets:
+  {
+    style_modules:
+    {
+      extensions: ['less', 'scss'],
+
+      // which `module`s to parse CSS style class name maps from:
+      filter: function(module, regex, options, log)
+      {
+        if (options.development)
+        {
+          // In development mode there's Webpack "style-loader",
+          // which outputs `module`s with `module.name == asset_path`,
+          // but those `module`s do not contain CSS text.
+          //
+          // The `module`s containing CSS text are 
+          // the ones loaded with Webpack "css-loader".
+          // (which have kinda weird `module.name`)
+          //
+          // Therefore using a non-default `filter` function here.
+          //
+          return webpack_isomorphic_tools_plugin.style_loader_filter(module, regex, options, log)
+        }
+
+        // in production mode there's no webpack "style-loader",
+        // so the module.name will be equal to the asset path
+        return regex.test(module.name)
+      },
+
+      // How to correctly transform kinda weird `module.name`
+      // of the `module` created by Webpack "css-loader" 
+      // into the correct asset path:
+      path: function(module, options, log)
+      {
+        if (options.development)
+        {
+          // In development mode there's Webpack "style-loader",
+          // so the correct asset path is not simply equal to `module.name`
+          // of the `module` created by Webpack "css-loader":
+          // `module.name` of this `module` is kinda weird 
+          // and this path extractor extracts the correct asset path from the `module.name`
+          return WebpackIsomorphicToolsPlugin.style_loader_path_extractor(module, options, log);
+        }
+
+        // in production mode there's no Webpack "style-loader",
+        // so the `module.name` will be equal to the asset path
+        return module.name
+      },
+
+      // How to extract these Webpack `module`s' javascript `source` code.
+      // basically takes `module.source` and modifies `module.exports` a little.
+      parser: function(module, options, log)
+      {
+        if (options.development)
+        {
+          // In development mode it adds an extra `_style` entry
+          // to the CSS style class name map, containing the CSS text
+          return WebpackIsomorphicToolsPlugin.css_modules_loader_parser(module, options, log);
+        }
+
+        // In production mode there's Webpack Extract Text Plugin 
+        // which extracts all CSS text away, so there's
+        // only CSS style class name map left.
+        return module.source
+      }
+    }
+  }
+}
+```
+
 ## What are webpack-assets.json?
 
 This file is needed for `webpack-isomorphic-tools` operation on server. It is created by a custom Webpack plugin and is then read from the filesystem by `webpack-isomorphic-tools` server instance. When you `require(path_to_an_asset)` an asset on server then what you get is simply what's there in this file corresponding to this `path_to_an_asset` key (under the `assets` section).
@@ -782,7 +926,7 @@ Refreshes your assets info (re-reads `webpack-assets.json` from disk) and also f
 
 Returns the contents of `webpack-assets.json` which is created by `webpack-isomorphic-tools` in your project base folder
 
-## Gotchas
+## Configuration example
 
 ### .gitignore
 
