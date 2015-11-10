@@ -665,8 +665,10 @@ Available configuration parameters:
           return webpack_isomorphic_tools_plugin.style_loader_filter(module, regex, options, log)
         }
 
-        // in production mode there's no webpack "style-loader",
-        // so the module.name will be equal to the asset path
+        // In production mode there's no Webpack "style-loader",
+        // so `module.name`s of the `module`s created by Webpack "css-loader"
+        // (those which contain CSS text)
+        // will be simply equal to the correct asset path
         return regex.test(module.name)
       },
 
@@ -691,7 +693,7 @@ Available configuration parameters:
       },
 
       // How to extract these Webpack `module`s' javascript `source` code.
-      // basically takes `module.source` and modifies `module.exports` a little.
+      // Basically takes `module.source` and modifies its `module.exports` a little.
       parser: function(module, options, log)
       {
         if (options.development)
