@@ -1,5 +1,5 @@
 import chai from 'chai'
-import { extend, convert_from_camel_case, replace_all, starts_with, ends_with } from './../source/helpers'
+import { exists, is_object, extend, merge, clone, convert_from_camel_case, replace_all, starts_with, ends_with, is_empty, not_empty } from './../source/helpers'
 
 chai.should()
 
@@ -57,6 +57,43 @@ describe('helpers', function()
 		a.should.deep.equal(ab)
 	})
 
+	it('should detect if variable exists', function()
+	{
+		exists(0).should.equal(true)
+		exists('').should.equal(true)
+		exists(null).should.equal(true)
+		exists([]).should.equal(true)
+		exists(undefined).should.equal(false)
+	})
+
+	it('should detect JSON objects', function()
+	{
+		is_object({}).should.equal(true)
+		is_object(0).should.equal(false)
+		is_object('').should.equal(false)
+		is_object(null).should.equal(false)
+		is_object([]).should.equal(false)
+		is_object(undefined).should.equal(false)
+	})
+
+	it('should merge objects', function()
+	{
+		const a = { b: { c: 1 }}
+		const b = merge(a, { b: { c: 2 }})
+
+		a.b.c.should.equal(1)
+		b.b.c.should.equal(2)
+	})
+
+	it('should clone objects', function()
+	{
+		const a = { b: { c: 1 }}
+		const b = clone(a)
+
+		a.b.c = 2
+		b.b.c.should.equal(1)
+	})
+
 	it('should convert from camel case', function()
 	{
 		const camel_cased_a =
@@ -97,5 +134,14 @@ describe('helpers', function()
 	{
 		ends_with('#$% test !', '!').should.equal(true)
 		ends_with('#$% test !', '#').should.equal(false)
+	})
+
+	it('should determine if an array is (not) empty', function()
+	{
+		is_empty([]).should.equal(true)
+		is_empty([0]).should.equal(false)
+
+		not_empty([]).should.equal(false)
+		not_empty([0]).should.equal(true)
 	})
 })

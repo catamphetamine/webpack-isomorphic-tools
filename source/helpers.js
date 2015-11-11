@@ -113,3 +113,13 @@ export function ends_with(string, substring)
 	const index = string.lastIndexOf(substring)
 	return index >= 0 && index === string.length - substring.length
 }
+
+export function is_empty(array)
+{
+	return array.length === 0
+}
+
+export function not_empty(array)
+{
+	return array.length > 0
+}
