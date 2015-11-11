@@ -1,5 +1,5 @@
 import chai from 'chai'
-import { exists, is_object, extend, merge, clone, convert_from_camel_case, replace_all, starts_with, ends_with, is_empty, not_empty } from './../source/helpers'
+import { exists, is_object, extend, merge, clone, convert_from_camel_case, replace_all, starts_with, ends_with, is_empty, not_empty, repeat, is_blank, zip } from '../source/helpers'
 
 chai.should()
 
@@ -143,5 +143,26 @@ describe('helpers', function()
 
 		not_empty([]).should.equal(false)
 		not_empty([0]).should.equal(true)
+	})
+
+	it('should repeat strings', function()
+	{
+		repeat('abc', 3).should.equal('abcabcabc')
+	})
+
+	it('should test if a string is blank', function()
+	{
+		is_blank('abc').should.equal(false)
+		is_blank('').should.equal(true)
+		is_blank(' ').should.equal(true)
+		is_blank(' \t\n').should.equal(true)
+		is_blank(' \t\n a').should.equal(false)
+	})
+
+	it('should zip arrays', function()
+	{
+		zip([], []).should.deep.equal([])
+		zip([1], []).should.deep.equal([[1, undefined]])
+		zip([1, 2, 3], [4, 5, 6]).should.deep.equal([[1, 4], [2, 5], [3, 6]])
 	})
 })

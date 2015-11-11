@@ -123,3 +123,30 @@ export function not_empty(array)
 {
 	return array.length > 0
 }
+
+// repeat string N times
+export function repeat(what, times)
+{
+	let result = ''
+	while (times > 0)
+	{
+		result += what
+		times--
+	}
+	return result
+}
+
+// if the text is blank
+export function is_blank(text)
+{
+	return !exists(text) || !text.replace(/\s/g, '')
+}
+
+// zips two arrays
+export function zip(a, b)
+{
+	return a.map(function(_, index) 
+	{
+		return [a[index], b[index]]
+	})
+}
