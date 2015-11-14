@@ -47,7 +47,16 @@ export function extend(...objects)
 export function merge()
 {
 	const parameters = Array.prototype.slice.call(arguments, 0)
-	parameters.unshift({})
+
+	if (exists(parameters[0]))
+	{
+		parameters.unshift({})
+	}
+	else
+	{
+		parameters[0] = {}
+	}
+	
 	return extend.apply(this, parameters)
 }
 
