@@ -14,6 +14,8 @@ export function is_object(object)
 /* istanbul ignore next: some weird transpiled code, not testable */
 export function extend(...objects)
 {
+	objects = objects.filter(x => exists(x))
+
 	const to   = objects[0]
 	const from = objects[1]
 
@@ -47,16 +49,7 @@ export function extend(...objects)
 export function merge()
 {
 	const parameters = Array.prototype.slice.call(arguments, 0)
-
-	if (exists(parameters[0]))
-	{
-		parameters.unshift({})
-	}
-	else
-	{
-		parameters[0] = {}
-	}
-	
+	parameters.unshift({})
 	return extend.apply(this, parameters)
 }
 
