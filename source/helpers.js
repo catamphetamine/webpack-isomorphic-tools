@@ -112,8 +112,29 @@ export function starts_with(string, substring)
 
 export function ends_with(string, substring)
 {
-	const index = string.lastIndexOf(substring)
-	return index >= 0 && index === string.length - substring.length
+	let i = string.length
+	let j = substring.length
+
+	if (j > i)
+	{
+		return false
+	}
+
+	while (j > 0)
+	{
+		i--
+		j--
+
+		if (string[i] !== substring[j])
+		{
+			return false
+		}
+	}
+
+	return true
+
+	// const index = string.lastIndexOf(substring)
+	// return index >= 0 && index === string.length - substring.length
 }
 
 export function is_empty(array)

@@ -328,8 +328,8 @@ describe('plugin', function()
 
 		const settings = extend({}, isomorpher_settings(), { alias: aliases })
 
-		// will be checked against this value
-		const aliased_module_name_result = require('aliased_module_name')
+		// // will be checked against this value
+		// const aliased_module_name_result = require('aliased_module_name')
 
 		// ensure it waits for webpack-assets.json
 		const server_side = new isomorpher(settings).development()
@@ -339,8 +339,8 @@ describe('plugin', function()
 		{
 			// verify aliasing
 
-			// should take the value from filesystem
-			require('original_module_name').should.equal(aliased_module_name_result)
+			// // should take the value from filesystem
+			// require('original_module_name').should.equal(aliased_module_name_result)
 
 			// should take the value from webpack-assets.json
 			require('original_module_name/test.jpg').should.equal(true)
