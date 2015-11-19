@@ -206,7 +206,6 @@ export default class webpack_isomorphic_tools
 				// if the require()d path has this file extension
 				if (ends_with(path, extension[0]))
 				{
-					console.log(path)
 					// then require() it using webpack-assets.json
 					return this.require(require_hacker.resolve(path, module), extension[1])
 				}

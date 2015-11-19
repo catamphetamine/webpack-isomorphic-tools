@@ -1,3 +1,8 @@
+2.2.16, 2.2.17 / 20.11.2015
+===================
+
+  * When `require()`ing relative assets no more exception is thrown when the path doesn't exist in the filesystem.
+
 2.2.11 / 07.11.2015
 ===================
 
