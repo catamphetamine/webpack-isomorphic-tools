@@ -994,7 +994,7 @@ Also it's good to know that the way all this `require('./asset.whatever_extensio
 
 ### Cannot find module
 
-This error means that the `require()`d asset is absent from `webpack-assets.json` (in case of server code; or from `webpack-stats.json` in case of Webpack plugin) and the `require()`d path doesn't exist in the filesystem.
+If encountered when run on server, this error means that the `require()`d path doesn't exist in the filesystem (all the `require()`d must exist in the filesystem when run on server). If encountered during Webpack build, this error means that the `require()`d path is absent from `webpack-stats.json`.
 
 ### SyntaxError: Unexpected token ILLEGAL
 

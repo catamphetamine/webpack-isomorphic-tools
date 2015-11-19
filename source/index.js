@@ -11,8 +11,8 @@ import { default_webpack_assets, normalize_options, alias_hook, normalize_asset_
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/template_strings
 export default class webpack_isomorphic_tools
 {
-	// // require() hooks for assets
-	// hooks = []
+	// require() hooks for assets
+	hooks = []
 
 	// used to keep track of cached assets and flush their caches on .refresh() call
 	cached_assets = []
@@ -178,52 +178,64 @@ export default class webpack_isomorphic_tools
 	// http://bahmutov.calepin.co/hooking-into-node-loader-for-fun-and-profit.html
 	register()
 	{
-		this.log.debug('registering require() hook for assets')
+		this.log.debug('registering require() hooks for assets')
 
-		// a helper array for extension matching
-		const extensions = []
+		// // a helper array for extension matching
+		// const extensions = []
+		//
+		// // for each user specified asset type,
+		// // for each file extension,
+		// // create an entry in the extension matching array
+		// for (let asset_type of Object.keys(this.options.assets))
+		// {
+		// 	const description = this.options.assets[asset_type]
+		//	
+		// 	for (let extension of description.extensions)
+		// 	{
+		// 		extensions.push([`.${extension}`, description])
+		// 	}
+		// }
+		//
+		// // registers a global require() hook which runs 
+		// // before the default Node.js require() logic
+		// this.asset_hook = require_hacker.global_hook('webpack-asset', (path, module) =>
+		// {
+		// 	// for each asset file extension
+		// 	for (let extension of extensions)
+		// 	{
+		// 		// if the require()d path has this file extension
+		// 		if (ends_with(path, extension[0]))
+		// 		{
+		// 			// then require() it using webpack-assets.json
+		// 			return this.require(require_hacker.resolve(path, module), extension[1])
+		// 		}
+		// 	}
+		// })
 
 		// for each user specified asset type,
-		// for each file extension,
-		// create an entry in the extension matching array
+		// register a require() hook for each file extension of this asset type
 		for (let asset_type of Object.keys(this.options.assets))
 		{
 			const description = this.options.assets[asset_type]
 			
 			for (let extension of description.extensions)
 			{
-				extensions.push([`.${extension}`, description])
+				this.register_extension(extension, description)
 			}
 		}
-
-		// registers a global require() hook which runs 
-		// before the default Node.js require() logic
-		this.asset_hook = require_hacker.global_hook('webpack-asset', (path, module) =>
-		{
-			// for each asset file extension
-			for (let extension of extensions)
-			{
-				// if the require()d path has this file extension
-				if (ends_with(path, extension[0]))
-				{
-					// then require() it using webpack-assets.json
-					return this.require(require_hacker.resolve(path, module), extension[1])
-				}
-			}
-		})
-
+				
 		// allows method chaining
 		return this
 	}
 
-	// // registers a require hook for a particular file extension
-	// register_extension(extension, description)
-	// {
-	// 	this.log.debug(` registering a require() hook for *.${extension}`)
-	//
-	// 	// place the require() hook for this extension
-	// 	this.hooks.push(require_hacker.hook(extension, path => this.require(path, description)))
-	// }
+	// registers a require hook for a particular file extension
+	register_extension(extension, description)
+	{
+		this.log.debug(` registering a require() hook for *.${extension}`)
+	
+		// place the require() hook for this extension
+		this.hooks.push(require_hacker.hook(extension, path => this.require(path, description)))
+	}
 
 	// require()s an asset by a path
 	require(global_asset_path, description)
@@ -292,14 +304,14 @@ export default class webpack_isomorphic_tools
 	// unregisters require() hooks
 	undo()
 	{
-		// // for each user specified asset type,
-		// // unregister a require() hook for each file extension of this asset type
-		// for (let hook of this.hooks)
-		// {
-		// 	hook.unmount()
-		// }
+		// for each user specified asset type,
+		// unregister a require() hook for each file extension of this asset type
+		for (let hook of this.hooks)
+		{
+			hook.unmount()
+		}
 
-		this.asset_hook.unmount()
+		// this.asset_hook.unmount()
 
 		// unmount the aliasing hook (if mounted)
 		if (this.alias_hook)
