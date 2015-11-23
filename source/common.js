@@ -3,7 +3,7 @@ import fs from 'fs'
 
 import require_hacker from 'require-hacker'
 
-import { is_object, exists, starts_with } from './helpers'
+import { is_object, is_function, exists, starts_with } from './helpers'
 
 // returns a stub for webpack-assets.json if it doesn't exist yet
 // (because node.js and webpack are being run in parallel in development mode)
@@ -55,6 +55,13 @@ export function normalize_options(options)
 					throw new Error(`"${key}" configuration parameter must be ` + `an object`)
 				}
 				break
+
+      case 'asset_transformer':
+        if (!is_function(options[key]))
+        {
+          throw new Error(`"${key}" configuration parameter must be ` + `a function`)
+        }
+        break
 
 			default:
 				throw new Error(`Unknown configuration parameter "${key}"`)

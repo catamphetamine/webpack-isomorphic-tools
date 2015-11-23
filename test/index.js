@@ -406,6 +406,25 @@ describe('plugin', function()
 		})
 	})
 
+  it('should pass the asset manifest to a transformer, if provided', function(done)
+  {
+    create_assets_file();
+
+    const settings = isomorpher_settings()
+
+    settings.asset_transformer = function(assets) {
+      assets.assets['./assets/husky.jpg'] = 'https://cdn.host/' + assets.assets['./assets/husky.jpg'];
+    }
+
+    const server_side = new isomorpher(settings).development();
+
+    server_side.server(webpack_configuration.context, () =>
+    {
+      require('./assets/husky.jpg').should.equal('https://cdn.host/' + webpack_assets.assets['./assets/husky.jpg'])
+      done();
+    })
+  })
+
 	it('should validate options', function()
 	{
 		let options = {}
