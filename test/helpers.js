@@ -134,6 +134,9 @@ describe('helpers', function()
 	{
 		ends_with('#$% test !', '!').should.equal(true)
 		ends_with('#$% test !', '#').should.equal(false)
+		ends_with('#$% test !', 'st !').should.equal(true)
+		ends_with('#$% test !', 'sst !').should.equal(false)
+		ends_with('#$% test !', 'st #').should.equal(false)
 	})
 
 	it('should determine if an array is (not) empty', function()

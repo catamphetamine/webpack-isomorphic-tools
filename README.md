@@ -239,6 +239,19 @@ export default class Html extends Component
     store     : PropTypes.object
   }
 
+  // a sidenote for "advanced" users:
+  // (you may skip this)
+  //
+  // this file is usually not included in your Webpack build
+  // because this React component is only needed for server side React rendering.
+  //
+  // so, if this React component is not `require()`d from anywhere in your client code,
+  // then Webpack won't ever get here 
+  // which means Webpack won't detect and parse any of the `require()` calls here,
+  // which in turn means that if you `require()` any unique assets here 
+  // you should also `require()` those assets somewhere in your client code,
+  // otherwise those assets won't be present in your Webpack bundle and won't be found.
+  //
   render()
   {
     const { assets, component, store } = this.props
