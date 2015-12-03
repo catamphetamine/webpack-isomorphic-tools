@@ -348,7 +348,7 @@ Some source code guidance for the aforementioned project:
 * [webpack-isomorphic-tools client initialization](https://github.com/halt-hammerzeit/webapp/blob/master/webpack/development%20server.js#L48)
 * [webpack-isomorphic-tools server initialization](https://github.com/halt-hammerzeit/webapp/blob/master/code/page-server/entry.js#L9-L17)
 * [webpage rendering express middleware](https://github.com/halt-hammerzeit/webapp/blob/master/code/page-server/webpage%20rendering.js)
-* [the Html file](https://github.com/halt-hammerzeit/webapp/blob/master/code/client/html.js)
+* [the Html file](https://github.com/halt-hammerzeit/webapp/blob/master/code/page-server/html.js)
 
 ## Configuration
 
