@@ -1,4 +1,4 @@
-2.2.18 / 05.12.2015
+2.2.19 / 05.12.2015
 ===================
 
   * A small bugfix for not being able to load `webpack-assets.json` having defined asset type for `json` extension
