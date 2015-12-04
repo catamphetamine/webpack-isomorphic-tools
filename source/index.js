@@ -234,7 +234,23 @@ export default class webpack_isomorphic_tools
 		this.log.debug(` registering a require() hook for *.${extension}`)
 	
 		// place the require() hook for this extension
-		this.hooks.push(require_hacker.hook(extension, path => this.require(path, description)))
+		if (extension === 'json')
+		{
+			this.hooks.push(require_hacker.hook(extension, path =>
+			{
+				// special case for require('webpack-assets.json') and 'json' asset extension
+				if (path === this.webpack_assets_path)
+				{
+					return
+				}
+
+				return this.require(path, description)
+			}))
+		}
+		else
+		{
+			this.hooks.push(require_hacker.hook(extension, path => this.require(path, description)))
+		}
 	}
 
 	// require()s an asset by a path

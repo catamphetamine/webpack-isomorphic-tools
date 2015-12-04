@@ -1,3 +1,8 @@
+2.2.18 / 05.12.2015
+===================
+
+  * A small bugfix for not being able to load `webpack-assets.json` having defined asset type for `json` extension
+
 2.2.11 / 07.11.2015
 ===================
 
