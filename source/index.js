@@ -119,8 +119,9 @@ export default class webpack_isomorphic_tools
 	enable_aliasing()
 	{
 		// mount require() hook
-		this.alias_hook = require_hacker.global_hook('aliasing', (path, module) =>
+		this.alias_hook = require_hacker.resolver((path, module) =>
 		{
+			// returns aliased global filesystem path
 			return alias_hook(path, module, this.options.project_path, this.options.alias, this.log)
 		})
 

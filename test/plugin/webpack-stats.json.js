@@ -93,6 +93,21 @@ module.exports =
 	// 	"source": "module.exports = \".aliased {}\""
 	// },
 	{
+		"id": 7,
+		"name": "./aliasing test.jpg",
+		"source": "module.exports = 'blah ' + require('original_module_name/test.jpg')",
+		"reasons": []
+	},
+	{
+		"id": 8,
+		"name": "../node_modules/aliased_module_name/test.jpg",
+		"reasons": 
+		[{
+			"userRequest": "original_module_name/test.jpg"
+		}],
+		"source": "module.exports = 'blah'"
+	},
+	{
 		"id": 101,
 		"name": "./assets/test.text_parser_test",
 		"reasons": 

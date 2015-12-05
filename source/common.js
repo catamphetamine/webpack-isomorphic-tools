@@ -158,7 +158,8 @@ export function normalize_options(options)
 	}
 }
 
-// alias the path and require() the correct file if an alias is found
+// alias the path if an alias is found,
+// and resolve it to a global filesystem path
 export function alias_hook(path, module, project_path, aliases, log)
 {
 	// possibly alias the path
@@ -171,16 +172,18 @@ export function alias_hook(path, module, project_path, aliases, log)
 	}
 
 	// if an alias is found, require() the correct path
-	log.debug(`alias found for "${path}", resolving to path "${aliased_path}"`)
+	log.debug(`require("${path}") was called and an alias was found, so aliasing to module path "${aliased_path}"`)
 
 	// resolve the path to a real filesystem path (resolves `npm link`, etc)
 	const global_path = require_hacker.resolve(aliased_path, module)
-	log.debug(` global path for the aliased module is ${global_path}`)
+	log.debug(` resolved the path for the aliased module to ${global_path}`)
 
-	const result = require(global_path)
-	// log.debug(` the path was found`)
+	return global_path
 
-	return require_hacker.to_javascript_module_source(result)
+	// const result = require(global_path)
+	// // log.debug(` the path was found`)
+
+	// return require_hacker.to_javascript_module_source(result)
 }
 
 // alias the path provided the aliases map

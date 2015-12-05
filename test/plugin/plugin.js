@@ -27,6 +27,8 @@ const expected_webpack_assets =
 		// "./assets/style.scss": "body {} .child { background: url(/assets/test.jpg) } .aliased {} head {}",
 		"./assets/child.scss": ".child { background: url(/assets/test.jpg) }",
 		// "/path/to/aliased_module_name/style.scss": ".aliased {}",
+		"./aliasing test.jpg": "blah blah",
+		"../node_modules/aliased_module_name/test.jpg": "blah",
 		"./assets/test.text_parser_test": "text parser test",
 		"./assets/test.object_parser_test.extra": { one: 1 }
 	}
@@ -88,7 +90,7 @@ function cleanup_webpack_assets()
 
 const settings = () =>
 ({
-	// debug: true, 
+	debug: true, 
 
 	webpack_assets_file_path: webpack_assets_path,
 	webpack_stats_file_path: webpack_stats_path,

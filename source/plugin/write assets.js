@@ -217,44 +217,78 @@ function populate_assets(output, json, options, log)
 	}
 
 	// register a special require() hook for requiring() raw webpack modules
-	const require_hook = require_hacker.global_hook('webpack-module', (required_path, module) =>
+	const require_hook = require_hacker.global_hook('webpack-module', (path, module) =>
 	{
+		log.debug(`require()ing "${path}"`)
+
 		// if Webpack aliases are supplied
 		if (options.alias)
 		{
 			// possibly alias the path
-			const aliased_path_source = alias_hook(required_path, module, options.project_path, options.alias, log)
+			const aliased_global_path = alias_hook(path, module, options.project_path, options.alias, log)
 
 			// if an alias is found
-			if (aliased_path_source)
+			if (aliased_global_path)
 			{
-				return aliased_path_source
+				return require_hacker.to_javascript_module_source(require(aliased_global_path))
 			}
 		}
 
 		// find an asset with this path
-		if (exists(global_paths_to_parsed_asset_paths[required_path]))
+		//
+		// the require()d path will be global path in case of the for..of require() loop 
+		// for the assets (the code a couple of screens below).
+		// 
+		// (it can be anything in other cases (e.g. nested require() calls from the assets))
+		//
+		if (exists(global_paths_to_parsed_asset_paths[path]))
 		{
-			log.debug(`found in parsed assets`)
-			return parsed_assets[global_paths_to_parsed_asset_paths[required_path]]
+			log.debug(` found in parsed assets`)
+			return parsed_assets[global_paths_to_parsed_asset_paths[path]]
 		}
 
-		log.debug(`not found in parsed assets, searching in webpack stats`)
+		log.debug(` not found in parsed assets, searching in webpack stats`)
 
 		// find a webpack module which has a reason with this path
+		
+		const candidates = []
+
 		for (let module of json.modules)
 		{
 			for (let reason of module.reasons)
 			{
-				if (reason.userRequest === required_path)
+				if (reason.userRequest === path)
 				{
-					log.debug(` found in webpack stats, module id ${module.id}`)
-
-					// also resolve "ReferenceError: __webpack_public_path__ is not defined".
-					// because it may be a url-loaded resource (e.g. a font inside a style).
-					return define_webpack_public_path + module.source
+					candidates.push(module)
 				}
 			}
+		}
+
+		// guard against ambiguity 
+		// (some kind of a sophisticated algorythm could possibly resolve ambiguity)
+
+		if (candidates.length === 0)
+		{
+			// no candidates found
+		}
+		else if (candidates.length > 1)
+		{
+			log.error(` More than a single candidate module was found in webpack stats for require()d path "${path}"`)
+
+			for (let candidate of candidates)
+			{
+				log.info(' ', candidate)
+			}
+
+			throw new Error(`More than a single candidate module was found in webpack stats`)
+		}
+		else
+		{
+			log.debug(` found in webpack stats, module id ${candidates[0].id}`)
+
+			// also resolve "ReferenceError: __webpack_public_path__ is not defined".
+			// because it may be a url-loaded resource (e.g. a font inside a style).
+			return define_webpack_public_path + candidates[0].source
 		}
 	})
 
@@ -268,6 +302,13 @@ function populate_assets(output, json, options, log)
 	{
 		// set asset value
 		output.assets[asset_path] = require(path.resolve(options.project_path, asset_path))
+
+		// inside that require() call above
+		// all the assets are resolved relative to this `module`,
+		// which is irrelevant because they are all absolute filesystem paths.
+		//
+		// if in some of those assets a nested require() call is present
+		// then it will be resolved relative to that asset folder.
 	}
 
 	// unmount the previously installed require() hook
