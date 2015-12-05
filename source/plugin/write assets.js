@@ -260,6 +260,7 @@ function populate_assets(output, json, options, log)
 				if (reason.userRequest === path)
 				{
 					candidates.push(module)
+					break
 				}
 			}
 		}
