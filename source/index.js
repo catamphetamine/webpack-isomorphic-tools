@@ -81,7 +81,14 @@ export default class webpack_isomorphic_tools
 			}
 		}
 
-		return require(this.webpack_assets_path)
+    const assets = require(this.webpack_assets_path)
+
+    if (this.options.asset_transformer)
+    {
+      this.options.asset_transformer.call(this, assets)
+    }
+
+		return assets;
 	}
 
 	// clear the require.cache (only used in developer mode with webpack-dev-server)

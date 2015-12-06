@@ -10,7 +10,12 @@ export function is_object(object)
 	return exists(object) && (object !== null) && object.constructor === object_constructor
 }
 
-// extends the first object with 
+export function is_function(func)
+{
+  return exists(func) && func && typeof(func) === 'function';
+}
+
+// extends the first object with
 /* istanbul ignore next: some weird transpiled code, not testable */
 export function extend(...objects)
 {
