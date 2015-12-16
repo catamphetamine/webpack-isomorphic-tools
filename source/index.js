@@ -452,18 +452,7 @@ export default class webpack_isomorphic_tools
 		}
 
 		// wait for webpack-assets.json to be written to disk by Webpack
-		wait_for(() => fs.existsSync(this.webpack_assets_path), () =>
-		{
-			// cache webpack-assets.json in production mode
-			// to get around the very first request latency penalty
-			// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/39
-			if (!this.options.development)
-			{
-				this.assets()
-			}
-
-			done()
-		})
+		wait_for(() => fs.existsSync(this.webpack_assets_path), done)
 
 		// allows method chaining
 		return this
