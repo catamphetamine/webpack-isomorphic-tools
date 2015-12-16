@@ -294,28 +294,22 @@ export default class webpack_isomorphic_tools
 	{
 		this.log.debug(` requiring ${asset_path}`)
 
-		// sanity check
-		/* istanbul ignore if */
-		if (!asset_path)
-		{
-			return undefined
-		}
-
 		// get real file path list
 		var assets = this.assets().assets
 		
 		// find this asset in the real file path list
 		const asset = assets[asset_path]
 		
-		// if the asset was found in the list - return it
-		if (exists(asset))
+		// if the asset was not found in the list, 
+		// return nothing and output an error
+		if (!exists(asset))
 		{
-			return asset
+			this.log.error(`asset not found: ${asset_path}`)
+			return
 		}
 
-		// serve a not-found asset maybe
-		this.log.error(`asset not found: ${asset_path}`)
-		return undefined
+		// the asset was found in the list - return it
+		return asset
 	}
 
 	// unregisters require() hooks
@@ -458,7 +452,18 @@ export default class webpack_isomorphic_tools
 		}
 
 		// wait for webpack-assets.json to be written to disk by Webpack
-		wait_for(() => fs.existsSync(this.webpack_assets_path), done)
+		wait_for(() => fs.existsSync(this.webpack_assets_path), () =>
+		{
+			// cache webpack-assets.json in production mode
+			// to get around the very first request latency penalty
+			// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/39
+			if (!this.options.development)
+			{
+				this.assets()
+			}
+
+			done()
+		})
 
 		// allows method chaining
 		return this
