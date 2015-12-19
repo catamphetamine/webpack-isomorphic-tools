@@ -37,6 +37,15 @@ export function extend(...objects)
 
 			extend(to[key], from[key])
 		}
+		else if (Array.isArray(from[key]))
+		{
+			if (!Array.isArray(to[key]))
+			{
+				to[key] = []
+			}
+
+			to[key] = to[key].concat(clone(from[key]))
+		}
 		else
 		{
 			to[key] = from[key]
@@ -55,7 +64,18 @@ export function merge()
 
 export function clone(object)
 {
-	return merge({}, object)
+	if (is_object(object))
+	{
+		return merge({}, object)
+	}
+	else if (Array.isArray(object))
+	{
+		return object.map(x => clone(x))
+	}
+	else
+	{
+		return object
+	}
 }
 
 // creates camelCased aliases for all the keys of an object

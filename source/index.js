@@ -426,7 +426,11 @@ export default class webpack_isomorphic_tools
 	wait_for_assets(done)
 	{
 		// condition check interval
-		const interval = 300 // in milliseconds
+		const check_interval = 300 // in milliseconds
+		const message_interval = 2000 // in milliseconds
+
+		// show the message not too often
+		let message_timer = 0
 
 		// selfie
 		const tools = this
@@ -442,10 +446,17 @@ export default class webpack_isomorphic_tools
 					return proceed()
 				}
 
-				tools.log.debug(`(${tools.webpack_assets_path} not found)`)
-				tools.log.info('(waiting for the first Webpack build to finish)')
+				message_timer += check_interval
 
-				setTimeout(check, interval)
+				if (message_timer >= message_interval)
+				{
+					message_timer = 0
+
+					tools.log.debug(`(${tools.webpack_assets_path} not found)`)
+					tools.log.info('(waiting for the first Webpack build to finish)')
+				}
+
+				setTimeout(check, check_interval)
 			}
 
 			check()
