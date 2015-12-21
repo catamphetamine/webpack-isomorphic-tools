@@ -136,7 +136,10 @@ Plugin.prototype.apply = function(compiler)
 	{
 		plugin.log.debug('------------------- Started -------------------')
 
-		var json = stats.toJson()
+		var json = stats.toJson
+		({
+			context: webpack_configuration.context
+		})
 
 		// output some info to the console if in development mode
 		if (plugin.options.development)
@@ -195,7 +198,7 @@ Plugin.css_modules_loader_parser = function(module, options, log)
 // the module with the CSS styles is the one with a long name:
 Plugin.style_loader_filter = function(module, regular_expression, options, log)
 {
-	return regular_expression.test(module.name) && module.name.indexOf('./~/css-loader') === 0
+	return regular_expression.test(module.name) && module.name.split('!')[0].indexOf('/~/css-loader') >= 0
 }
 
 // extracts css style file path
