@@ -136,7 +136,9 @@ Plugin.prototype.apply = function(compiler)
 	{
 		plugin.log.debug('------------------- Started -------------------')
 
-		var json = stats.toJson()
+		var json = stats.toJson({
+			context: webpack_configuration.context
+		})
 
 		// output some info to the console if in development mode
 		if (plugin.options.development)
