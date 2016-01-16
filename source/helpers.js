@@ -16,6 +16,16 @@ export function extend(...objects)
 {
 	objects = objects.filter(x => exists(x))
 
+	if (objects.length === 0)
+	{
+		return
+	}
+	
+	if (objects.length === 1)
+	{
+		return objects[0]
+	}
+
 	const to   = objects[0]
 	const from = objects[1]
 

@@ -422,6 +422,10 @@ describe('plugin', function()
 
 		instantiate.should.throw('must be a boolean')
 
+		options = { verbose: 'true' }
+
+		instantiate.should.throw('must be a boolean')
+
 		options = { assets: 'true' }
 
 		instantiate.should.throw('must be an object')

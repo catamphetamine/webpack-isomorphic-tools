@@ -41,6 +41,13 @@ export function normalize_options(options)
 				}
 				break
 
+			case 'verbose':
+				if (typeof options[key] !== 'boolean')
+				{
+					throw new Error(`"${key}" configuration parameter must be ` + `a boolean`)
+				}
+				break
+
 			case 'webpack_assets_file_path':
 			case 'webpack_stats_file_path':
 				if (typeof options[key] !== 'string')

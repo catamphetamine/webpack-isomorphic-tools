@@ -368,6 +368,13 @@ Available configuration parameters:
   //
   debug: true, // is false by default
 
+  // verbosity.
+  // when set to true, outputs Webpack stats to the console 
+  // in development mode on each incremental build.
+  // (i don't know who might need that info)
+  //
+  // verbose: true, // is false by default
+
   // By default it creates 'webpack-assets.json' file at 
   // webpack_configuration.context (which is your project folder).
   // You can change the assets file path as you wish
