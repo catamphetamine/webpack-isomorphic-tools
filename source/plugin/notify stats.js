@@ -1,5 +1,7 @@
 // outputs webpack stats to console if there are no errors or warnings
 
+import colors from 'colors/safe'
+
 function error(error)
 {
 	// BELLs when something goes wrong!
@@ -34,7 +36,7 @@ export default function notify_stats(stats, json)
 	if (was_faulty && !first_run)
 	{
 		// green colour
-		console.log('\u001b[32m' + '~ Webpack build status: OK ~' + '\u001b[39m')
+		console.log(colors.green('~ Webpack build status: OK ~'))
 
 		was_faulty = false
 	}
