@@ -146,7 +146,7 @@ Plugin.prototype.apply = function(compiler)
 		{
 			// outputs stats info to the console
 			// (only needed in development mode)
-			notify_stats(stats, json)
+			notify_stats(stats, json, plugin.options.verbose)
 		}
 
 		// write webpack-assets.json with assets info

@@ -16,7 +16,7 @@ function warning(warning)
 let first_run  = true
 let was_faulty = false
 
-export default function notify_stats(stats, json)
+export default function notify_stats(stats, json, verbose)
 {
 	// if there were any errors
 	if (json.errors.length > 0)
@@ -33,7 +33,7 @@ export default function notify_stats(stats, json)
 
 	// if it's ok
 
-	if (was_faulty && !first_run)
+	if (!verbose && !first_run && was_faulty)
 	{
 		// green colour
 		console.log(colors.green('~ Webpack build status: OK ~'))
@@ -41,7 +41,7 @@ export default function notify_stats(stats, json)
 		was_faulty = false
 	}
 
-	if (first_run)
+	if (verbose || first_run)
 	{
 		console.log(stats.toString
 		({
