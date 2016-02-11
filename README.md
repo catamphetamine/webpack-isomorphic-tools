@@ -1075,6 +1075,7 @@ npm install [module name with version].tar.gz
 
 ## To do
 
+ * Implement `require.context(folder, include_subdirectories, regular_expression)` Webpack helper function
  * Proper testing for `log` (output to a variable rather than `console`)
  * Proper testing for `notify_stats` (output to a `log` variable)
  * Proper testing for parsers (using `eval()` CommonJS module compilation)
