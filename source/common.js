@@ -63,6 +63,13 @@ export function normalize_options(options)
 				}
 				break
 
+			case 'require_context':
+				if (typeof options[key] !== 'boolean')
+				{
+					throw new Error(`"${key}" configuration parameter must be ` + `a boolean`)
+				}
+				break
+
 			default:
 				throw new Error(`Unknown configuration parameter "${key}"`)
 		}
@@ -236,12 +243,7 @@ export function normalize_asset_path(global_asset_path, project_path)
 	// for Windows:
 	//
 	// convert Node.js path to a correct Webpack path
-	asset_path = asset_path.replace(/\\/g, '/')
-	// add './' in the beginning if it's missing (for example, in case of Windows)
-	if (asset_path.indexOf('.') !== 0)
-	{
-		asset_path = './' + asset_path
-	}
+	asset_path = uniform_path(asset_path)
 
 	return asset_path
 }
@@ -253,6 +255,23 @@ export function webpack_path(asset_path)
 	if (starts_with(asset_path, './node_modules/'))
 	{
 		asset_path = asset_path.replace('./node_modules/', './~/')
+	}
+
+	return asset_path
+}
+
+// for Windows:
+//
+// converts Node.js path to a correct Webpack path
+export function uniform_path(asset_path)
+{
+	// correct slashes
+	asset_path = asset_path.replace(/\\/g, '/')
+
+	// add './' in the beginning if it's missing (for example, in case of Windows)
+	if (asset_path.indexOf('.') !== 0)
+	{
+		asset_path = './' + asset_path
 	}
 
 	return asset_path

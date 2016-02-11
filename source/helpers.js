@@ -137,7 +137,24 @@ export function replace_all(where, what, with_what)
 
 export function starts_with(string, substring)
 {
-	return string.indexOf(substring) === 0
+	let j = substring.length
+
+	if (j > string.length)
+	{
+		return false
+	}
+
+	while (j > 0)
+	{
+		j--
+
+		if (string[j] !== substring[j])
+		{
+			return false
+		}
+	}
+
+	return true
 }
 
 export function ends_with(string, substring)

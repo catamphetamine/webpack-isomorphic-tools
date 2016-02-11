@@ -1020,6 +1020,12 @@ If encountered when run on server, this error means that the `require()`d path d
 
 This probably means that in some asset module source there's a `require()` call to some file extension that isn't specified in 
 
+### TypeError: require.context is not a function
+
+You should enable `require_context: true` flag in your `webpack-isomorphic-tools` configuration file. The reason is that the support for `require.context()` [is hacky at the moment](https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/48#issuecomment-182878437). It works and does its thing but the solution is not elegant enough if you know what I mean.
+
+Support for `require.context()` is in alpha stage. If you encounter any bugs report them in the issues.
+
 ## References
 
 Initially based on the code from [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example) by Erik Rasmussen
@@ -1075,7 +1081,7 @@ npm install [module name with version].tar.gz
 
 ## To do
 
- * Implement `require.context(folder, include_subdirectories, regular_expression)` Webpack helper function
+ * Implement `require.context(folder, include_subdirectories, regular_expression)` Webpack helper function [properly](https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/48#issuecomment-182878437)
  * Proper testing for `log` (output to a variable rather than `console`)
  * Proper testing for `notify_stats` (output to a `log` variable)
  * Proper testing for parsers (using `eval()` CommonJS module compilation)

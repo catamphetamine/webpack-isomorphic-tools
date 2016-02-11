@@ -35,7 +35,8 @@ const webpack_assets =
 		"./assets/test.text_parser_test": "text parser test",
 		"./assets/test.object_parser_test.extra": { one: 1 },
 		"./~/whatever.jpg": 1,
-		"./~/aliased_module_name/test.jpg": true
+		"./~/aliased_module_name/test.jpg": true,
+		"./~/context.js": 'context asset'
 	}
 }
 
@@ -64,6 +65,7 @@ const isomorpher_settings = () =>
 	{
 		javascript:
 		{
+			exclude: ['../context.js'],
 			extension: 'js'
 		},
 		styles:
@@ -253,8 +255,12 @@ describe('plugin', function()
 		// create the webpack-assets.json
 		create_assets_file()
 
+		// enable `require.context()`
+		const settings = isomorpher_settings()
+		settings.require_context = true
+
 		// ensure it waits for webpack-assets.json
-		const server_side = new isomorpher(isomorpher_settings())
+		const server_side = new isomorpher(settings)
 
 		// install require() hooks
 		server_side.server(webpack_configuration.context, () =>
@@ -265,6 +271,16 @@ describe('plugin', function()
 
 			// verify asset value
 			require('./assets/husky.jpg').should.equal(webpack_assets.assets['./assets/husky.jpg'])
+
+			// clear require.cache for the asset to force a lookup in webpack-assets.json
+			delete require.cache[path.resolve(__dirname, './node_modules/context.js')]
+
+			// test `require.context()`
+			require('../context.js').should.deep.equal
+			({
+				'./aliased_module_name/index.js': 'alias',
+				'./context.js'                  : webpack_assets.assets['./~/context.js'],
+			})
 
 			// unmount require() hooks
 			server_side.undo()
@@ -437,6 +453,10 @@ describe('plugin', function()
 		options = { debug: true, webpack_stats_file_path: true }
 
 		instantiate.should.throw('must be a string')
+
+		options = { require_context: 'true' }
+
+		instantiate.should.throw('must be a boolean')
 
 		options = { assets: { images: {} } }
 

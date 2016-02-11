@@ -4,8 +4,10 @@ import fs     from 'fs'
 import require_hacker from 'require-hacker'
 import Log            from './tools/log'
 
+import UglifyJS from 'uglify-js'
+
 import { exists, clone, convert_from_camel_case, starts_with, ends_with } from './helpers'
-import { default_webpack_assets, normalize_options, alias_hook, normalize_asset_path, webpack_path } from './common'
+import { default_webpack_assets, normalize_options, alias_hook, normalize_asset_path, webpack_path, uniform_path } from './common'
 
 // using ES6 template strings
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/template_strings
@@ -151,6 +153,13 @@ export default class webpack_isomorphic_tools
 		// register require() hooks
 		this.register()
 
+		// inject require.context() helper
+		if (this.options.require_context)
+		{
+			this.log.debug('Injecting require.context() helper')
+			this.inject_require_context()
+		}
+
 		// when ready: 
 
 		// if callback is given, call it back
@@ -251,6 +260,89 @@ export default class webpack_isomorphic_tools
 		else
 		{
 			this.hooks.push(require_hacker.hook(extension, path => this.require(path, description)))
+		}
+	}
+
+	// injects the `context()` function into `require()` function
+	// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/48#issuecomment-182878437
+	// (this is a "dirty" way to do it)
+	inject_require_context()
+	{
+		const original_compile = require('module').prototype._compile
+		require('module').prototype._compile = function(content, filename)
+		{
+			if (!ends_with(filename, '.js'))
+			{
+				// return value is undefined
+				return original_compile.call(this, content, filename)
+			}
+
+			// will be prepended to the module source code
+			var preamble = ''
+
+			// account for "use strict" which is required to be in the beginning of the source code
+			if (starts_with(content, `'use strict'`) || starts_with(content, `"use strict"`))
+			{
+				preamble = `"use strict";`
+			}
+
+			// require()s all modules inside the `base` folder 
+			// and puts them into a hash map for further reference
+			//
+			// https://webpack.github.io/docs/context.html
+			//
+			const require_context = `function(base, scan_subdirectories, regular_expression)
+			{
+				base = require('path').join(require('path').dirname(this.filename), base)
+
+				const contents = {}
+
+				// recursive function
+				function read_directory(directory)
+				{
+					require('fs').readdirSync(directory).forEach(function(child)
+					{
+						var full_path = require('path').resolve(directory, child)
+
+						if (require('fs').statSync(full_path).isDirectory())
+						{
+							if (scan_subdirectories)
+							{
+								read_directory(full_path)
+							}
+						}
+						else
+						{
+							if (regular_expression && !regular_expression.test(full_path))
+							{
+								return
+							}
+
+							var asset_path = require('path').relative(base, full_path)
+
+							// analogous to "uniform_path" from "./common.js"
+							asset_path = (asset_path[0] === '.' ? asset_path : ('./' + asset_path)).replace(/\\\\/g, '/')
+
+							contents[asset_path] = require(full_path)
+						}
+					})
+				}
+
+				read_directory(base)
+
+				return contents
+			}`
+
+			preamble += `require.context = ${require_context};` 
+
+			// some code minification
+			preamble = UglifyJS.minify(preamble, { fromString: true }).code
+
+			// the "dirty" way
+			content = preamble + content
+
+			// return value is undefined
+			return original_compile.call(this, content, filename)
 		}
 	}
 
