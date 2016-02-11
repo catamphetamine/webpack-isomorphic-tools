@@ -1,3 +1,8 @@
+2.2.27 / 11.02.2016
+===================
+
+  * Added experimental support for `require.context()` function
+
 2.2.25 / 16.01.2016
 ===================
 

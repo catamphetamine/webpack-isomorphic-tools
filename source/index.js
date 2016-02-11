@@ -313,15 +313,15 @@ export default class webpack_isomorphic_tools
 						}
 						else
 						{
-							if (regular_expression && !regular_expression.test(full_path))
-							{
-								return
-							}
-
 							var asset_path = require('path').relative(base, full_path)
 
 							// analogous to "uniform_path" from "./common.js"
 							asset_path = (asset_path[0] === '.' ? asset_path : ('./' + asset_path)).replace(/\\\\/g, '/')
+
+							if (regular_expression && !regular_expression.test(asset_path))
+							{
+								return
+							}
 
 							contents[asset_path] = require(full_path)
 						}
