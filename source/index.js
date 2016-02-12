@@ -265,17 +265,100 @@ export default class webpack_isomorphic_tools
 
 	// injects the `context()` function into `require()` function
 	// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/48#issuecomment-182878437
-	// (this is a "dirty" way to do it)
+	// (this is a "dirty" way to do it but it works)
 	inject_require_context()
 	{
+		// a source code of a function that
+		// require()s all modules inside the `base` folder 
+		// and puts them into a hash map for further reference
+		//
+		// https://webpack.github.io/docs/context.html
+		//
+		let require_context = `require.context = function(base, scan_subdirectories, regular_expression)
+		{
+			base = require('path').join(require('path').dirname(this.filename), base)
+
+			var contents = {}
+
+			// recursive function
+			function read_directory(directory)
+			{
+				require('fs').readdirSync(directory).forEach(function(child)
+				{
+					var full_path = require('path').resolve(directory, child)
+
+					if (require('fs').statSync(full_path).isDirectory())
+					{
+						if (scan_subdirectories)
+						{
+							read_directory(full_path)
+						}
+					}
+					else
+					{
+						var asset_path = require('path').relative(base, full_path)
+
+						// analogous to "uniform_path" from "./common.js"
+						asset_path = (asset_path[0] === '.' ? asset_path : ('./' + asset_path)).replace(/\\\\/g, '/')
+
+						if (regular_expression && !regular_expression.test(asset_path))
+						{
+							return
+						}
+
+						contents[asset_path] = full_path
+					}
+				})
+			}
+
+			read_directory(base)
+
+			var result = function(asset_path)
+			{
+				return require(contents[asset_path])
+			}
+
+			result.keys = function()
+			{
+				return Object.keys(contents)
+			}
+
+			result.resolve = function(asset_path)
+			{
+				return contents[asset_path]
+			}
+
+			return result
+		};`
+
+		// some code minification
+		require_context = UglifyJS.minify(require_context, { fromString: true }).code
+
+		const debug = this.log.debug.bind(this.log)
+
+		// instrument Module.prototype._compile function
+		// https://github.com/nodejs/node/blob/master/lib/module.js#L376-L380
+		//
 		const original_compile = require('module').prototype._compile
+		//
 		require('module').prototype._compile = function(content, filename)
 		{
+			// inject it only in .js files
 			if (!ends_with(filename, '.js'))
 			{
 				// return value is undefined
 				return original_compile.call(this, content, filename)
 			}
+
+			// inject it only in .js files which 
+			// might probably have `require.context` reference
+			if (content.indexOf('require.context') < 0)
+			{
+				// return value is undefined
+				return original_compile.call(this, content, filename)
+			}
+
+			debug(`Injecting require.context() into "${filename}"`)
 
 			// will be prepended to the module source code
 			var preamble = ''
@@ -286,57 +369,8 @@ export default class webpack_isomorphic_tools
 				preamble = `"use strict";`
 			}
 
-			// require()s all modules inside the `base` folder 
-			// and puts them into a hash map for further reference
-			//
-			// https://webpack.github.io/docs/context.html
-			//
-			const require_context = `function(base, scan_subdirectories, regular_expression)
-			{
-				base = require('path').join(require('path').dirname(this.filename), base)
-
-				const contents = {}
-
-				// recursive function
-				function read_directory(directory)
-				{
-					require('fs').readdirSync(directory).forEach(function(child)
-					{
-						var full_path = require('path').resolve(directory, child)
-
-						if (require('fs').statSync(full_path).isDirectory())
-						{
-							if (scan_subdirectories)
-							{
-								read_directory(full_path)
-							}
-						}
-						else
-						{
-							var asset_path = require('path').relative(base, full_path)
-
-							// analogous to "uniform_path" from "./common.js"
-							asset_path = (asset_path[0] === '.' ? asset_path : ('./' + asset_path)).replace(/\\\\/g, '/')
-
-							if (regular_expression && !regular_expression.test(asset_path))
-							{
-								return
-							}
-
-							contents[asset_path] = require(full_path)
-						}
-					})
-				}
-
-				read_directory(base)
-
-				return contents
-			}`
-
-			preamble += `require.context = ${require_context};` 
-
-			// some code minification
-			preamble = UglifyJS.minify(preamble, { fromString: true }).code
+			// require.context() function definition
+			preamble += require_context 
 
 			// the "dirty" way
 			content = preamble + content

@@ -375,6 +375,13 @@ Available configuration parameters:
   //
   // verbose: true, // is false by default
 
+  // enables support for `require.context()` function.
+  // is turned off by default 
+  // to skip unnecessary code instrumentation
+  // because not everyone uses it.
+  //
+  // require_context: true, // is false by default
+
   // By default it creates 'webpack-assets.json' file at 
   // webpack_configuration.context (which is your project folder).
   // You can change the assets file path as you wish

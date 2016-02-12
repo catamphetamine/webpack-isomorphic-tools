@@ -276,11 +276,17 @@ describe('plugin', function()
 			delete require.cache[path.resolve(__dirname, './node_modules/context.js')]
 
 			// test `require.context()`
-			require('../context.js').should.deep.equal
-			({
-				'./aliased_module_name/index.js': 'alias',
-				'./context.js'                  : webpack_assets.assets['./~/context.js'],
-			})
+
+			const context = require('../context.js')
+
+			context.keys().should.deep.equal
+			([
+				'./aliased_module_name/index.js',
+				'./context.js'
+			])
+
+			context('./aliased_module_name/index.js').should.equal('alias')
+			context('./context.js').should.equal(webpack_assets.assets['./~/context.js'])
 
 			// unmount require() hooks
 			server_side.undo()
