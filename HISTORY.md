@@ -1,3 +1,8 @@
+2.2.29 / 12.02.2016
+===================
+
+  * Added support for Webpack's `resolve.modulesDirectories` parameter
+
 2.2.27 / 11.02.2016
 ===================
 

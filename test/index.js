@@ -29,14 +29,15 @@ const webpack_assets =
 	},
 	"assets":
 	{
-		"./assets/husky.jpg": "/assets/9059f094ddb49c2b0fa6a254a6ebf2ad.jpg",
-		"./assets/style.scss": "body {} .child { background: url(/assets/test.jpg) } head {}",
-		"./assets/child.scss": ".child { background: url(/assets/test.jpg) }",
-		"./assets/test.text_parser_test": "text parser test",
-		"./assets/test.object_parser_test.extra": { one: 1 },
-		"./~/whatever.jpg": 1,
-		"./~/aliased_module_name/test.jpg": true,
-		"./~/context.js": 'context asset'
+		"./assets/husky.jpg"                     : "/assets/9059f094ddb49c2b0fa6a254a6ebf2ad.jpg",
+		"./assets/style.scss"                    : "body {} .child { background: url(/assets/test.jpg) } head {}",
+		"./assets/child.scss"                    : ".child { background: url(/assets/test.jpg) }",
+		"./assets/test.text_parser_test"         : "text parser test",
+		"./assets/test.object_parser_test.extra" : { one: 1 },
+		"./~/whatever.jpg"                       : 1,
+		"./~/aliased_module_name/test.jpg"       : true,
+		"./~/context.js"                         : 'context asset',
+		"./modules_directory/gay/index.js"       : 'hot gay'
 	}
 }
 
@@ -255,9 +256,7 @@ describe('plugin', function()
 		// create the webpack-assets.json
 		create_assets_file()
 
-		// enable `require.context()`
 		const settings = isomorpher_settings()
-		settings.require_context = true
 
 		// ensure it waits for webpack-assets.json
 		const server_side = new isomorpher(settings)
@@ -272,10 +271,33 @@ describe('plugin', function()
 			// verify asset value
 			require('./assets/husky.jpg').should.equal(webpack_assets.assets['./assets/husky.jpg'])
 
+			// unmount require() hooks
+			server_side.undo()
+
+			// done
+			done()
+		})
+	})
+
+	it('should inject require.context()', function(done)
+	{
+		// create the webpack-assets.json
+		create_assets_file()
+
+		// enable `require.context()`
+		const settings = isomorpher_settings()
+		settings.require_context = true
+
+		// ensure it waits for webpack-assets.json
+		const server_side = new isomorpher(settings)
+
+		// install require() hooks
+		server_side.server(webpack_configuration.context, () =>
+		{
+			// test `require.context()`
+
 			// clear require.cache for the asset to force a lookup in webpack-assets.json
 			delete require.cache[path.resolve(__dirname, './node_modules/context.js')]
-
-			// test `require.context()`
 
 			const context = require('../context.js')
 
@@ -381,6 +403,42 @@ describe('plugin', function()
 		})
 	})
 
+	it('should support modules directories', function(done)
+	{
+		// https://webpack.github.io/docs/configuration.html#resolve-modulesdirectories
+
+		// create the webpack-assets.json
+		create_assets_file()
+
+		const settings = isomorpher_settings()
+		settings.debug = true
+		settings.modulesDirectories = ['node_modules', 'modules_directory']
+
+		// // will be checked against this value
+		// const aliased_module_name_result = require('aliased_module_name')
+
+		// ensure it waits for webpack-assets.json
+		const server_side = new isomorpher(settings).development()
+
+		// install require() hooks
+		server_side.server(webpack_configuration.context, () =>
+		{
+			// test `modulesDirectories`
+
+			// clear require.cache for the asset to force a lookup in webpack-assets.json
+			delete require.cache[path.resolve(__dirname, './modules_directory/gay/index.js')]
+
+			// should take the value from webpack-assets.json
+			require('gay/index.js').should.equal('hot gay')
+
+			// unmount require() hooks
+			server_side.undo()
+
+			// done
+			done()
+		})
+	})
+
 	it('should not refresh assets in production mode', function(done)
 	{
 		// create the webpack-assets.json
@@ -463,6 +521,14 @@ describe('plugin', function()
 		options = { require_context: 'true' }
 
 		instantiate.should.throw('must be a boolean')
+
+		options = { alias: 'true' }
+
+		instantiate.should.throw('must be an object')
+
+		options = { modulesDirectories: 'true' }
+
+		instantiate.should.throw('must be an array')
 
 		options = { assets: { images: {} } }
 

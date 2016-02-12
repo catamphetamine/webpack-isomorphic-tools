@@ -63,6 +63,13 @@ export function normalize_options(options)
 				}
 				break
 
+			case 'modules_directories':
+				if (!Array.isArray(options[key]))
+				{
+					throw new Error(`"${key}" configuration parameter must be ` + `an array`)
+				}
+				break
+
 			case 'require_context':
 				if (typeof options[key] !== 'boolean')
 				{

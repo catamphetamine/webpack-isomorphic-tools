@@ -27,12 +27,6 @@ export default class webpack_isomorphic_tools
 		// add missing fields, etc
 		normalize_options(this.options)
 
-		// if Webpack aliases are supplied, enable aliasing
-		if (this.options.alias)
-		{
-			this.enable_aliasing()
-		}
-
 		// set require-hacker debug mode if run in debug mode
 		if (this.options.debug)
 		{
@@ -153,6 +147,18 @@ export default class webpack_isomorphic_tools
 		// register require() hooks
 		this.register()
 
+		// if Webpack aliases are supplied, enable aliasing
+		if (this.options.alias)
+		{
+			this.enable_aliasing()
+		}
+
+		// if Webpack `modulesDirectories` are supplied, enable them
+		if (this.options.modules_directories)
+		{
+			this.inject_modules_directories(this.options.modules_directories)
+		}
+
 		// inject require.context() helper
 		if (this.options.require_context)
 		{
@@ -260,6 +266,43 @@ export default class webpack_isomorphic_tools
 		else
 		{
 			this.hooks.push(require_hacker.hook(extension, path => this.require(path, description)))
+		}
+	}
+
+	// injects Webpack's `modulesDirectories` into Node.js module resolver
+	inject_modules_directories(modules_directories)
+	{
+		modules_directories = modules_directories.filter(x => x !== 'node_modules')
+
+		// instrument Module._nodeModulePaths function
+		// https://github.com/nodejs/node/blob/master/lib/module.js#L202
+		//
+		const original_find_paths = require('module')._findPath
+		//
+		require('module')._findPath = function(request, paths)
+		{
+			paths.map(function(a_path)
+			{
+				var parts = a_path.split(path.sep)
+				if (parts[parts.length - 1] === 'node_modules')
+				{
+					parts[parts.length - 1] = ''
+					return parts.join(path.sep)
+				}
+			})
+			.filter(function(a_path)
+			{
+				return a_path
+			})
+			.forEach(function(a_path)
+			{
+				modules_directories.forEach(function(modules_directory)
+				{
+					paths.push(a_path + modules_directory)
+				})
+			})
+
+			return original_find_paths(request, paths)
 		}
 	}
 

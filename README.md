@@ -409,6 +409,11 @@ Available configuration parameters:
   //
   alias: webpack_configuration.resolve.alias, // is {} by default
 
+  // if you're using Webpack's `resolve.modulesDirectories`
+  // then you should also put them here.
+  //
+  // modulesDirectories: webpack_configuration.resolve.modulesDirectories // is ['node_modules'] by default
+
   // here you can define all your asset types
   //
   assets:
