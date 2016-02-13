@@ -15,6 +15,8 @@ This is an alternative solution to using Webpack's `target: "node"` approach. Fo
 
 Which one of these approaches to take? I think it's just a matter of taste. Both solutions work. Both involve some level of complexity because this is an advanced topic (Webpack is Serious Business).
 
+If you start feeling desperate and mad just clone [one of the boilerplates](#a-working-example) and see it working.
+
 ## Topics
 
 - [What it does and why is it needed?](#what-it-does-and-why-is-it-needed)
