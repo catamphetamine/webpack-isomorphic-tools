@@ -11,6 +11,10 @@
 
 Is a small helper module providing support for isomorphic (universal) rendering when using Webpack.
 
+This is an alternative solution to using Webpack's `target: "node"` approach. For a `target: "node"` example refer to [the corresponding sample project](https://github.com/halt-hammerzeit/webpack-react-redux-isomorphic-render-example).
+
+Which one of these approaches to take? I think it's just a matter of taste. Both solutions work. Both involve some level of complexity because this is an advanced topic (Webpack is Serious Business).
+
 ## Topics
 
 - [What it does and why is it needed?](#what-it-does-and-why-is-it-needed)
@@ -340,15 +344,14 @@ And that's it, now you can `require()` your assets "isomorphically" (both on cli
 
 `webpack-isomorphic-tools` are featured in [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example/blob/master/webpack/webpack-isomorphic-tools.js#L64-L96). There it is used to `require()` images and CSS styles (in the form of CSS `modules`).
 
-Also for a comprehensive example of isomorphic React rendering you can look at [this sample project](https://github.com/halt-hammerzeit/webapp) (see the Quick Start section of the readme). There it is used to `require()` images and CSS stylesheet contents.
+Also you may look at [this sample project](https://github.com/halt-hammerzeit/webapp). There it is used to `require()` images and CSS styles (without using CSS `modules` feature).
 
 Some source code guidance for the aforementioned project:
 
-* [webpack-isomorphic-tools configuration](https://github.com/halt-hammerzeit/webapp/blob/master/webpack/isomorphic.js)
-* [webpack-isomorphic-tools client initialization](https://github.com/halt-hammerzeit/webapp/blob/master/webpack/development%20server.js#L48)
-* [webpack-isomorphic-tools server initialization](https://github.com/halt-hammerzeit/webapp/blob/master/code/page-server/entry.js#L9-L17)
-* [webpage rendering express middleware](https://github.com/halt-hammerzeit/webapp/blob/master/code/page-server/webpage%20rendering.js)
-* [the Html file](https://github.com/halt-hammerzeit/webapp/blob/master/code/page-server/html.js)
+* [webpack-isomorphic-tools configuration](https://github.com/halt-hammerzeit/webapp/blob/master/webpack/webpack-isomorphic-tools.js)
+* [webpack-isomorphic-tools plugin](https://github.com/halt-hammerzeit/webapp/blob/master/webpack/development%20server.js#L50)
+* [webpack-isomorphic-tools server-side initialization](https://github.com/halt-hammerzeit/webapp/blob/master/code/page-server/entry.js#L10-L18)
+* [where all server-side webpage rendering happens](https://github.com/halt-hammerzeit/webapp/blob/master/code/page-server/main.js#L41-L59)
 
 ## Configuration
 
@@ -612,6 +615,8 @@ Available configuration parameters:
 
 #### url-loader / file-loader (images, fonts, etc)
 
+`url-loader` and `file-loader` are supported with no additional configuration
+
 ```javascript
 {
   assets:
@@ -630,6 +635,8 @@ Available configuration parameters:
 ```
 
 #### style-loader (standard CSS stylesheets)
+
+If you aren't using "CSS modules" feature of Webpack, and if in your production Webpack config you use `ExtractTextPlugin` for CSS styles, then you can set it up like this
 
 ```javascript
 {
@@ -678,6 +685,8 @@ Available configuration parameters:
 ```
 
 #### style-loader (CSS stylesheets with "CSS modules" feature)
+
+If you are using "CSS modules" feature of Webpack, and if in your production Webpack config you use `ExtractTextPlugin` for CSS styles, then you can set it up like this
 
 ```javascript
 {
