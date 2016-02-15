@@ -1004,8 +1004,9 @@ It can happen, for example, in any of these cases
   * you forgot to add `webpack-isomorphic-tools` plugin to your Webpack configuration
   * you aren't running your Webpack build either in parallel with your app or prior to running you app
   * you're using `webpack-dev-middleware` inside your main server code [which you shouldn't](https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/47)
-  * Webpack build is taking forever to complete due to misconfiguration
-  * ...
+  * your Webpack configuration's `context` path doesn't point to the project base directory
+
+If none of those is your case, enable `debug: true` flag in `webpack-isomorphic-tools` configuration to get debugging info.
 
 ## Miscellaneous
 
