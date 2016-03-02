@@ -124,9 +124,6 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 		throw new Error('You must specify ".output.publicPath" in your webpack configuration')
 	}
 
-	// // assets base path (on disk or on the network)
-	// const assets_base_path = webpack_configuration.output.publicPath
-
 	// selfie
 	const plugin = this
 
@@ -149,6 +146,9 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 			notify_stats(stats, json, plugin.options.verbose)
 		}
 
+		// // assets base path (on disk or on the network, also add support to webpack-dev-server)
+		const assets_base_path = (webpack_configuration.devServer && webpack_configuration.devServer.publicPath) ? webpack_configuration.devServer.publicPath : json.publicPath
+
 		// write webpack-assets.json with assets info
 		write_assets(json,
 		{ 
@@ -157,7 +157,7 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 			assets              : plugin.options.assets,
 			alias               : plugin.options.alias,
 			project_path        : plugin.options.project_path,
-			assets_base_url     : webpack_configuration.output.publicPath,
+			assets_base_url     : assets_base_path,
 			webpack_assets_path : webpack_assets_path,
 			webpack_stats_path  : webpack_stats_path,
 			output              : default_webpack_assets(),

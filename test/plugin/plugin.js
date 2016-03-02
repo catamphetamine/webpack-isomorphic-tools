@@ -14,18 +14,18 @@ const expected_webpack_assets =
 {
 	"javascript":
 	{
-		"main": "/assets/main.6c2b37c0fc8c0592e2d3.js"
+		"main": "http://127.0.0.1:3001/assets/main.6c2b37c0fc8c0592e2d3.js"
 	},
 	"styles":
 	{
-		"main": "/assets/main.6c2b37c0fc8c0592e2d3.css"
+		"main": "http://127.0.0.1:3001/assets/main.6c2b37c0fc8c0592e2d3.css"
 	},
 	"assets":
 	{
-		"./assets/husky.jpg": "/assets/9059f094ddb49c2b0fa6a254a6ebf2ad.jpg",
-		"./assets/style.scss": "body {} .child { background: url(/assets/test.jpg) } head {}",
-		// "./assets/style.scss": "body {} .child { background: url(/assets/test.jpg) } .aliased {} head {}",
-		"./assets/child.scss": ".child { background: url(/assets/test.jpg) }",
+		"./assets/husky.jpg": "http://127.0.0.1:3001/assets/9059f094ddb49c2b0fa6a254a6ebf2ad.jpg",
+		"./assets/style.scss": "body {} .child { background: url(http://127.0.0.1:3001/assets/test.jpg) } head {}",
+		// "./assets/style.scss": "body {} .child { background: url(http://127.0.0.1:3001/assets/test.jpg) } .aliased {} head {}",
+		"./assets/child.scss": ".child { background: url(http://127.0.0.1:3001/assets/test.jpg) }",
 		// "/path/to/aliased_module_name/style.scss": ".aliased {}",
 		"./aliasing test.jpg": "blah blah",
 		"../node_modules/aliased_module_name/test.jpg": "blah",
@@ -40,7 +40,7 @@ const webpack_configuration =
 
 	output:
 	{
-		publicPath: '/assets/'
+		publicPath: 'http://127.0.0.1:3001/assets/'
 	},
 
 	module:
