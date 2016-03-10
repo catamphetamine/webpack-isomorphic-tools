@@ -152,9 +152,9 @@ describe('plugin', function()
 
 		const regular_expressions =
 		{
-			javascript       : /\.js$/,
-			styles           : /\.scss$/,
-			images_and_fonts : /\.(png|jpg|ico|woff|woff2|eot|ttf|svg)$/
+			javascript       : /\.js(\?.*)?$/,
+			styles           : /\.scss(\?.*)?$/,
+			images_and_fonts : /\.(png|jpg|ico|woff|woff2|eot|ttf|svg)(\?.*)?$/
 		}
 
 		for (let asset_type of Object.keys(regular_expressions))
