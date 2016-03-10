@@ -67,7 +67,7 @@ Webpack_isomorphic_tools_plugin.regular_expression = function(extensions)
 		matcher = extensions
 	}
 
-	return new RegExp(`\\.${matcher}$`)
+	return new RegExp(`\\.${matcher}(\\?.*)?$`)
 }
 
 // sets development mode flag to whatever was passed (or true if nothing was passed)
