@@ -34,7 +34,7 @@ export default function Webpack_isomorphic_tools_plugin(options)
 		const description = this.options.assets[asset_type]
 
 		// create a regular expression for this file extension (or these file extensions)
-		this.regular_expressions[asset_type] = Webpack_isomorphic_tools_plugin.regular_expression(description.extensions)
+		this.regular_expressions[asset_type] = description.regular_expression || Webpack_isomorphic_tools_plugin.regular_expression(description.extensions)
 	}
 }
 

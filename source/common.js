@@ -172,6 +172,13 @@ export function normalize_options(options)
 					}
 					break
 
+				case 'regular_expression':
+					if (!(description[key] instanceof RegExp))
+					{
+						throw new Error(`"${key}" must be a regular expression for asset type "${asset_type}"`)
+					}
+					break
+
 				default:
 					throw new Error(`Unknown property "${key}" for asset type "${asset_type}"`)
 			}
