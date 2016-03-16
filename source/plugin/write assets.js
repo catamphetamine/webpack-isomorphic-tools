@@ -183,7 +183,7 @@ function populate_assets(output, json, options, log)
 				// asset module source, or asset content (or whatever else)
 				const parsed_asset = parser(module, options, log)
 
-				log.trace(`Adding assset "${asset_path}", module id ${module.id} (in webpack-stats.debug.json)`)
+				log.trace(`Adding asset "${asset_path}", module id ${module.id} (in webpack-stats.debug.json)`)
 
 				// check for naming collisions (just in case)
 				if (exists(set[asset_path]))
@@ -217,15 +217,15 @@ function populate_assets(output, json, options, log)
 	}
 
 	// register a special require() hook for requiring() raw webpack modules
-	const require_hook = require_hacker.global_hook('webpack-module', (path, module) =>
+	const require_hook = require_hacker.global_hook('webpack-module', (requirePath, module) =>
 	{
-		log.debug(`require()ing "${path}"`)
+		log.debug(`require()ing "${requirePath}"`)
 
 		// if Webpack aliases are supplied
 		if (options.alias)
 		{
 			// possibly alias the path
-			const aliased_global_path = alias_hook(path, module, options.project_path, options.alias, log)
+			const aliased_global_path = alias_hook(requirePath, module, options.project_path, options.alias, log)
 
 			// if an alias is found
 			if (aliased_global_path)
@@ -236,28 +236,41 @@ function populate_assets(output, json, options, log)
 
 		// find an asset with this path
 		//
-		// the require()d path will be global path in case of the for..of require() loop 
+		// the require()d path will be global path in case of the for..of require() loop
 		// for the assets (the code a couple of screens below).
-		// 
+		//
 		// (it can be anything in other cases (e.g. nested require() calls from the assets))
 		//
-		if (exists(global_paths_to_parsed_asset_paths[path]))
+		if (exists(global_paths_to_parsed_asset_paths[requirePath]))
 		{
 			log.debug(` found in parsed assets`)
-			return parsed_assets[global_paths_to_parsed_asset_paths[path]]
+			return parsed_assets[global_paths_to_parsed_asset_paths[requirePath]]
 		}
 
-		log.debug(` not found in parsed assets, searching in webpack stats`)
+		// relative lookup failed, resolve absolute path with module.filename
+		const absolutePath = path.resolve(path.dirname(module.filename), requirePath)
+
+		log.debug(` not found in parsed assets, searching again with absolute path:
+		${absolutePath}`)
+
+		// and lookup with absolute path
+		if (exists(global_paths_to_parsed_asset_paths[absolutePath]))
+		{
+			log.debug(' found in parsed assets with absolute path')
+			return parsed_assets[global_paths_to_parsed_asset_paths[absolutePath]]
+		}
+
+		log.debug(` absolute path not found in parsed assets, searching in webpack stats`)
 
 		// find a webpack module which has a reason with this path
-		
+
 		const candidates = []
 
 		for (let module of json.modules)
 		{
 			for (let reason of module.reasons)
 			{
-				if (reason.userRequest === path)
+				if (reason.userRequest === requirePath)
 				{
 					candidates.push(module)
 					break
