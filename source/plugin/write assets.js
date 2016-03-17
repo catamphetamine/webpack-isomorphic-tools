@@ -241,8 +241,6 @@ function populate_assets(output, json, options, log)
 		// 
 		// (it can be anything in other cases (e.g. nested require() calls from the assets))
 		//
-		log.trace(` searching in parsed assets by full path "${global_paths_to_parsed_asset_paths[path]}"`)
-		//
 		if (exists(global_paths_to_parsed_asset_paths[path]))
 		{
 			log.debug(` found in parsed assets`)
@@ -304,6 +302,7 @@ function populate_assets(output, json, options, log)
 	for (let asset_path of Object.keys(parsed_assets))
 	{
 		// set asset value
+		log.debug(`compiling asset "${asset_path}"`)
 		output.assets[asset_path] = require(path.resolve(options.project_path, asset_path))
 
 		// inside that require() call above
