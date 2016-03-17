@@ -63,7 +63,7 @@ module.exports =
 		[{
 			"userRequest": "./assets/style.scss"
 		}],
-		"source": "module.exports = \"body {} \" + require(\"-!!/cryptic/path/&!./assets/child.scss\") + \" head {}\""
+		"source": "module.exports = \"body {} \" + require(\"-!!/cryptic/path/&!./assets/child.scss\") + ' ' + require(\"./multiple/candidates.scss\") + \" head {}\""
 		//  + \" \" + require(\"original_module_name/style.scss\")
 	},
 	{
@@ -78,6 +78,32 @@ module.exports =
 			"userRequest": "-!!/cryptic/path/&!./assets/child.scss"
 		}],
 		"source": "module.exports = \".child { background: url(\" + __webpack_public_path__ + \"test.jpg) }\""
+	},
+	{
+		"id": 21,
+		"identifier": "...whatever...",
+		"name": "./assets/multiple/candidates.scss",
+		"chunks": [0],
+		"assets": [],
+		"issuer": "...whatever...",
+		"reasons": 
+		[{
+			"userRequest": "./multiple/candidates.scss"
+		}],
+		"source": "module.exports = \".multiple { background: url(\" + __webpack_public_path__ + \"correct.jpg) }\""
+	},
+	{
+		"id": 22,
+		"identifier": "...whatever...",
+		"name": "./multiple/candidates.scss",
+		"chunks": [0],
+		"assets": [],
+		"issuer": "...whatever...",
+		"reasons": 
+		[{
+			"userRequest": "./multiple/candidates.scss"
+		}],
+		"source": "module.exports = \".multiple {}\""
 	},
 	// {
 	// 	"id": 6,
