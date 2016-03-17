@@ -241,6 +241,8 @@ function populate_assets(output, json, options, log)
 		// 
 		// (it can be anything in other cases (e.g. nested require() calls from the assets))
 		//
+		log.trace(` searching in parsed assets by full path "${global_paths_to_parsed_asset_paths[path]}"`)
+		//
 		if (exists(global_paths_to_parsed_asset_paths[path]))
 		{
 			log.debug(` found in parsed assets`)
