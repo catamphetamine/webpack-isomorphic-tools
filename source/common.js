@@ -9,7 +9,7 @@ import { is_object, exists, starts_with } from './helpers'
 // (because node.js and webpack are being run in parallel in development mode)
 export function default_webpack_assets()
 {
-	const webpack_assets = 
+	const webpack_assets =
 	{
 		javascript: {},
 		styles: {},
@@ -90,10 +90,10 @@ export function normalize_options(options)
 	}
 
 	// webpack-assets.json path, relative to the project base path
-	options.webpack_assets_file_path = options.webpack_assets_file_path || 'webpack-assets.json'	
+	options.webpack_assets_file_path = options.webpack_assets_file_path || 'webpack-assets.json'
 
 	// webpack-stats.json path, relative to the project base path
-	options.webpack_stats_file_path = options.webpack_stats_file_path || 'webpack-stats.json'	
+	options.webpack_stats_file_path = options.webpack_stats_file_path || 'webpack-stats.json'
 
 	// if Webpack aliases are supplied, validate them
 	if (options.alias)
@@ -154,7 +154,7 @@ export function normalize_options(options)
 					}
 					for (let clusion of description[key])
 					{
-						if (typeof clusion !== 'string' 
+						if (typeof clusion !== 'string'
 							&& !(clusion instanceof RegExp)
 							&& typeof clusion !== 'function')
 						{
@@ -258,18 +258,6 @@ export function normalize_asset_path(global_asset_path, project_path)
 	//
 	// convert Node.js path to a correct Webpack path
 	asset_path = uniform_path(asset_path)
-
-	return asset_path
-}
-
-// replaces inner node_modules with ~
-export function webpack_path(asset_path)
-{
-	// webpack has a shortcut from "node_modules"
-	if (starts_with(asset_path, './node_modules/'))
-	{
-		asset_path = asset_path.replace('./node_modules/', './~/')
-	}
 
 	return asset_path
 }

@@ -7,7 +7,7 @@ import Log            from './tools/log'
 import UglifyJS from 'uglify-js'
 
 import { exists, clone, convert_from_camel_case, starts_with, ends_with } from './helpers'
-import { default_webpack_assets, normalize_options, alias_hook, normalize_asset_path, webpack_path, uniform_path } from './common'
+import { default_webpack_assets, normalize_options, alias_hook, normalize_asset_path, uniform_path } from './common'
 
 // using ES6 template strings
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/template_strings
@@ -109,8 +109,8 @@ export default class webpack_isomorphic_tools
 
 	// Makes `webpack-isomorphic-tools` aware of Webpack aliasing feature.
 	// https://webpack.github.io/docs/resolving.html#aliasing
-	// The `aliases` parameter corresponds to `resolve.alias` 
-	// in your Webpack configuration. 
+	// The `aliases` parameter corresponds to `resolve.alias`
+	// in your Webpack configuration.
 	// If this method is used it must be called before the `.server()` method.
 	enable_aliasing()
 	{
@@ -125,14 +125,14 @@ export default class webpack_isomorphic_tools
 		return this
 	}
 
-	// Initializes server-side instance of `webpack-isomorphic-tools` 
+	// Initializes server-side instance of `webpack-isomorphic-tools`
 	// with the base path for your project, then calls `.register()`,
 	// and after that calls .wait_for_assets(callback).
 	//
-	// The `project_path` parameter must be identical 
-	// to the `context` parameter of your Webpack configuration 
-	// and is needed to locate `webpack-assets.json` 
-	//  which is output by Webpack process. 
+	// The `project_path` parameter must be identical
+	// to the `context` parameter of your Webpack configuration
+	// and is needed to locate `webpack-assets.json`
+	//  which is output by Webpack process.
 	//
 	// sets up "project_path" option
 	// (this option is required on the server to locate webpack-assets.json)
@@ -166,7 +166,7 @@ export default class webpack_isomorphic_tools
 			this.inject_require_context()
 		}
 
-		// when ready: 
+		// when ready:
 
 		// if callback is given, call it back
 		if (callback)
@@ -184,10 +184,10 @@ export default class webpack_isomorphic_tools
 
 	// Registers Node.js require() hooks for the assets
 	//
-	// This is what makes the `requre()` magic work on server. 
-	// These `require()` hooks must be set before you `require()` 
-	// any of your assets 
-	// (e.g. before you `require()` any React components 
+	// This is what makes the `requre()` magic work on server.
+	// These `require()` hooks must be set before you `require()`
+	// any of your assets
+	// (e.g. before you `require()` any React components
 	// `require()`ing your assets).
 	//
 	// read this article if you don't know what a "require hook" is
@@ -205,14 +205,14 @@ export default class webpack_isomorphic_tools
 		// for (let asset_type of Object.keys(this.options.assets))
 		// {
 		// 	const description = this.options.assets[asset_type]
-		//	
+		//
 		// 	for (let extension of description.extensions)
 		// 	{
 		// 		extensions.push([`.${extension}`, description])
 		// 	}
 		// }
 		//
-		// // registers a global require() hook which runs 
+		// // registers a global require() hook which runs
 		// // before the default Node.js require() logic
 		// this.asset_hook = require_hacker.global_hook('webpack-asset', (path, module) =>
 		// {
@@ -233,13 +233,13 @@ export default class webpack_isomorphic_tools
 		for (let asset_type of Object.keys(this.options.assets))
 		{
 			const description = this.options.assets[asset_type]
-			
+
 			for (let extension of description.extensions)
 			{
 				this.register_extension(extension, description)
 			}
 		}
-				
+
 		// allows method chaining
 		return this
 	}
@@ -248,7 +248,7 @@ export default class webpack_isomorphic_tools
 	register_extension(extension, description)
 	{
 		this.log.debug(` registering a require() hook for *.${extension}`)
-	
+
 		// place the require() hook for this extension
 		if (extension === 'json')
 		{
@@ -312,7 +312,7 @@ export default class webpack_isomorphic_tools
 	inject_require_context()
 	{
 		// a source code of a function that
-		// require()s all modules inside the `base` folder 
+		// require()s all modules inside the `base` folder
 		// and puts them into a hash map for further reference
 		//
 		// https://webpack.github.io/docs/context.html
@@ -393,7 +393,7 @@ export default class webpack_isomorphic_tools
 				return original_compile.call(this, content, filename)
 			}
 
-			// inject it only in .js files which 
+			// inject it only in .js files which
 			// might probably have `require.context` reference
 			if (content.indexOf('require.context') < 0)
 			{
@@ -413,7 +413,7 @@ export default class webpack_isomorphic_tools
 			}
 
 			// require.context() function definition
-			preamble += require_context 
+			preamble += require_context
 
 			// the "dirty" way
 			content = preamble + content
@@ -453,9 +453,9 @@ export default class webpack_isomorphic_tools
 			// mark this asset as cached
 			this.cached_assets.push(global_asset_path)
 		}
-		
+
 		// return CommonJS module source for this asset
-		return require_hacker.to_javascript_module_source(this.asset_source(webpack_path(asset_path)))
+		return require_hacker.to_javascript_module_source(this.asset_source(asset_path))
 	}
 
 	// returns asset source by path (looks it up in webpack-assets.json)
@@ -463,22 +463,82 @@ export default class webpack_isomorphic_tools
 	{
 		this.log.debug(` requiring ${asset_path}`)
 
-		// get real file path list
-		var assets = this.assets().assets
-		
-		// find this asset in the real file path list
-		const asset = assets[asset_path]
-		
-		// if the asset was not found in the list, 
-		// return nothing and output an error
-		if (!exists(asset))
+		// Webpack replaces `node_modules` with `~`.
+		// I don't know how exactly it decides whether to
+		// replace `node_modules` with `~` or not
+		// so it will be a guess.
+		function possible_webpack_paths(asset_path)
 		{
-			this.log.error(`asset not found: ${asset_path}`)
-			return
+			// Webpack always replaces project's own `node_modules` with `~`
+			if (starts_with(asset_path, './node_modules/'))
+			{
+				asset_path = asset_path.replace('./node_modules/', './~/')
+			}
+
+			// if there are any `node_modules` left,
+			// supposing the count is N,
+			// then there are 2 to the power of N possible guesses
+			// on how webpack path might look like.
+			const parts = asset_path.split('/node_modules/')
+
+			function construct_guesses(parts)
+			{
+				if (parts.length === 1)
+				{
+					return [parts]
+				}
+
+				const last = parts.pop()
+				const rest = construct_guesses(parts)
+
+				const guesses = []
+
+				for (let guess of rest)
+				{
+					const one = clone(guess)
+					one.push('/~/')
+					one.push(last)
+
+					const two = clone(guess)
+					two.push('/node_modules/')
+					two.push(last)
+
+					guesses.push(one)
+					guesses.push(two)
+				}
+
+				return guesses
+			}
+
+			return construct_guesses(parts)
 		}
 
-		// the asset was found in the list - return it
-		return asset
+		// get real file path list
+		const assets = this.assets().assets
+
+		const possible_webpack_asset_paths = possible_webpack_paths(asset_path).map(path => path.join(''))
+
+		for (let webpack_asset_path of possible_webpack_asset_paths)
+		{
+			if (possible_webpack_asset_paths.length > 1)
+			{
+				log.debug(`  trying "${webpack_asset_path}"`)
+			}
+			
+			// find this asset in the real file path list
+			const asset = assets[webpack_asset_path]
+
+			if (exists(asset))
+			{
+				// the asset was found in the list - return it
+				return asset
+			}
+		}
+
+		// if the asset was not found in the list,
+		// return nothing and output an error
+		this.log.error(`asset not found: ${asset_path}`)
+		return
 	}
 
 	// unregisters require() hooks
@@ -588,8 +648,8 @@ export default class webpack_isomorphic_tools
 
 	// Waits for webpack-assets.json to be created after Webpack build process finishes
 	//
-	// The callback is called when `webpack-assets.json` has been found 
-	// (it's needed for development because `webpack-dev-server` 
+	// The callback is called when `webpack-assets.json` has been found
+	// (it's needed for development because `webpack-dev-server`
 	//  and your application server are usually run in parallel).
 	//
 	wait_for_assets(done)
