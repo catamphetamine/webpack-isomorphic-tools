@@ -522,9 +522,9 @@ export default class webpack_isomorphic_tools
 		{
 			if (possible_webpack_asset_paths.length > 1)
 			{
-				log.debug(`  trying "${webpack_asset_path}"`)
+				this.log.debug(`  trying "${webpack_asset_path}"`)
 			}
-			
+
 			// find this asset in the real file path list
 			const asset = assets[webpack_asset_path]
 
