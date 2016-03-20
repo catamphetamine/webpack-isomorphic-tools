@@ -424,25 +424,29 @@ Available configuration parameters:
   //
   assets:
   {
-    // asset_type will appear in:
+    // keys of this object will appear in:
     //  * webpack-assets.json
     //  * .assets() method call result
-    //  * .regular_expression(asset_type) method call
+    //  * .regular_expression(key) method call
     //
-    asset_type: 
+    png_images: 
     {
       // which file types belong to this asset type
       //
       extension: 'png', // or extensions: ['png', 'jpg', ...],
 
+      // [optional]
+      // 
       // here you are able to add some file paths 
       // for which the require() call will bypass webpack-isomorphic-tools
       // (relative to the project base folder, e.g. ./sources/server/kitten.jpg.js)
       // (also supports regular expressions, e.g. /^\.\/node_modules\/*/, 
       //  and functions(path) { return true / false })
       //
-      exclude: [],
+      // exclude: [],
 
+      // [optional]
+      // 
       // here you can specify manually the paths 
       // for which the require() call will be processed by webpack-isomorphic-tools
       // (relative to the project base folder, e.g. ./sources/server/kitten.jpg.js)
@@ -450,7 +454,7 @@ Available configuration parameters:
       //  and functions(path) { return true / false }).
       // in case of `include` only included paths will be processed by webpack-isomorphic-tools.
       //
-      include: [],
+      // include: [],
 
       // [optional]
       // 
