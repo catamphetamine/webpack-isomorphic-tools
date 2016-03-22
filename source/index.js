@@ -36,7 +36,7 @@ export default class webpack_isomorphic_tools
 		// logging
 		this.log = new Log('webpack-isomorphic-tools', { debug: this.options.debug })
 
-		this.log.debug('instantiated webpack-isomorphic-tools with options', this.options)
+		this.log.debug(`instantiated webpack-isomorphic-tools v${require('../package.json').version} with options`, this.options)
 	}
 
 	// sets development mode flag to whatever was passed (or true if nothing was passed)

@@ -23,7 +23,7 @@ const expected_webpack_assets =
 	"assets":
 	{
 		"./assets/husky.jpg": "http://127.0.0.1:3001/assets/9059f094ddb49c2b0fa6a254a6ebf2ad.jpg",
-		"./assets/style.scss": "body {} .child { background: url(http://127.0.0.1:3001/assets/test.jpg) } .multiple { background: url(http://127.0.0.1:3001/assets/correct.jpg) } head {}",
+		"./assets/style.scss": "body {} .child { background: url(http://127.0.0.1:3001/assets/test.jpg) } .multiple { background: url(http://127.0.0.1:3001/assets/correct.jpg) } .test_require_module { alias } head {}",
 		"./assets/multiple/candidates.scss": ".multiple { background: url(http://127.0.0.1:3001/assets/correct.jpg) }",
 		"./assets/child.scss": ".child { background: url(http://127.0.0.1:3001/assets/test.jpg) }",
 		"./multiple/candidates.scss": ".multiple {}",

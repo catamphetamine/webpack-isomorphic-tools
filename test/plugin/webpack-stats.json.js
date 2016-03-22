@@ -63,7 +63,7 @@ module.exports =
 		[{
 			"userRequest": "./assets/style.scss"
 		}],
-		"source": "module.exports = \"body {} \" + require(\"-!!/cryptic/path/&!./assets/child.scss\") + ' ' + require(\"-!some_loader!./multiple/candidates.scss\") + \" head {}\""
+		"source": "module.exports = \"body {} \" + require(\"-!!/cryptic/path/&!./assets/child.scss\") + ' ' + require(\"./multiple/candidates.scss\") + ' .test_require_module { ' + require(\"aliased_module_name/index\") + ' }' + \" head {}\""
 		//  + \" \" + require(\"original_module_name/style.scss\")
 	},
 	{
@@ -88,7 +88,7 @@ module.exports =
 		"issuer": "...whatever...",
 		"reasons": 
 		[{
-			"userRequest": "-!some_loader!./multiple/candidates.scss"
+			"userRequest": "./multiple/candidates.scss"
 		}],
 		"source": "module.exports = \".multiple { background: url(\" + __webpack_public_path__ + \"correct.jpg) }\""
 	},
@@ -101,9 +101,35 @@ module.exports =
 		"issuer": "...whatever...",
 		"reasons": 
 		[{
-			"userRequest": "-!some_loader!./multiple/candidates.scss"
+			"userRequest": "./multiple/candidates.scss"
 		}],
 		"source": "module.exports = \".multiple {}\""
+	},
+	{
+		"id": 23,
+		"identifier": "...whatever...",
+		"name": "...whatever...",
+		"chunks": [0],
+		"assets": [],
+		"issuer": "...whatever...",
+		"reasons": 
+		[{
+			"userRequest": "aliased_module_name/index"
+		}],
+		"source": "module.exports = \"wrong\""
+	},
+	{
+		"id": 24,
+		"identifier": "...whatever...",
+		"name": "...whatever...",
+		"chunks": [0],
+		"assets": [],
+		"issuer": "...whatever...",
+		"reasons": 
+		[{
+			"userRequest": "aliased_module_name/index"
+		}],
+		"source": "module.exports = \"wrong\""
 	},
 	// {
 	// 	"id": 6,
