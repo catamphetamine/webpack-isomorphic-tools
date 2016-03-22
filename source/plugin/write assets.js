@@ -13,10 +13,10 @@ export default function write_assets(json, options, log)
 	// take the passed in options
 	options = clone(options)
 
+		log.debug(`running write assets webpack plugin v${require('../../package.json').version} with options`, options)
+
 	// make webpack stats accessible for asset functions (parser, path, filter)
 	options.webpack_stats = json
-
-	log.debug(`running write assets webpack plugin v${require('../../package.json').version} with options`, options)
 
 	const development = options.development
 
@@ -85,13 +85,13 @@ function populate_assets(output, json, options, log)
 	function get_assets(name, extension = 'js')
 	{
 		let chunk = json.assetsByChunkName[name]
-	
+
 		// a chunk could be a string or an array, so make sure it is an array
 		if (!(Array.isArray(chunk)))
 		{
 			chunk = [chunk]
 		}
-	
+
 		return chunk
 			// filter by extension
 			.filter(name => path.extname(name) === `.${extension}`)
@@ -130,19 +130,19 @@ function populate_assets(output, json, options, log)
 		const parser = (asset_type_settings.parser || default_parser) //.bind(this)
 
 		// guard agains typos, etc
-		
+
 		// for filter
 		if (!asset_type_settings.filter)
 		{
 			log.debug(`No filter specified for "${asset_type}" assets. Using a default one.`)
 		}
-		
+
 		// for path parser
 		if (!asset_type_settings.path)
 		{
 			log.debug(`No path parser specified for "${asset_type}" assets. Using a default one.`)
 		}
-		
+
 		// for parser
 		if (!asset_type_settings.parser)
 		{
@@ -157,7 +157,7 @@ function populate_assets(output, json, options, log)
 		// get real paths for all the files from this asset type
 		json.modules
 			// take just modules of this asset type
-			.filter(module => 
+			.filter(module =>
 			{
 				// check that this asset is of the asset type
 				if (!filter(module, options.regular_expressions[asset_type], options, log))
@@ -236,9 +236,9 @@ function populate_assets(output, json, options, log)
 
 		// find an asset with this path
 		//
-		// the require()d path will be global path in case of the for..of require() loop 
+		// the require()d path will be global path in case of the for..of require() loop
 		// for the assets (the code a couple of screens below).
-		// 
+		//
 		// (it can be anything in other cases (e.g. nested require() calls from the assets))
 		//
 		if (exists(global_paths_to_parsed_asset_paths[required_path]))
@@ -250,7 +250,7 @@ function populate_assets(output, json, options, log)
 		log.debug(` not found in parsed assets, searching in webpack stats`)
 
 		// find a webpack module which has a reason with this path
-		
+
 		const candidates = []
 
 		for (let module of json.modules)
@@ -265,7 +265,7 @@ function populate_assets(output, json, options, log)
 			}
 		}
 
-		// guard against ambiguity 
+		// guard against ambiguity
 		// (some kind of a sophisticated algorythm could possibly resolve ambiguity)
 
 		if (candidates.length === 1)
@@ -302,7 +302,7 @@ function populate_assets(output, json, options, log)
 				// global path to the file that require()d this path
 				const requiring_file_path = module.filename.replace(/\.webpack-module$/, '')
 
-				// // if the requiring module is an asset, 
+				// // if the requiring module is an asset,
 				// // then it can try to resolve the file being required
 				// // relative to the requiring asset path
 				// const requiring_asset_path = global_paths_to_parsed_asset_paths[requiring_file_path]
@@ -330,7 +330,7 @@ function populate_assets(output, json, options, log)
 			// {
 			//	return this guess
 			// }
-			
+
 			log.error(` More than a single candidate module was found in webpack stats for require()d path "${required_path}"`)
 
 			for (let candidate of candidates)
