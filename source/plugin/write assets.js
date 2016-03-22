@@ -292,7 +292,8 @@ function populate_assets(output, json, options, log)
 			const is_webpack_loader_path = required_path.indexOf('!') >= 0
 
 			// (loaders matter so the program can't simply throw them away from the required path)
-			if (!is_webpack_loader_path)
+			// (also check that the requiring file path is a filesystem path, not a Webpack one)
+			if (!is_webpack_loader_path && module.filename.indexOf('!') < 0)
 			{
 				const is_relative_path = starts_with(required_path, './') || starts_with(required_path, '../')
 				const is_global_path = starts_with(required_path, '/') || required_path.indexOf(':') > 0
@@ -308,7 +309,7 @@ function populate_assets(output, json, options, log)
 
 				log.debug(` More than a single candidate module was found in webpack stats for require()d path "${required_path}"`)
 				log.debug(` The module is being require()d from "${requiring_file_path}", so resolving the path against this file`)
-				
+
 				// if it's a relative path, can try to resolve it locally
 				if (is_relative_path)
 				{
@@ -323,6 +324,12 @@ function populate_assets(output, json, options, log)
 					return require_hacker.to_javascript_module_source(require(require_hacker.resolve(required_path, module)))
 				}
 			}
+
+			// this guessing process can be further extended:
+			// if (path.resolve(filesystem_path(requiring_file_path), relative_path(required_file_path))
+			// {
+			//	return this guess
+			// }
 			
 			log.error(` More than a single candidate module was found in webpack stats for require()d path "${required_path}"`)
 
