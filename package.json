@@ -1,6 +1,6 @@
 {
   "name": "webpack-isomorphic-tools",
-  "version": "2.2.39",
+  "version": "2.2.40",
   "description": "Transforms CSS-alike text into a React style JSON object",
   "main": "babel-transpiled-modules/index.js",
   "dependencies": {
