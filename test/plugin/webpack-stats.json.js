@@ -63,7 +63,7 @@ module.exports =
 		[{
 			"userRequest": "./assets/style.scss"
 		}],
-		"source": "module.exports = \"body {} \" + require(\"-!!/cryptic/path/&!./assets/child.scss\") + ' ' + require(\"./multiple/candidates.scss\") + \" head {}\""
+		"source": "module.exports = \"body {} \" + require(\"-!!/cryptic/path/&!./assets/child.scss\") + ' ' + require(\"-!some_loader!./multiple/candidates.scss\") + \" head {}\""
 		//  + \" \" + require(\"original_module_name/style.scss\")
 	},
 	{
@@ -88,7 +88,7 @@ module.exports =
 		"issuer": "...whatever...",
 		"reasons": 
 		[{
-			"userRequest": "./multiple/candidates.scss"
+			"userRequest": "-!some_loader!./multiple/candidates.scss"
 		}],
 		"source": "module.exports = \".multiple { background: url(\" + __webpack_public_path__ + \"correct.jpg) }\""
 	},
@@ -101,7 +101,7 @@ module.exports =
 		"issuer": "...whatever...",
 		"reasons": 
 		[{
-			"userRequest": "./multiple/candidates.scss"
+			"userRequest": "-!some_loader!./multiple/candidates.scss"
 		}],
 		"source": "module.exports = \".multiple {}\""
 	},

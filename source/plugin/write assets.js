@@ -4,7 +4,7 @@ import path   from 'path'
 import require_hacker from 'require-hacker'
 import serialize      from '../tools/serialize-javascript'
 
-import { exists, clone, replace_all, starts_with } from '../helpers'
+import { exists, clone, replace_all, starts_with, last } from '../helpers'
 import { alias_hook, uniform_path } from '../common'
 
 // writes webpack-assets.json file, which contains assets' file paths
@@ -279,8 +279,17 @@ function populate_assets(output, json, options, log)
 
 		if (candidates.length > 1)
 		{
+			// tries to normalize a cryptic Webpack loader path
+			// into a regular relative file path
+			// https://webpack.github.io/docs/loaders.html
+			let filesystem_required_path = last(required_path
+				.replace(/^!!/, '')
+				.replace(/^!/, '')
+				.replace(/^-!/, '')
+				.split('!'))
+
 			// if it's a relative path, can try to resolve it locally
-			if (starts_with(required_path, '.') || starts_with(required_path, '/'))
+			if (starts_with(filesystem_required_path, '.') || starts_with(filesystem_required_path, '/'))
 			{
 				const filename = module.filename.replace(/\.webpack-module$/, '')
 
@@ -294,7 +303,7 @@ function populate_assets(output, json, options, log)
 					log.debug(` More than a single candidate module was found in webpack stats for require()d path "${required_path}"`)
 					log.debug(` The module is being require()d from an asset "${requiring_asset_path}", so resolving the path against this asset`)
 					
-					return require_hacker.to_javascript_module_source(require(path.resolve(options.project_path, path.join(requiring_asset_path, '..', required_path))))
+					return require_hacker.to_javascript_module_source(require(path.resolve(options.project_path, path.join(requiring_asset_path, '..', filesystem_required_path))))
 				}
 			}
 			

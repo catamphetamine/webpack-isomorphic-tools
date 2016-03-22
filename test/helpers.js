@@ -1,5 +1,5 @@
 import chai from 'chai'
-import { exists, is_object, extend, merge, clone, convert_from_camel_case, replace_all, starts_with, ends_with, is_empty, not_empty, repeat, is_blank, zip } from '../source/helpers'
+import { exists, is_object, extend, merge, clone, convert_from_camel_case, replace_all, starts_with, ends_with, is_empty, not_empty, repeat, is_blank, zip, last } from '../source/helpers'
 
 chai.should()
 
@@ -167,5 +167,10 @@ describe('helpers', function()
 		zip([], []).should.deep.equal([])
 		zip([1], []).should.deep.equal([[1, undefined]])
 		zip([1, 2, 3], [4, 5, 6]).should.deep.equal([[1, 4], [2, 5], [3, 6]])
+	})
+
+	it('should retrieve the last element of array', function()
+	{
+		last([1, 2, 3]).should.equal(3)
 	})
 })

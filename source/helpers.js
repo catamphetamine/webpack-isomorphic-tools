@@ -220,3 +220,9 @@ export function zip(a, b)
 		return [a[index], b[index]]
 	})
 }
+
+// last element of an array
+export function last(array)
+{
+	return array[array.length - 1]
+}
