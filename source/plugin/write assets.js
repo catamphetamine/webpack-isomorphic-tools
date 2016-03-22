@@ -279,7 +279,6 @@ function populate_assets(output, json, options, log)
 
 		if (candidates.length > 1)
 		{
-			// (loaders matter so the program can't simply throw them away from the required path)
 			// // tries to normalize a cryptic Webpack loader path
 			// // into a regular relative file path
 			// // https://webpack.github.io/docs/loaders.html
@@ -289,27 +288,32 @@ function populate_assets(output, json, options, log)
 			// 	.replace(/^-!/, '')
 			// 	.split('!'))
 
-			const is_relative_path = starts_with(required_path, './') || starts_with(required_path, '../')
-			const is_global_path = starts_with(required_path, '/') || required_path.indexOf(':') > 0
-			const is_npm_module_path = !is_relative_path && !is_global_path
+			// https://webpack.github.io/docs/loaders.html
+			const is_webpack_loader_path = required_path.indexOf('!') >= 0
 
-			// global path to the file that require()d this path
-			const requiring_file_path = module.filename.replace(/\.webpack-module$/, '')
-
-			// if the requiring module is an asset, 
-			// then it can try to resolve the file being required
-			// relative to the requiring asset path
-			const requiring_asset_path = global_paths_to_parsed_asset_paths[requiring_file_path]
-
-			if (requiring_asset_path)
+			// (loaders matter so the program can't simply throw them away from the required path)
+			if (!is_webpack_loader_path)
 			{
+				const is_relative_path = starts_with(required_path, './') || starts_with(required_path, '../')
+				const is_global_path = starts_with(required_path, '/') || required_path.indexOf(':') > 0
+				const is_npm_module_path = !is_relative_path && !is_global_path
+
+				// global path to the file that require()d this path
+				const requiring_file_path = module.filename.replace(/\.webpack-module$/, '')
+
+				// // if the requiring module is an asset, 
+				// // then it can try to resolve the file being required
+				// // relative to the requiring asset path
+				// const requiring_asset_path = global_paths_to_parsed_asset_paths[requiring_file_path]
+
 				log.debug(` More than a single candidate module was found in webpack stats for require()d path "${required_path}"`)
-				log.debug(` The module is being require()d from an asset "${requiring_asset_path}", so resolving the path against this asset`)
+				log.debug(` The module is being require()d from "${requiring_file_path}", so resolving the path against this file`)
 				
 				// if it's a relative path, can try to resolve it locally
 				if (is_relative_path)
 				{
-					return require_hacker.to_javascript_module_source(require(path.resolve(options.project_path, path.join(requiring_asset_path, '..', required_path))))
+					// path.resolve(options.project_path, path.join(requiring_asset_path, '..', required_path))
+					return require_hacker.to_javascript_module_source(require(path.join(requiring_file_path, '..', required_path)))
 				}
 
 				// if it's an npm module path (e.g. 'babel-runtime/core-js/object/assign'),
