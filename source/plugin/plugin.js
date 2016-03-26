@@ -119,7 +119,7 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 	}
 	
 	// validate webpack configuration
-	if (!webpack_configuration.output.publicPath)
+	if (webpack_configuration.output.publicPath === undefined)
 	{
 		throw new Error('You must specify ".output.publicPath" in your webpack configuration')
 	}
