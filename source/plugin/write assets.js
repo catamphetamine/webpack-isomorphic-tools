@@ -276,21 +276,21 @@ function populate_assets(output, json, options, log)
 			return define_webpack_public_path + candidates[0].source
 		}
 
-    // if there are more than one candidate for this require()d path,
-    // then try to guess which one is the one require()d
+		// if there are more than one candidate for this require()d path,
+		// then try to guess which one is the one require()d
 
 		if (candidates.length > 1)
 		{
-      log.debug(` More than a single candidate module was found in webpack stats for require()d path "${required_path}"`)
+			log.debug(` More than a single candidate module was found in webpack stats for require()d path "${required_path}"`)
 
-      for (let candidate of candidates)
-      {
-        log.debug(' ', candidate)
-      }
+			for (let candidate of candidates)
+			{
+				log.debug(' ', candidate)
+			}
 
-      // (loaders matter so the program can't simply throw them away from the required path)
-      //
-      // // tries to normalize a cryptic Webpack loader path
+			// (loaders matter so the program can't simply throw them away from the required path)
+			//
+			// // tries to normalize a cryptic Webpack loader path
 			// // into a regular relative file path
 			// // https://webpack.github.io/docs/loaders.html
 			// let filesystem_required_path = last(required_path
@@ -299,62 +299,67 @@ function populate_assets(output, json, options, log)
 			// 	.replace(/^-!/, '')
 			// 	.split('!'))
 
+			const fail = () =>
+			{
+				throw new Error(`More than a single candidate module was found in webpack stats for require()d path "${required_path}". Enable "debug: true" flag in webpack-isomorphic-tools configuration for more info.`)
+			}
+
 			// https://webpack.github.io/docs/loaders.html
 			const is_webpack_loader_path = required_path.indexOf('!') >= 0
 
-      // if it's a Webpack loader-powered path, the code gives up
-      if (is_webpack_loader_path)
-      {
-  			throw new Error(`More than a single candidate module was found in webpack stats for require()d path "${required_path}". Enable "debug: true" flag in webpack-isomorphic-tools configuration for more info.`)
-      }
+			// if it's a Webpack loader-powered path, the code gives up
+			if (is_webpack_loader_path)
+			{
+				fail()
+			}
 
-      // from here on it's either a filesystem path or an npm module path
+			// from here on it's either a filesystem path or an npm module path
 
-      const is_a_global_path = path => starts_with(path, '/') || path.indexOf(':') > 0
-      const is_a_relative_path = path => starts_with(path, './') || starts_with(path, '../')
+			const is_a_global_path = path => starts_with(path, '/') || path.indexOf(':') > 0
+			const is_a_relative_path = path => starts_with(path, './') || starts_with(path, '../')
 
 			const is_relative_path = is_a_relative_path(required_path)
 			const is_global_path = is_a_global_path(required_path)
 			const is_npm_module_path = !is_relative_path && !is_global_path
 
-      // if it's a global path it can be resolved right away
-      if (is_global_path)
-      {
-        return require_hacker.to_javascript_module_source(require(required_path))
-      }
+			// if it's a global path it can be resolved right away
+			if (is_global_path)
+			{
+				return require_hacker.to_javascript_module_source(require(required_path))
+			}
 
-      // from here on it's either a relative filesystem path or an npm module path,
-      // so it can be resolved against the require()ing file path (if it can be recovered).
+			// from here on it's either a relative filesystem path or an npm module path,
+			// so it can be resolved against the require()ing file path (if it can be recovered).
 
-      // `module.filename` here can be anything, not just a filesystem absolute path,
-      // since some advanced require() hook trickery is involved.
-      // therefore it will be parsed.
-      //
-      let requiring_file_path = module.filename.replace(/\.webpack-module$/, '')
+			// `module.filename` here can be anything, not just a filesystem absolute path,
+			// since some advanced require() hook trickery is involved.
+			// therefore it will be parsed.
+			//
+			let requiring_file_path = module.filename.replace(/\.webpack-module$/, '')
 
-      // if it's a webpack loader-powered path, then extract the filesystem path from it
-      if (requiring_file_path.indexOf('!') >= 0)
-      {
-        requiring_file_path = requiring_file_path.substring(requiring_file_path.lastIndexOf('!') + 1)
-      }
+			// if it's a webpack loader-powered path, then extract the filesystem path from it
+			if (requiring_file_path.indexOf('!') >= 0)
+			{
+				requiring_file_path = requiring_file_path.substring(requiring_file_path.lastIndexOf('!') + 1)
+			}
 
-      // make relative path global
+			// make relative path global
 			if (is_a_relative_path(requiring_file_path))
-      {
-        requiring_file_path = path.resolve(options.project_path, requiring_file_path)
-      }
+			{
+				requiring_file_path = path.resolve(options.project_path, requiring_file_path)
+			}
 
-      // if `requiring_file_path` is a filesystem path (not an npm module path),
-      // then the require()d path can possibly be resolved
-      if (is_a_global_path(requiring_file_path))
-      {
-        log.debug(` The module is being require()d from "${requiring_file_path}", so resolving the path against this file`)
+			// if `requiring_file_path` is a filesystem path (not an npm module path),
+			// then the require()d path can possibly be resolved
+			if (is_a_global_path(requiring_file_path))
+			{
+				log.debug(` The module is being require()d from "${requiring_file_path}", so resolving the path against this file`)
 
 				// if it's a relative path, can try to resolve it
 				if (is_relative_path)
 				{
-          return require_hacker.to_javascript_module_source(require(path.resolve(requiring_file_path, '..', required_path)))
-        }
+					return require_hacker.to_javascript_module_source(require(path.resolve(requiring_file_path, '..', required_path)))
+				}
 
 				// if it's an npm module path (e.g. 'babel-runtime/core-js/object/assign'),
 				// can try to require() it from the requiring asset path
@@ -362,7 +367,10 @@ function populate_assets(output, json, options, log)
 				{
 					return require_hacker.to_javascript_module_source(require(require_hacker.resolve(required_path, module)))
 				}
-      }
+			}
+
+			// if it's still here then it means it's either a
+			fail()
 		}
 	})
 
