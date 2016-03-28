@@ -13,7 +13,7 @@ Is a small helper module providing support for isomorphic (universal) rendering 
 
 This is an alternative solution to using Webpack's `target: "node"` approach. For a `target: "node"` example refer to [the corresponding sample project](https://github.com/halt-hammerzeit/webpack-react-redux-isomorphic-render-example).
 
-Which one of these approaches to take? I think one should try the `target: "node"` approach first because that's the official one and it can handle everything Webpack can, while these tools are not affiliated with Webpack team and provide support for most use cases aiming for being more easy to use. Both approaches have a certain level of complexity because this is an advanced topic.
+Which one of these approaches to take? I think one should try the `target: "node"` approach in case he knows Webpack on an "advanced" level because that's the "official" way to do it and it can handle everything Webpack can, while these tools are not affiliated with Webpack team in any way and provide support for most use cases aiming for being more easy to use. Both approaches have a certain level of complexity because this is an advanced topic, still I think these tools are somewhat easier to get started with.
 
 ## Topics
 
