@@ -935,6 +935,8 @@ And so when you later `require("./assets/images/husky.jpg")` in your server code
 
 ## API
 
+> Note : All exported functions and public methods have camelCase aliases
+
 #### Constructor
 
 (both Webpack plugin and server tools)

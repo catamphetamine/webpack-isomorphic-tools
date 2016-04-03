@@ -6,7 +6,7 @@ import fs from 'fs'
 import isomorpher from '../source/index'
 import isomorpher_plugin from '../source/plugin/plugin'
 
-import { extend } from './../source/helpers'
+import { extend, camelCaseName } from './../source/helpers'
 
 import Log from '../source/tools/log'
 
@@ -573,5 +573,17 @@ describe('plugin', function()
 		options = { assets: { images: { extension: 'jpg', parser: undefined } } }
 
 		instantiate.should.throw('"parser" must be a function')
+	})
+
+	it("should have camelCase variants for all its attributes", function()
+	{
+		Object.keys(isomorpher.prototype).forEach(function(key)
+		{
+			isomorpher.prototype.should.have.ownProperty(camelCaseName(key))
+			isomorpher.prototype[key].should.equal(isomorpher.prototype[camelCaseName(key)])
+		})
+		// Hard coded example
+		isomorpher.prototype.should.have.property('assetSource')
+		isomorpher.prototype.asset_source.should.equal(isomorpher.prototype.assetSource)
 	})
 })

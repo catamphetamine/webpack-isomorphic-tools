@@ -212,6 +212,7 @@ export function is_blank(text)
 	return !exists(text) || !text.replace(/\s/g, '')
 }
 
+
 // zips two arrays
 export function zip(a, b)
 {
@@ -225,4 +226,32 @@ export function zip(a, b)
 export function last(array)
 {
 	return array[array.length - 1]
+}
+
+/**
+ * Returns a camel case variant of the string, unless it's in TitleCase.
+ * @param {string} str
+ */
+export function camelCaseName(str)
+{
+	const nameParts = str.split("_")
+	return nameParts.slice(1).reduce((prev, current) => {
+		return prev + current.charAt(0).toUpperCase() + current.slice(1)
+	}, nameParts[0])
+}
+
+const isPrivate = str => str.slice(0,2) === '__'
+
+/**
+ * Creates camel case variants of the attributes on the object
+ * @param {object} obj
+ */
+export function aliasCamelCaseAttrs(obj)
+{
+	Object.keys(obj).forEach(key => {
+		if (obj.hasOwnProperty(key) && !isPrivate(key))
+		{
+			obj[camelCaseName(key)] = obj[key]
+		}
+	})
 }
