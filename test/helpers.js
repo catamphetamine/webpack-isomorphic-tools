@@ -1,5 +1,6 @@
 import chai from 'chai'
-import { exists, is_object, extend, merge, clone, convert_from_camel_case, replace_all, starts_with, ends_with, is_empty, not_empty, repeat, is_blank, zip, last } from '../source/helpers'
+import { exists, is_object, extend, merge, clone, convert_from_camel_case, replace_all, starts_with, ends_with,
+	is_empty, not_empty, repeat, is_blank, zip, last, exportAllCamelCase, aliasCamelCaseAttrs} from '../source/helpers'
 
 chai.should()
 
@@ -172,5 +173,20 @@ describe('helpers', function()
 	it('should retrieve the last element of array', function()
 	{
 		last([1, 2, 3]).should.equal(3)
+	})
+
+	it("should alias an object's snake case attributes to camel case", function()
+	{
+		var obj =
+		{
+			snake_case_example: function() {},
+			TitleCaseExample: function() {},
+			singleexample: function() {},
+			__private_example: function() {}
+		}
+
+		aliasCamelCaseAttrs(obj);
+		Object.keys(obj).should.have.lengthOf(5)
+		obj.snakeCaseExample.should.equal(obj.snake_case_example)
 	})
 })

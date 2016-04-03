@@ -5,7 +5,7 @@ import notify_stats  from './notify stats'
 
 import Log from './../tools/log'
 
-import { exists, clone, convert_from_camel_case } from './../helpers'
+import { exists, clone, convert_from_camel_case, aliasCamelCaseAttrs } from './../helpers'
 
 import { default_webpack_assets, normalize_options } from './../common'
 
@@ -215,7 +215,6 @@ Webpack_isomorphic_tools_plugin.style_loader_path_extractor = function(module, o
 	return module.name.slice(module.name.lastIndexOf('!') + 1)
 }
 
-// alias camel case for those who prefer it
-Webpack_isomorphic_tools_plugin.urlLoaderParser        = Webpack_isomorphic_tools_plugin.url_loader_parser
-Webpack_isomorphic_tools_plugin.cssLoaderParser        = Webpack_isomorphic_tools_plugin.css_loader_parser
-Webpack_isomorphic_tools_plugin.cssModulesLoaderParser = Webpack_isomorphic_tools_plugin.css_modules_loader_parser
+
+aliasCamelCaseAttrs(Webpack_isomorphic_tools_plugin.prototype)
+aliasCamelCaseAttrs(Webpack_isomorphic_tools_plugin)
