@@ -88,25 +88,13 @@ export function clone(object)
 	}
 }
 
-// creates camelCased aliases for all the keys of an object
+// converts all camelCased keys of an object to lodash style
 export function convert_from_camel_case(object)
 {
 	for (let key of Object.keys(object))
 	{
 		if (/[A-Z]/.test(key))
-		// if (key.indexOf('_') >= 0)
 		{
-			// const camel_cased_key = key.replace(/_(.)/g, function(match, group_1)
-			// {
-			// 	return group_1.toUpperCase()
-			// })
-
-			// if (!exists(object[camel_cased_key]))
-			// {
-			// 	object[camel_cased_key] = object[key]
-			// 	delete object[key]
-			// }
-
 			const lo_dashed_key = key.replace(/([A-Z])/g, function(match, group_1)
 			{
 				return '_' + group_1.toLowerCase()
@@ -212,7 +200,6 @@ export function is_blank(text)
 	return !exists(text) || !text.replace(/\s/g, '')
 }
 
-
 // zips two arrays
 export function zip(a, b)
 {
@@ -230,28 +217,29 @@ export function last(array)
 
 /**
  * Returns a camel case variant of the string, unless it's in TitleCase.
- * @param {string} str
+ * @param {string} string
  */
-export function camelCaseName(str)
+export function camel_case(string)
 {
-	const nameParts = str.split("_")
-	return nameParts.slice(1).reduce((prev, current) => {
-		return prev + current.charAt(0).toUpperCase() + current.slice(1)
-	}, nameParts[0])
+	const nameParts = string.split('_')
+	return nameParts.slice(1).reduce((reduced, current) =>
+	{
+		return reduced + current.charAt(0).toUpperCase() + current.slice(1)
+	},
+	nameParts[0])
 }
 
-const isPrivate = str => str.slice(0,2) === '__'
+// detects "private" object properties (just in case there are any)
+const is_private_property = name => starts_with(name, '__')
 
 /**
  * Creates camel case variants of the attributes on the object
- * @param {object} obj
+ * @param {object} object
  */
-export function aliasCamelCaseAttrs(obj)
+export function alias_properties_with_camel_case(object)
 {
-	Object.keys(obj).forEach(key => {
-		if (obj.hasOwnProperty(key) && !isPrivate(key))
-		{
-			obj[camelCaseName(key)] = obj[key]
-		}
-	})
+	for (let key of Object.keys(object).filter(key => !is_private_property(key)))
+	{
+		object[camel_case(key)] = object[key]
+	}
 }

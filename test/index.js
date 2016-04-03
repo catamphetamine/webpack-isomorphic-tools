@@ -6,7 +6,7 @@ import fs from 'fs'
 import isomorpher from '../source/index'
 import isomorpher_plugin from '../source/plugin/plugin'
 
-import { extend, camelCaseName } from './../source/helpers'
+import { extend, camel_case } from './../source/helpers'
 
 import Log from '../source/tools/log'
 
@@ -577,11 +577,12 @@ describe('plugin', function()
 
 	it("should have camelCase variants for all its attributes", function()
 	{
-		Object.keys(isomorpher.prototype).forEach(function(key)
+		for (let key of Object.keys(isomorpher.prototype))
 		{
-			isomorpher.prototype.should.have.ownProperty(camelCaseName(key))
-			isomorpher.prototype[key].should.equal(isomorpher.prototype[camelCaseName(key)])
-		})
+			isomorpher.prototype.should.have.ownProperty(camel_case(key))
+			isomorpher.prototype[key].should.equal(isomorpher.prototype[camel_case(key)])
+		}
+		
 		// Hard coded example
 		isomorpher.prototype.should.have.property('assetSource')
 		isomorpher.prototype.asset_source.should.equal(isomorpher.prototype.assetSource)

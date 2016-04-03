@@ -1,6 +1,6 @@
 import chai from 'chai'
 import { exists, is_object, extend, merge, clone, convert_from_camel_case, replace_all, starts_with, ends_with,
-	is_empty, not_empty, repeat, is_blank, zip, last, exportAllCamelCase, aliasCamelCaseAttrs} from '../source/helpers'
+	is_empty, not_empty, repeat, is_blank, zip, last, alias_properties_with_camel_case} from '../source/helpers'
 
 chai.should()
 
@@ -175,18 +175,19 @@ describe('helpers', function()
 		last([1, 2, 3]).should.equal(3)
 	})
 
-	it("should alias an object's snake case attributes to camel case", function()
+	it("should alias an object's underscore style attributes to camel case", function()
 	{
-		var obj =
+		const object =
 		{
-			snake_case_example: function() {},
-			TitleCaseExample: function() {},
-			singleexample: function() {},
-			__private_example: function() {}
+			underscore_style_name : function() {},
+			TitleCase             : function() {},
+			lowercase             : function() {},
+			__private_stuff       : function() {}
 		}
 
-		aliasCamelCaseAttrs(obj);
-		Object.keys(obj).should.have.lengthOf(5)
-		obj.snakeCaseExample.should.equal(obj.snake_case_example)
+		alias_properties_with_camel_case(object)
+		
+		Object.keys(object).should.have.lengthOf(5)
+		object.underscoreStyleName.should.equal(object.underscore_style_name)
 	})
 })

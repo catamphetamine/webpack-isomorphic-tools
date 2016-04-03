@@ -4,7 +4,7 @@ import path from 'path'
 import chai from 'chai'
 import plugin from '../../source/plugin/plugin.js'
 
-import { extend, camelCaseName } from '../../source/helpers'
+import { extend, camel_case } from '../../source/helpers'
 
 chai.should()
 
@@ -278,17 +278,21 @@ describe('plugin', function()
 
 	it('should have camel case aliases for all methods', function()
 	{
-		// Test the method has been called
-		Object.keys(plugin).forEach((key) => {
-			plugin.should.have.property(camelCaseName(key))
-		})
-		Object.keys(plugin.prototype).forEach((key) => {
-			plugin.prototype.should.have.property(camelCaseName(key))
-		})
+		// Test the method has been called on the exported stuff
+
+		for (let key of Object.keys(plugin))
+		{
+			plugin.should.have.property(camel_case(key))
+		}
+
+		for (let key of Object.keys(plugin.prototype))
+		{
+			plugin.prototype.should.have.property(camel_case(key))
+		}
+
 		// Test a couple of hard coded examples
 		plugin.prototype.should.have.property('regularExpression')
 		plugin.should.have.property('cssLoaderParser')
 		plugin.cssLoaderParser.should.equal(plugin.css_loader_parser)
 	})
-
 })

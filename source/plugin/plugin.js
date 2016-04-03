@@ -5,7 +5,7 @@ import notify_stats  from './notify stats'
 
 import Log from './../tools/log'
 
-import { exists, clone, convert_from_camel_case, aliasCamelCaseAttrs } from './../helpers'
+import { exists, clone, convert_from_camel_case, alias_properties_with_camel_case } from './../helpers'
 
 import { default_webpack_assets, normalize_options } from './../common'
 
@@ -24,9 +24,6 @@ export default function Webpack_isomorphic_tools_plugin(options)
 	// assets regular expressions (based on extensions).
 	// will be used in loaders and in write_assets
 	this.regular_expressions = {}
-
-	// alias camel case for those who prefer it
-	this.regularExpressions = this.regular_expressions
 
 	// for each user defined asset type
 	for (let asset_type of Object.keys(this.options.assets))
@@ -215,6 +212,6 @@ Webpack_isomorphic_tools_plugin.style_loader_path_extractor = function(module, o
 	return module.name.slice(module.name.lastIndexOf('!') + 1)
 }
 
-
-aliasCamelCaseAttrs(Webpack_isomorphic_tools_plugin.prototype)
-aliasCamelCaseAttrs(Webpack_isomorphic_tools_plugin)
+// alias camel case for those who prefer it
+alias_properties_with_camel_case(Webpack_isomorphic_tools_plugin.prototype)
+alias_properties_with_camel_case(Webpack_isomorphic_tools_plugin)

@@ -6,7 +6,7 @@ import Log            from './tools/log'
 
 import UglifyJS from 'uglify-js'
 
-import { exists, clone, convert_from_camel_case, starts_with, ends_with, aliasCamelCaseAttrs } from './helpers'
+import { exists, clone, convert_from_camel_case, starts_with, ends_with, alias_properties_with_camel_case } from './helpers'
 import { default_webpack_assets, normalize_options, alias_hook, normalize_asset_path, uniform_path } from './common'
 
 // using ES6 template strings
@@ -699,4 +699,5 @@ export default class webpack_isomorphic_tools
 	}
 }
 
-aliasCamelCaseAttrs(webpack_isomorphic_tools.prototype)
+// alias camel case for those who prefer it
+alias_properties_with_camel_case(webpack_isomorphic_tools.prototype)
