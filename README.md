@@ -193,6 +193,8 @@ global.webpack_isomorphic_tools = new Webpack_isomorphic_tools(require('./webpac
 {
   // webpack-isomorphic-tools is all set now.
   // here goes all your web application code:
+  // (it must reside in a separate *.js file 
+  //  in order for the whole thing to work)
   require('./server')
 })
 ```
