@@ -114,13 +114,13 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 	{
 		throw new Error('You must specify ".output" section in your webpack configuration')
 	}
-	
+
 	// validate webpack configuration
 	if (!webpack_configuration.output.publicPath)
 	{
 		throw new Error('You must specify ".output.publicPath" in your webpack configuration')
 	}
-	
+
 	// selfie
 	const plugin = this
 
@@ -142,9 +142,9 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 			// (only needed in development mode)
 			notify_stats(stats, json, plugin.options.verbose)
 		}
-			
+
 		// assets base path (on disk or on the network)
-		// 
+		//
 		// (first search for the `devServer.publicPath` setting,
 		//  then fallback to the generic `publicPath`)
 		//
@@ -156,7 +156,7 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 
 		// write webpack-assets.json with assets info
 		write_assets(json,
-		{ 
+		{
 			development         : plugin.options.development,
 			debug               : plugin.options.debug,
 			assets              : plugin.options.assets,
@@ -203,7 +203,11 @@ Webpack_isomorphic_tools_plugin.css_modules_loader_parser = function(module, opt
 // the module with the CSS styles is the one with a long name:
 Webpack_isomorphic_tools_plugin.style_loader_filter = function(module, regular_expression, options, log)
 {
-	return regular_expression.test(module.name) && module.name.split('!')[0].indexOf('/~/css-loader') >= 0
+	const css_loader = module.name.split('!')[0]
+	return regular_expression.test(module.name) &&
+		(css_loader.indexOf('./~/css-loader') === 0 ||
+		 css_loader.indexOf('./~/.npminstall/css-loader') === 0 ||
+		 css_loader.indexOf('./~/.store/css-loader') === 0)
 }
 
 // extracts css style file path
