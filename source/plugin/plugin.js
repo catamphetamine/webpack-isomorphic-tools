@@ -203,11 +203,8 @@ Webpack_isomorphic_tools_plugin.css_modules_loader_parser = function(module, opt
 // the module with the CSS styles is the one with a long name:
 Webpack_isomorphic_tools_plugin.style_loader_filter = function(module, regular_expression, options, log)
 {
-	const css_loader = module.name.split('!')[0]
-	return regular_expression.test(module.name) &&
-		(css_loader.indexOf('./~/css-loader') === 0 ||
-		 css_loader.indexOf('./~/.npminstall/css-loader') === 0 ||
-		 css_loader.indexOf('./~/.store/css-loader') === 0)
+	const result = /(?:\/)([^\/\?\.~]+\-loader)(?:[\?!@])/.exec(module.name)
+	return (result && result[1] === 'css-loader')
 }
 
 // extracts css style file path
