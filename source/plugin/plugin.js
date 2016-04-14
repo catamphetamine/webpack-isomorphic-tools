@@ -205,9 +205,26 @@ Webpack_isomorphic_tools_plugin.style_loader_filter = function(module, regular_e
 {
 	const css_loader = module.name.split('!')[0]
 	return regular_expression.test(module.name) &&
-		(css_loader.indexOf('./~/css-loader') === 0 ||
-		 css_loader.indexOf('./~/.npminstall/css-loader') === 0 ||
-		 css_loader.indexOf('./~/.store/css-loader') === 0)
+		// The paths below have the form of "/~/css-loader"
+		// and not the form of "./~/css-loader"
+		// because in some (non-standard) cases
+		// Webpack project context can be set 
+		// not to project root folder.
+		//
+		// For a discussion see:
+		// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/pull/68
+		// (there the `context` is set to the "${project_root}/src" folder
+		//  so that the asset paths in `webpack-assets.json` wouldn't
+		//  contain the "./src" prefix and therefore they will be found
+		//  when require()d from code in "./target"
+		//  which is compiled with Babel from the "./src" folder)
+		//
+		// I personally don't compile sources on the server side,
+		// so I haven't thought of better ways of doing all that.
+		//
+		(css_loader.indexOf('/~/css-loader') > 0 ||
+		 css_loader.indexOf('/~/.npminstall/css-loader') > 0 ||
+		 css_loader.indexOf('/~/.store/css-loader') > 0)
 }
 
 // extracts css style file path
