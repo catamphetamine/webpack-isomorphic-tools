@@ -362,13 +362,6 @@ Available configuration parameters:
 
 ```javascript
 {
-  // sets "development" mode flag.
-  // see the API section below for method .development()
-  // for more explanation about what "development" mode does
-  // and when is it needed.
-  //
-  development: true, // is false by default
-
   // debug mode.
   // when set to true, lets you see debugging messages in the console.
   //
