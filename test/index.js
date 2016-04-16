@@ -45,11 +45,6 @@ const webpack_configuration =
 {
 	context: __dirname,
 
-	output:
-	{
-		publicPath: '/assets/'
-	},
-
 	module:
 	{
 		loaders: []

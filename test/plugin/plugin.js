@@ -39,11 +39,6 @@ const webpack_configuration =
 {
 	context: __dirname,
 
-	output:
-	{
-		publicPath: '/assets/'
-	},
-
 	module:
 	{
 		loaders: []
@@ -183,10 +178,6 @@ describe('plugin', function()
 		}
 
 		try_plugin({}).should.throw('You must specify ".context" in your webpack configuration')
-
-		try_plugin({ context: 'blah' }).should.throw('You must specify ".output" section in your webpack configuration')
-
-		try_plugin({ context: 'blah', output: {} }).should.throw('You must specify ".output.publicPath" in your webpack configuration')
 
 		done()
 	})

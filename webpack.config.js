@@ -127,8 +127,7 @@ switch (action)
 			output: 
 			{
 				path: __dirname,
-				filename: 'bundle.js',
-				publicPath: '/'
+				filename: 'bundle.js'
 			},
 			plugins: 
 			[

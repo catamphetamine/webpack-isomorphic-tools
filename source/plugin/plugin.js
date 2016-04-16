@@ -109,18 +109,6 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 	// resolve webpack-stats.json file path
 	const webpack_stats_path = path.resolve(this.options.project_path, this.options.webpack_stats_file_path)
 
-	// validate webpack configuration
-	if (!webpack_configuration.output)
-	{
-		throw new Error('You must specify ".output" section in your webpack configuration')
-	}
-
-	// validate webpack configuration
-	if (!webpack_configuration.output.publicPath)
-	{
-		throw new Error('You must specify ".output.publicPath" in your webpack configuration')
-	}
-
 	// selfie
 	const plugin = this
 

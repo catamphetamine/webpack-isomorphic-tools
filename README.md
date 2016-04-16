@@ -119,11 +119,6 @@ module.exports =
 {
   context: '(required) your project path here',
 
-  output:
-  {
-    publicPath: '(required) web path for static files here'
-  },
-
   module:
   {
     loaders:
