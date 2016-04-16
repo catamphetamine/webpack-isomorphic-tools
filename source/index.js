@@ -692,7 +692,8 @@ export default class webpack_isomorphic_tools
 		}
 
 		// wait for webpack-assets.json to be written to disk by Webpack
-		wait_for(() => fs.existsSync(this.webpack_assets_path), done)
+		// (setTimeout() for global.webpack_isomorphic_tools )
+		setImmediate(() => wait_for(() => fs.existsSync(this.webpack_assets_path), done))
 
 		// allows method chaining
 		return this
