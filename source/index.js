@@ -319,7 +319,7 @@ export default class webpack_isomorphic_tools
 		//
 		let require_context = `require.context = function(base, scan_subdirectories, regular_expression)
 		{
-			base = require('path').join(require('path').dirname(this.filename), base)
+			base = require('path').join(require('path').dirname(module.filename), base)
 
 			var contents = {}
 
