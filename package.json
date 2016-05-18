@@ -4,7 +4,6 @@
   "description": "Transforms CSS-alike text into a React style JSON object",
   "main": "babel-transpiled-modules/index.js",
   "dependencies": {
-    "babel-runtime": "^5.6.20",
     "colors": "^1.1.2",
     "fs-extra": "^0.26.0",
     "require-hacker": "^2.1.3",
@@ -43,7 +42,7 @@
     "gh-pages": "webpack --action=gh-pages --colors --config ./config",
     "deploy-gh-pages": "TARGET=gh-pages node ./config/deploy-gh-pages.js",
     "clean-for-build": "rimraf ./babel-transpiled-modules/**/*",
-    "build-modules": "babel ./source --optional runtime --out-dir ./babel-transpiled-modules --source-maps",
+    "build-modules": "babel ./source --out-dir ./babel-transpiled-modules --source-maps",
     "build": "npm-run-all clean-for-build build-modules",
     "commit-new-build": "git commit --all --message=\"Update build\"",
     "prepublish": "npm-run-all test build",
