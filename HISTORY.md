@@ -1,3 +1,8 @@
+2.3.0 / 18.05.2016
+===================
+
+  * Removed `babel-runtime` dependency (merged pull request from @xdissent)
+
 2.2.29 / 12.02.2016
 ===================
 
