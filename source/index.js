@@ -159,11 +159,11 @@ export default class webpack_isomorphic_tools
 			this.inject_modules_directories(this.options.modules_directories)
 		}
 
-		// inject require.context() helper
-		if (this.options.require_context)
+		// inject helpers like require.context() and require.ensure()
+		if (this.options.patch_require)
 		{
-			this.log.debug('Injecting require.context() helper')
-			this.inject_require_context()
+			this.log.debug('Patching Node.js require() function')
+			this.patch_require()
 		}
 
 		// when ready:
@@ -306,10 +306,11 @@ export default class webpack_isomorphic_tools
 		}
 	}
 
-	// injects the `context()` function into `require()` function
+	// injects helper functions into `require()` function
+	// (such as `.context()` and `.ensure()`)
 	// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/48#issuecomment-182878437
 	// (this is a "dirty" way to do it but it works)
-	inject_require_context()
+	patch_require()
 	{
 		// a source code of a function that
 		// require()s all modules inside the `base` folder
@@ -377,6 +378,10 @@ export default class webpack_isomorphic_tools
 		// some code minification
 		require_context = UglifyJS.minify(require_context, { fromString: true }).code
 
+		// Source code for `require.ensure()`
+		// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/84
+		const require_ensure = `require.ensure=function(d,c){c(require)};`
+
 		const debug = this.log.debug.bind(this.log)
 
 		// instrument Module.prototype._compile function
@@ -389,36 +394,43 @@ export default class webpack_isomorphic_tools
 			// inject it only in .js files
 			if (!ends_with(filename, '.js'))
 			{
-				// return value is undefined
+				// (the return value is supposed to be `undefined`)
 				return original_compile.call(this, content, filename)
 			}
+
+			// will be prepended to the module source code
+			let preamble = ''
 
 			// inject it only in .js files which
 			// might probably have `require.context` reference
-			if (content.indexOf('require.context') < 0)
+			if (content.indexOf('require.context') >= 0)
 			{
-				// return value is undefined
-				return original_compile.call(this, content, filename)
+				debug(`Injecting require.context() into "${filename}"`)
+				preamble += require_context
 			}
 
-			debug(`Injecting require.context() into "${filename}"`)
-
-			// will be prepended to the module source code
-			var preamble = ''
-
-			// account for "use strict" which is required to be in the beginning of the source code
-			if (starts_with(content, `'use strict'`) || starts_with(content, `"use strict"`))
+			// inject it only in .js files which
+			// might probably have `require.ensure` reference
+			if (content.indexOf('require.ensure') >= 0)
 			{
-				preamble = `"use strict";`
+				debug(`Injecting require.ensure() into "${filename}"`)
+				preamble += require_ensure
 			}
 
-			// require.context() function definition
-			preamble += require_context
+			// If there is a preamble to prepend
+			if (preamble)
+			{
+				// Account for "use strict" which is required to be in the beginning of the source code
+				if (starts_with(content, `'use strict'`) || starts_with(content, `"use strict"`))
+				{
+					preamble = `"use strict";`
+				}
+			}
 
 			// the "dirty" way
 			content = preamble + content
 
-			// return value is undefined
+			// (the return value is supposed to be `undefined`)
 			return original_compile.call(this, content, filename)
 		}
 	}

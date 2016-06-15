@@ -75,6 +75,17 @@ export function normalize_options(options)
 				{
 					throw new Error(`"${key}" configuration parameter must be ` + `a boolean`)
 				}
+				// Legacy `require_context` option is converted to `patch_require`
+				console.log('WARNING: `require_context` option is now called `patch_require`')
+				delete options.require_context
+				options.patch_require = true
+				break
+
+			case 'patch_require':
+				if (typeof options[key] !== 'boolean')
+				{
+					throw new Error(`"${key}" configuration parameter must be ` + `a boolean`)
+				}
 				break
 
 			default:

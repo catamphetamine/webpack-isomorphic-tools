@@ -369,12 +369,12 @@ Available configuration parameters:
   //
   // verbose: true, // is false by default
 
-  // enables support for `require.context()` function.
+  // enables support for `require.context()` and `require.ensure()` functions.
   // is turned off by default 
   // to skip unnecessary code instrumentation
   // because not everyone uses it.
   //
-  // require_context: true, // is false by default
+  // patch_require: true, // is false by default
 
   // By default it creates 'webpack-assets.json' file at 
   // webpack_configuration.context (which is your project folder).
@@ -985,11 +985,9 @@ As an illustration, consider an example where a developer transpiles all his ES6
 
 This probably means that in some asset module source there's a `require()` call to some file extension that isn't specified in 
 
-### TypeError: require.context is not a function
+### "TypeError: require.context is not a function" or "TypeError: require.ensure is not a function"
 
-You should enable `require_context: true` flag in your `webpack-isomorphic-tools` configuration file. The reason is that the support for `require.context()` [is hacky at the moment](https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/48#issuecomment-182878437). It works and does its thing but the solution is not elegant enough if you know what I mean.
-
-Support for `require.context()` is in alpha stage. If you encounter any bugs report them in the issues.
+You should enable `patch_require: true` flag in your `webpack-isomorphic-tools` configuration file. The reason is that the support for `require.context()` and `require.ensure()` [is hacky at the moment](https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/48#issuecomment-182878437). It works and does its thing but the solution is not elegant enough if you know what I mean.
 
 ### Infinite "(waiting for the first Webpack build to finish)"
 
@@ -1116,7 +1114,7 @@ npm install [module name with version].tar.gz
 
 ## To do
 
- * Implement `require.context(folder, include_subdirectories, regular_expression)` Webpack helper function [properly](https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/48#issuecomment-182878437)
+ * Implement `require.context(folder, include_subdirectories, regular_expression)` and `require.ensure` Webpack helper functions [properly](https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/48#issuecomment-182878437)
  * Proper testing for `log` (output to a variable rather than `console`)
  * Proper testing for `notify_stats` (output to a `log` variable)
  * Proper testing for parsers (using `eval()` CommonJS module compilation)

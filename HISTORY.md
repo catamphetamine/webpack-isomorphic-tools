@@ -1,3 +1,9 @@
+2.3.1 / 15.06.2016
+===================
+
+  * Renamed `require_context` option to `patch_require`
+  * Now supports `require.ensure()`
+
 2.3.0 / 18.05.2016
 ===================
 

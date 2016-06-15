@@ -36,7 +36,7 @@ const webpack_assets =
 		"./assets/test.object_parser_test.extra" : { one: 1 },
 		"./~/whatever.jpg"                       : 1,
 		"./~/aliased_module_name/test.jpg"       : true,
-		"./~/context.js"                         : 'context asset',
+		"./~/whatever.js"                        : 'whatever asset',
 		"./modules_directory/gay/index.js"       : 'hot gay'
 	}
 }
@@ -61,7 +61,7 @@ const isomorpher_settings = () =>
 	{
 		javascript:
 		{
-			exclude: ['../context.js'],
+			exclude: ['../context.js', '../ensure.js'],
 			extension: 'js'
 		},
 		styles:
@@ -292,18 +292,50 @@ describe('plugin', function()
 			// test `require.context()`
 
 			// clear require.cache for the asset to force a lookup in webpack-assets.json
-			delete require.cache[path.resolve(__dirname, './node_modules/context.js')]
+			delete require.cache[path.resolve(__dirname, './node_modules/whatever.js')]
 
 			const context = require('../context.js')
 
 			context.keys().should.deep.equal
 			([
 				'./aliased_module_name/index.js',
-				'./context.js'
+				'./whatever.js'
 			])
 
 			context('./aliased_module_name/index.js').should.equal('alias')
-			context('./context.js').should.equal(webpack_assets.assets['./~/context.js'])
+			context('./whatever.js').should.equal(webpack_assets.assets['./~/whatever.js'])
+
+			// unmount require() hooks
+			server_side.undo()
+
+			// done
+			done()
+		})
+	})
+
+	it('should inject require.ensure()', function(done)
+	{
+		// create the webpack-assets.json
+		create_assets_file()
+
+		// enable `require.ensure()`
+		const settings = isomorpher_settings()
+		settings.patch_require = true
+
+		// ensure it waits for webpack-assets.json
+		const server_side = new isomorpher(settings)
+
+		// install require() hooks
+		server_side.server(webpack_configuration.context, () =>
+		{
+			// test `require.ensure()`
+
+			// clear require.cache for the asset to force a lookup in webpack-assets.json
+			delete require.cache[path.resolve(__dirname, './node_modules/whatever.js')]
+
+			const ensured = require('../ensure.js')
+
+			ensured.should.equal(webpack_assets.assets['./~/whatever.js'])
 
 			// unmount require() hooks
 			server_side.undo()
