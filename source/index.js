@@ -423,7 +423,7 @@ export default class webpack_isomorphic_tools
 				// Account for "use strict" which is required to be in the beginning of the source code
 				if (starts_with(content, `'use strict'`) || starts_with(content, `"use strict"`))
 				{
-					preamble = `"use strict";`
+					preamble = `"use strict";` + preamble
 				}
 			}
 
