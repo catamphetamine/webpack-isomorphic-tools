@@ -9,11 +9,11 @@
 [![Gratipay][gratipay-image]][gratipay-url]
 -->
 
-Is a small helper module providing good-enough support for isomorphic (universal) rendering when using Webpack.
+`webpack-isomorphic-tools` is a small helper module providing basic support for isomorphic (universal) rendering when using Webpack (this is an alternative solution to using Webpack's officially recommended `target: "node"` approach).
 
-This is an alternative solution to using Webpack's official `target: "node"` approach. For a `target: "node"` example refer to [this sample project](https://github.com/halt-hammerzeit/webpack-react-redux-isomorphic-render-example) and [the corresponding helper library](https://github.com/halt-hammerzeit/universal-webpack).
+For an officially recommended Webpack's `target: "node"` approach see [`universal-webpack`](https://github.com/halt-hammerzeit/universal-webpack) library. `universal-webpack` library is the recommended way to go.
 
-Which one of these approaches to take? I think one should try the `target: "node"` approach first because that's the "official" way to do it and it can handle everything Webpack can, while these tools are not affiliated with Webpack team in any way and provide support for most use cases aiming for being easy to use for beginners. Both approaches have a certain level of complexity because this is an advanced topic. So try `target: "node"` approach first. If it won't work for you then you can try `webpack-isomorphic-tools`.
+If for some reason `universal-webpack` doesn't suit your needs, or is too complex to grasp, then you can try using `webpack-isomorphic-tools`. `webpack-isomorphic-tools` are not affiliated with Webpack team in any way and provide support for basic use cases (no support for Webpack plugins, for example) aiming to be easy to understand for beginners.
 
 ## Topics
 
