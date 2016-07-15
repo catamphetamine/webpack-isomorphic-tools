@@ -53,43 +53,38 @@ One solution is to compile server-side code with Webpack the same way one alread
 
 `webpack-isomorphic-tools` mimics (to a certain extent) Webpack's `require()` magic when running your code on a Node.js server without Webpack. It basically fixes all those `require()`s of assets and makes them work instead of throwing `SyntaxError`s. It doesn't provide all the capabilities of Webpack (for example, plugins won't work), but for the basic stuff, it works.
 
-## Getting down to business
+## A simple example
 
 For example, consider images. Images are `require()`d in React components and then used like this:
 
 ```javascript
-// alternatively one can use import, but in this case hot reloading won't work
+// alternatively one can use `import`, 
+// but with `import`s hot reloading won't work
 // import image_path from '../image.png'
 
-// you just `src` your image inside your `render()` method
+// Just `src` the image inside the `render()` method
 class Photo extends React.Component
 {
   render()
   {
-    // when Webpack url-loader finds this `require()` call 
-    // it will copy `image.png` to your build folder 
+    // When Webpack url-loader finds this `require()` call 
+    // it will copy `image.png` to the build folder 
     // and name it something like `9059f094ddb49c2b0fa6a254a6ebf2ad.png`, 
-    // because we are using the `[hash]` file naming feature of Webpack url-loader
-    // which (feature) is required to make browser caching work correctly
-    const image_path = require('../image.png')
-
-    return <img src={image_path}/>
+    // because Webpack is set up to use the `[hash]` file naming feature
+    // which makes browser asset caching work correctly.
+    return <img src={ require('../image.png') }/>
   }
 }
 ```
 
-It works on the client because Webpack intelligently replaces all the `require()` calls for you.
-But it wouldn't work on the server because Node.js only knows how to `require()` javascript modules. It would just throw a `SyntaxError`.
+It works on the client-side because Webpack intelligently replaces all the `require()` calls with a bit of magic.
+But it wouldn't work on the server-side because Node.js only knows how to `require()` javascript modules. It would just throw a `SyntaxError`.
 
-To solve this issue you use `webpack-isomorphic-tools` in your application and what it does is it makes the code above work on the server too so that you can have your isomorphic (universal) rendering working.
+To solve this issue one can use `webpack-isomorphic-tools`. With the help of `webpack-isomorphic-tools` in this particular case the `require()` call will return the real path to the image on the disk. It would be something like `../../build/9059f094ddb49c2b0fa6a254a6ebf2ad.png`. How did `webpack-isomorphic-tools` figure out this weird real file path? It's just a bit of magic.
 
-In this particular case the `require()` call will return the real path to the image on the disk. It would be something like `../../build/9059f094ddb49c2b0fa6a254a6ebf2ad.png`. How did `webpack-isomorphic-tools` know this weird real file path? It's just a bit of magic.
+`webpack-isomorphic-tools` is extensible, and finding the real paths for assets is the simplest example of what it can do inside `require()` calls. Using [custom configuration](#configuration) one can make `require()` calls (on the server) return anything (not just a String; it may be a JSON object, for example).
 
-So, you get the idea now?
-
-Aside all of that, `webpack-isomorphic-tools` is highly extensible, and finding the real paths for your assets is just the simplest example of what you can do. Using [custom configuration](#configuration) one can make `require()` calls (on the server) return whatever is needed (not just a String; it may be a JSON object, for example).
-
-For example, if you're using Webpack [css-loader](https://github.com/webpack/css-loader) modules feature (also referred to as ["local styles"](https://medium.com/seek-ui-engineering/the-end-of-global-css-90d2a4a06284)) you can make `require(*.css)` calls return JSON objects with generated CSS class names like they do in [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example#styles) (it's just a demonstration of what one can do with `webpack-isomorphic-tools`, and I'm not using this "modules" feature of `ccs-plugin` in my projects).
+For example, if one is using Webpack [css-loader](https://github.com/webpack/css-loader) modules feature (also referred to as ["local styles"](https://medium.com/seek-ui-engineering/the-end-of-global-css-90d2a4a06284)) one can make `require(*.css)` calls return JSON objects with generated CSS class names maps like they do in [este](https://github.com/este/este/blob/master/webpack/assets.js) and [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example#styles).
 
 ## Installation
 
