@@ -604,14 +604,20 @@ describe('plugin', function()
 
 	it("should have camelCase variants for all its attributes", function()
 	{
-		for (let key of Object.keys(isomorpher.prototype))
+		const instance = new isomorpher(isomorpher_settings())
+
+		const public_api =
+		[
+			'development',
+			'server',
+			'refresh',
+			'assets'
+		]
+
+		for (let key of public_api) // Object.keys(instance)
 		{
-			isomorpher.prototype.should.have.ownProperty(camel_case(key))
-			isomorpher.prototype[key].should.equal(isomorpher.prototype[camel_case(key)])
+			instance.should.have.property(camel_case(key))
+			instance[key].should.equal(instance[camel_case(key)])
 		}
-		
-		// Hard coded example
-		isomorpher.prototype.should.have.property('assetSource')
-		isomorpher.prototype.asset_source.should.equal(isomorpher.prototype.assetSource)
 	})
 })

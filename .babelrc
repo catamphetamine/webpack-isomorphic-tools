@@ -1,3 +1,13 @@
 {
-  "presets": [ "es2015-node5", "stage-0"]
+	"presets":
+	[
+		"es2015", 
+		"stage-0"
+	],
+
+	"plugins":
+	[
+		"transform-runtime",
+		"add-module-exports"
+	],
 }

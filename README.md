@@ -938,6 +938,8 @@ Is it development mode or is it production mode? By default it's production mode
 
 #### .regular_expression(asset_type)
 
+(aka `.regexp(asset_type)`)
+
 (Webpack plugin instance)
 
 Returns the regular expression for this asset type (based on this asset type's `extension` (or `extensions`))
@@ -1087,15 +1089,6 @@ After developing, the full test suite can be evaluated by running:
 ```sh
 npm test
 ```
-
-While actively developing, one can use (personally I don't use it)
-
-```sh
-npm run watch
-```
-
-in a terminal. This will watch the file system and run tests automatically 
-whenever you save a js file.
 
 When you're ready to test your new functionality on a real project, you can run
 

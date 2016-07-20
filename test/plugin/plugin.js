@@ -267,18 +267,23 @@ describe('plugin', function()
 		plugin.style_loader_path_extractor({ name: './~/css-loader!abc.css' }).should.equal('abc.css')
 	})
 
-	it('should have camel case aliases for all methods', function()
+	it('should have camelCase aliases for all methods', function()
 	{
 		// Test the method has been called on the exported stuff
 
-		for (let key of Object.keys(plugin))
-		{
-			plugin.should.have.property(camel_case(key))
-		}
+		const public_api =
+		[
+			'url_loader_parser',
+			'css_loader_parser',
+			'css_modules_loader_parser',
+			'style_loader_filter',
+			'style_loader_path_extractor'
+		]
 
-		for (let key of Object.keys(plugin.prototype))
+		for (let key of public_api)
 		{
-			plugin.prototype.should.have.property(camel_case(key))
+			console.log('##################', key)
+			plugin.should.have.property(camel_case(key))
 		}
 
 		// Test a couple of hard coded examples

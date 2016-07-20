@@ -46,6 +46,9 @@ Webpack_isomorphic_tools_plugin.prototype.regular_expression = function(asset_ty
 	return this.regular_expressions[asset_type]
 }
 
+// shorthand alias
+Webpack_isomorphic_tools_plugin.prototype.regexp = Webpack_isomorphic_tools_plugin.prototype.regular_expression
+
 // creates a regular expression for this file extension (or these file extensions)
 Webpack_isomorphic_tools_plugin.regular_expression = function(extensions)
 {
@@ -221,6 +224,17 @@ Webpack_isomorphic_tools_plugin.style_loader_path_extractor = function(module, o
 	return module.name.slice(module.name.lastIndexOf('!') + 1)
 }
 
-// alias camel case for those who prefer it
-alias_properties_with_camel_case(Webpack_isomorphic_tools_plugin.prototype)
-alias_properties_with_camel_case(Webpack_isomorphic_tools_plugin)
+// Doesn't work with Babel 6 compiler
+// // alias camel case for those who prefer it
+// alias_properties_with_camel_case(Webpack_isomorphic_tools_plugin.prototype)
+// alias_properties_with_camel_case(Webpack_isomorphic_tools_plugin)
+
+// camelCase aliases
+
+Webpack_isomorphic_tools_plugin.prototype.regularExpression = Webpack_isomorphic_tools_plugin.prototype.regular_expression
+
+Webpack_isomorphic_tools_plugin.urlLoaderParser          = Webpack_isomorphic_tools_plugin.url_loader_parser
+Webpack_isomorphic_tools_plugin.cssLoaderParser          = Webpack_isomorphic_tools_plugin.css_loader_parser
+Webpack_isomorphic_tools_plugin.cssModulesLoaderParser   = Webpack_isomorphic_tools_plugin.css_modules_loader_parser
+Webpack_isomorphic_tools_plugin.styleLoaderFilter        = Webpack_isomorphic_tools_plugin.style_loader_filter
+Webpack_isomorphic_tools_plugin.styleLoaderPathExtractor = Webpack_isomorphic_tools_plugin.style_loader_path_extractor

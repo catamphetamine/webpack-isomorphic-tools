@@ -712,5 +712,6 @@ export default class webpack_isomorphic_tools
 	}
 }
 
-// alias camel case for those who prefer it
-alias_properties_with_camel_case(webpack_isomorphic_tools.prototype)
+// Doesn't work with Babel 6 compiler
+// // alias camel case for those who prefer it
+// alias_properties_with_camel_case(webpack_isomorphic_tools.prototype)
