@@ -26,7 +26,7 @@ if (!action)
 var Root_folder = path.resolve(__dirname)
 var Demo_folder = 'demo'
 
-var babel = 'babel?stage=0'
+var babel = 'babel'
 
 var config = 
 {
