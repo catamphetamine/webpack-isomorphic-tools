@@ -978,7 +978,7 @@ Returns the contents of `webpack-assets.json` which is created by `webpack-isomo
 
 If encountered when run on server, this error means that the `require()`d path doesn't exist in the filesystem (all the `require()`d assets [must exist in the filesystem](https://github.com/nodejs/node/blob/4d4cfb27ca7718c7df381ac3b257175927cd17d1/lib/module.js#L436-L441) when run on server). If encountered during Webpack build, this error means that the `require()`d path is absent from `webpack-stats.json`.
 
-As an illustration, consider an example where a developer transpiles all his ES6 code using Babel into a single compiled file `./build/server-bundle-es5.js`. Because all the assets still remain in the `./src` directory, `Cannot find module` error will be thrown when trying to run the compiled bundle. As a workaround use [`babel-register`](https://babeljs.io/docs/usage/require/) instead. Or [copy all assets](https://github.com/halt-hammerzeit/webpack-isomorphic-tools/pull/68#issuecomment-218698675) to the `./build` folder keeping the file tree structure (both for compiled code and assets).
+As an illustration, consider an example where a developer transpiles all his ES6 code using Babel into a single compiled file `./build/server-bundle-es5.js`. Because all the assets still remain in the `./src` directory, `Cannot find module` error will be thrown when trying to run the compiled bundle. As a workaround use [`babel-register`](https://babeljs.io/docs/usage/require/) instead. Or [copy all assets](https://github.com/halt-hammerzeit/webpack-isomorphic-tools/pull/68#issuecomment-218698675) to the `./build` folder (keeping the file tree structure) and point Webpack `context` to the `./src` folder.
 
 ### SyntaxError: Unexpected token ILLEGAL
 
