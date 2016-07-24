@@ -1034,11 +1034,11 @@ If you wrote your code with just `import`s it would work fine. But imagine you'r
 ```javascript
 if (_development_)
 {
-  webpack_isomorhic_tools.refresh()
+  webpack_isomorphic_tools.refresh()
 }
 ```
 
-It does exactly as it says: it refreshes everything on page reload when you're in development mode. And to leverage this feature you need to use dynamic module loading as opposed to static one through `import`s. This can be done by `require()`ing your assets, and not at the top of the file where all `require()`s usually go but, say, inside the `reder()` method for React components.
+It does exactly as it says: it refreshes everything on page reload when you're in development mode. And to leverage this feature you need to use dynamic module loading as opposed to static one through `import`s. This can be done by `require()`ing your assets, and not at the top of the file where all `require()`s usually go but, say, inside the `render()` method for React components.
 
 I also read on the internets that ES6 supports dynamic module loading too and it looks something like this:
 
