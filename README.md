@@ -359,6 +359,19 @@ Available configuration parameters:
   //
   debug: true, // is false by default
 
+  // (optional)
+  //
+  // when `port` is set, then this `port` is used
+  // to run an HTTP server serving Webpack assets.
+  // (`express` npm package must be installed in order for this to work)
+  //
+  // this way `webpack-assets.json` won't ever be written to disk
+  // and instead will always reside in memory and be served from memory.
+  //
+  // this `port` setting will take effect only in development mode.
+  //
+  // port: 8888, // is false by default
+
   // verbosity.
   // when set to true, outputs Webpack stats to the console 
   // in development mode on each incremental build.
