@@ -96,6 +96,11 @@ Webpack_isomorphic_tools_plugin.prototype.development = function(flag)
 
 		app.get('/', (request, response) =>
 		{
+			if (!this.assets)
+			{
+				return response.status(404).send('Webpack assets not generated yet')
+			}
+			
 			response.send(this.assets)
 		})
 
@@ -163,6 +168,9 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 		//
 		const assets_base_url = (webpack_configuration.devServer && webpack_configuration.devServer.publicPath) ? webpack_configuration.devServer.publicPath : json.publicPath
 
+		// serve webpack assets from RAM rather than from disk
+		const serve_assets_from_memory = plugin.options.development && plugin.options.port
+
 		// write webpack-assets.json with assets info
 		// and cache them in plugin instance
 		// for later serving from HTTP service
@@ -177,6 +185,7 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 			webpack_assets_path : webpack_assets_path,
 			webpack_stats_path  : webpack_stats_path,
 			output              : default_webpack_assets(),
+			output_to_a_file    : !serve_assets_from_memory,
 			regular_expressions : plugin.regular_expressions
 		},
 		plugin.log)

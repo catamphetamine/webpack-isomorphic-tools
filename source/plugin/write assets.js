@@ -43,11 +43,18 @@ export default function write_assets(json, options, log)
 	populate_assets(output, json, options, log)
 
 	// write webpack assets info file
-	log.debug(`writing webpack assets info to ${options.webpack_assets_path}`)
-	// format the JSON for better readability if in debug mode
-	const assets_info = development ? JSON.stringify(output, null, 2) : JSON.stringify(output)
-	// write the file
-	fs.outputFileSync(options.webpack_assets_path, assets_info)
+	if (options.output_to_a_file)
+	{
+		log.debug(`writing webpack assets info to ${options.webpack_assets_path}`)
+		// format the JSON for better readability if in debug mode
+		const assets_info = development ? JSON.stringify(output, null, 2) : JSON.stringify(output)
+		// write the file
+		fs.outputFileSync(options.webpack_assets_path, assets_info)
+	}
+	else
+	{
+		log.debug(`serving webpack assets from memory`)
+	}
 
 	// return Webpack assets JSON object
 	// for serving it through HTTP service

@@ -1,3 +1,8 @@
+2.5.0 / 24.07.2016
+===================
+
+  * Added an experimental `port` setting which makes it possible to keep `webpack-assets.json` in RAM as opposed to constantly writing it to disk (implemented this feature just for fun)
+
 2.3.1 / 15.06.2016
 ===================
 
