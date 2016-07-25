@@ -45,11 +45,40 @@ export default function write_assets(json, options, log)
 	// write webpack assets info file
 	if (options.output_to_a_file)
 	{
-		log.debug(`writing webpack assets info to ${options.webpack_assets_path}`)
 		// format the JSON for better readability if in debug mode
 		const assets_info = development ? JSON.stringify(output, null, 2) : JSON.stringify(output)
-		// write the file
-		fs.outputFileSync(options.webpack_assets_path, assets_info)
+
+		// rewrite `webpack-assets.json`
+		let rewrite = true
+
+		// for `webpack-assets.json` caching to work
+		// chunks info should be moved out of it,
+		// otherwise chunk hashsums constantly change,
+		// and there won't be any caching.
+		//
+		// const assets_buffer = Buffer.from(assets_info)
+		//
+		// // if webpack-assets.json already exists,
+		// // then maybe no need to rewrite it
+		// if (fs.existsSync(options.webpack_assets_path))
+		// {
+		// 	// previously written webpack-assets.json
+		// 	const previous_assets_buffer = fs.readFileSync(options.webpack_assets_path)
+		//
+		// 	// if webpack-assets.json rewrite is not needed, then don't do it
+		// 	if (assets_buffer.equals(previous_assets_buffer))
+		// 	{
+		// 		rewrite = false
+		// 	}
+		// }
+
+		// if webpack-assets.json rewrite is needed, then do it
+		if (rewrite)
+		{
+			log.debug(`writing webpack assets info to ${options.webpack_assets_path}`)
+			// write the file
+			fs.outputFileSync(options.webpack_assets_path, assets_info)
+		}
 	}
 	else
 	{
