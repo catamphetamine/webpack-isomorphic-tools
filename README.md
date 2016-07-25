@@ -360,6 +360,7 @@ Available configuration parameters:
   debug: true, // is false by default
 
   // (optional)
+  // (recommended)
   //
   // when `port` is set, then this `port` is used
   // to run an HTTP server serving Webpack assets.
