@@ -48,6 +48,13 @@ export function normalize_options(options)
 				}
 				break
 
+			case 'port':
+				if (typeof options[key] !== 'number')
+				{
+					throw new Error(`"${key}" configuration parameter must be ` + `a number`)
+				}
+				break
+
 			case 'webpack_assets_file_path':
 			case 'webpack_stats_file_path':
 				if (typeof options[key] !== 'string')

@@ -533,6 +533,10 @@ describe('plugin', function()
 
 		instantiate.should.throw('must be a boolean')
 
+		options = { port: 'true' }
+
+		instantiate.should.throw('must be a number')
+
 		options = { assets: 'true' }
 
 		instantiate.should.throw('must be an object')

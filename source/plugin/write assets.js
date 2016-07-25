@@ -13,7 +13,7 @@ export default function write_assets(json, options, log)
 	// take the passed in options
 	options = clone(options)
 
-		log.debug(`running write assets webpack plugin v${require('../../package.json').version} with options`, options)
+	log.debug(`running write assets webpack plugin v${require('../../package.json').version} with options`, options)
 
 	// make webpack stats accessible for asset functions (parser, path, filter)
 	options.webpack_stats = json
@@ -48,6 +48,10 @@ export default function write_assets(json, options, log)
 	const assets_info = development ? JSON.stringify(output, null, 2) : JSON.stringify(output)
 	// write the file
 	fs.outputFileSync(options.webpack_assets_path, assets_info)
+
+	// return Webpack assets JSON object
+	// for serving it through HTTP service
+	return output
 }
 
 // populates the output object with assets

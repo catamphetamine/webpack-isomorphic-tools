@@ -282,7 +282,6 @@ describe('plugin', function()
 
 		for (let key of public_api)
 		{
-			console.log('##################', key)
 			plugin.should.have.property(camel_case(key))
 		}
 

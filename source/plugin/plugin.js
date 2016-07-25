@@ -87,6 +87,24 @@ Webpack_isomorphic_tools_plugin.prototype.development = function(flag)
 		this.log.debug('entering production mode')
 	}
 
+	// start HTTP service in development mode
+	// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/92
+	if (this.options.development && this.options.port)
+	{
+		const express = require('express')
+		const app = express()
+
+		app.get('/', (request, response) =>
+		{
+			response.send(this.assets)
+		})
+
+		app.listen(this.options.port, () =>
+		{
+			this.log.info(`HTTP service listening on port ${this.options.port}`)
+		})
+	}
+
 	// allows method chaining
 	return this
 }
@@ -146,7 +164,9 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 		const assets_base_url = (webpack_configuration.devServer && webpack_configuration.devServer.publicPath) ? webpack_configuration.devServer.publicPath : json.publicPath
 
 		// write webpack-assets.json with assets info
-		write_assets(json,
+		// and cache them in plugin instance
+		// for later serving from HTTP service
+		plugin.assets = write_assets(json,
 		{
 			development         : plugin.options.development,
 			debug               : plugin.options.debug,
