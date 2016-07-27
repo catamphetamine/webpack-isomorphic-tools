@@ -1,4 +1,4 @@
-2.5.1 / 27.07.2016
+2.5.2 / 27.07.2016
 ===================
 
   * Small bugfix for `port` setting (fixing endless "(waiting for the first webpack build to finish)")
