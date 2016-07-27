@@ -729,7 +729,7 @@ export default class webpack_isomorphic_tools
 		let ready_check
 
 		// either go over network
-		if (this.options.port)
+		if (this.options.debug && this.options.port)
 		{
 			ready_check = () =>
 			{
