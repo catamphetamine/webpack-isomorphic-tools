@@ -264,7 +264,13 @@ export default class webpack_isomorphic_tools
 		this.loaders_hook = require_hacker.global_hook('webpack-loaders', (required_path, module) =>
 		{
 			// filter out non-loader paths
-			if (starts_with(required_path, '/') || required_path.indexOf('!') < 0)
+			// (ignore filesystem paths (both Linux and Windows)
+			//  and non-loader paths)
+			if (starts_with(required_path, '/')
+				|| starts_with(required_path, './')
+				|| starts_with(required_path, '../')
+				|| required_path.indexOf(':') > 0
+				|| required_path.indexOf('!') < 0)
 			{
 				return
 			}
