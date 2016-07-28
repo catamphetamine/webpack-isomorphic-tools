@@ -296,7 +296,7 @@ export default class webpack_isomorphic_tools
 
 			const asset = this.asset_source(path)
 
-			if (!asset)
+			if (asset === undefined)
 			{
 				return
 			}
@@ -529,7 +529,16 @@ export default class webpack_isomorphic_tools
 			return
 		}
 
-		return this.require_asset(this.asset_source(asset_path), { require_cache_path: global_asset_path })
+		// find this asset in the list
+		const asset = this.asset_source(asset_path)
+
+		// if the asset was not found in the list, output an error
+		if (asset === undefined)
+		{
+			this.log.error(`asset not found: ${asset_path}`)
+		}
+
+		return this.require_asset(asset, { require_cache_path: global_asset_path })
 	}
 
 	// require()s an asset by it source
@@ -625,9 +634,7 @@ export default class webpack_isomorphic_tools
 			}
 		}
 
-		// if the asset was not found in the list,
-		// return nothing and output an error
-		this.log.error(`asset not found: ${asset_path}`)
+		// if the asset was not found in the list, return nothing
 		return
 	}
 
