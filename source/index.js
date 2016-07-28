@@ -263,7 +263,8 @@ export default class webpack_isomorphic_tools
 		// intercepts loader-powered require() paths
 		this.loaders_hook = require_hacker.global_hook('webpack-loaders', (required_path, module) =>
 		{
-			if (required_path.indexOf('!') < 0)
+			// filter out non-loader paths
+			if (starts_with(required_path, '/') || required_path.indexOf('!') < 0)
 			{
 				return
 			}
@@ -287,7 +288,14 @@ export default class webpack_isomorphic_tools
 
 			const path = parts.join('!') + '!' + this.normalize_asset_path(global_asset_path)
 
-			return this.require_local_path(path, { require_cache_path: required_path + '.webpack-loaders' })
+			const asset = this.asset_source(path)
+
+			if (!asset)
+			{
+				return
+			}
+
+			return this.require_asset(asset, { require_cache_path: required_path + '.webpack-loaders' })
 		})
 
 		// allows method chaining
@@ -515,11 +523,11 @@ export default class webpack_isomorphic_tools
 			return
 		}
 
-		return this.require_local_path(asset_path, { require_cache_path: global_asset_path })
+		return this.require_asset(this.asset_source(asset_path), { require_cache_path: global_asset_path })
 	}
 
-	// require()s an asset by a global path
-	require_local_path(asset_path, options)
+	// require()s an asset by it source
+	require_asset(asset, options)
 	{
 		// this.log.debug(`require() called for ${asset_path}`)
 
@@ -531,7 +539,7 @@ export default class webpack_isomorphic_tools
 		}
 
 		// return CommonJS module source for this asset
-		return require_hacker.to_javascript_module_source(this.asset_source(asset_path))
+		return require_hacker.to_javascript_module_source(asset)
 	}
 
 	// returns asset source by path (looks it up in webpack-assets.json)
