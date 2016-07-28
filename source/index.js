@@ -260,6 +260,36 @@ export default class webpack_isomorphic_tools
 			}
 		}
 
+		// intercepts loader-powered require() paths
+		this.loaders_hook = require_hacker.global_hook('webpack-loaders', (required_path, module) =>
+		{
+			if (required_path.indexOf('!') < 0)
+			{
+				return
+			}
+
+			let parts = required_path.split('!')
+			const local_asset_path = parts.pop()
+
+			parts = parts.map(loader =>
+			{
+				let loader_parts = loader.split('?')
+
+				if (!ends_with(loader_parts[0], '-loader'))
+				{
+					loader_parts[0] += '-loader'
+				}
+
+				return `./~/${loader_parts.join('?')}`
+			})
+
+			const global_asset_path = require_hacker.resolve(local_asset_path, module)
+
+			const path = parts.join('!') + '!' + this.normalize_asset_path(global_asset_path)
+
+			return this.require_local_path(path, { require_cache_path: required_path + '.webpack-loaders' })
+		})
+
 		// allows method chaining
 		return this
 	}
@@ -455,11 +485,8 @@ export default class webpack_isomorphic_tools
 		}
 	}
 
-	// require()s an asset by a path
-	require(global_asset_path, description)
+	normalize_asset_path(global_asset_path)
 	{
-		this.log.debug(`require() called for ${global_asset_path}`)
-
 		// sanity check
 		/* istanbul ignore if */
 		if (!this.options.project_path)
@@ -468,7 +495,16 @@ export default class webpack_isomorphic_tools
 		}
 
 		// convert global asset path to local-to-the-project asset path
-		const asset_path = normalize_asset_path(global_asset_path, this.options.project_path)
+		return normalize_asset_path(global_asset_path, this.options.project_path)
+	}
+
+	// require()s an asset by a global path
+	require(global_asset_path, description)
+	{
+		this.log.debug(`require() called for ${global_asset_path}`)
+
+		// convert global asset path to local-to-the-project asset path
+		const asset_path = this.normalize_asset_path(global_asset_path)
 
 		// if this filename is in the user specified exceptions list
 		// (or is not in the user explicitly specified inclusion list)
@@ -479,11 +515,19 @@ export default class webpack_isomorphic_tools
 			return
 		}
 
+		return this.require_local_path(asset_path, { require_cache_path: global_asset_path })
+	}
+
+	// require()s an asset by a global path
+	require_local_path(asset_path, options)
+	{
+		// this.log.debug(`require() called for ${asset_path}`)
+
 		// track cached assets (only in development mode)
 		if (this.options.development)
 		{
 			// mark this asset as cached
-			this.cached_assets.push(global_asset_path)
+			this.cached_assets.push(options.require_cache_path)
 		}
 
 		// return CommonJS module source for this asset
@@ -589,6 +633,12 @@ export default class webpack_isomorphic_tools
 		if (this.alias_hook)
 		{
 			this.alias_hook.unmount()
+		}
+
+		// unmount require() hook which intercepts loader-powered require() paths
+		if (this.loaders_hook)
+		{
+			this.loaders_hook.unmount()
 		}
 	}
 

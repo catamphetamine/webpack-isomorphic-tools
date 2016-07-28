@@ -1,3 +1,8 @@
+2.5.3 / 28.07.2016
+===================
+
+  * Added support for loader-powered `require()`d paths (e.g. 'responsive?sizes=[]!./images/dog.jpg')
+
 2.5.2 / 27.07.2016
 ===================
 

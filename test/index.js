@@ -37,7 +37,9 @@ const webpack_assets =
 		"./~/whatever.jpg"                       : 1,
 		"./~/aliased_module_name/test.jpg"       : true,
 		"./~/whatever.js"                        : 'whatever asset',
-		"./modules_directory/gay/index.js"       : 'hot gay'
+		"./modules_directory/gay/index.js"       : 'hot gay',
+
+		"./~/responsive-loader?sizes[]=100w,sizes[]=200w,sizes[]=300w!./assets/husky.jpg" : 'responsive'
 	}
 }
 
@@ -421,6 +423,31 @@ describe('plugin', function()
 			test('module_name_not_aliased').should.throw('module_name_not_aliased')
 			test('./original_module_name').should.throw('/original_module_name')
 			test('/original_module_name').should.throw('/original_module_name')
+
+			// unmount require() hooks
+			server_side.undo()
+
+			// done
+			done()
+		})
+	})
+
+	it('should correctly require loader-powered paths', function(done)
+	{
+		// create the webpack-assets.json
+		create_assets_file()
+
+		// ensure it waits for webpack-assets.json
+		const server_side = new isomorpher(isomorpher_settings()).development()
+
+		// install require() hooks
+		server_side.server(webpack_configuration.context, () =>
+		{
+			// // should take the value from filesystem
+			// require('original_module_name').should.equal(aliased_module_name_result)
+
+			// should take the value from webpack-assets.json
+			require('responsive?sizes[]=100w,sizes[]=200w,sizes[]=300w!./assets/husky.jpg').should.equal('responsive')
 
 			// unmount require() hooks
 			server_side.undo()
