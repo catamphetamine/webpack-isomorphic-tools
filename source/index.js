@@ -278,6 +278,15 @@ export default class webpack_isomorphic_tools
 			let parts = required_path.split('!')
 			const local_asset_path = parts.pop()
 
+			// extra measures taken here to not
+			// confuse some legit require()d path
+			// with a seemingly loader-powered one
+			if (!starts_with(local_asset_path, './')
+				&& !starts_with(local_asset_path, '../'))
+			{
+				return
+			}
+
 			parts = parts.map(loader =>
 			{
 				let loader_parts = loader.split('?')
