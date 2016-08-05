@@ -343,10 +343,10 @@ Also you may look at [this sample project](https://github.com/halt-hammerzeit/we
 
 Some source code guidance for the aforementioned project:
 
-* [webpack-isomorphic-tools configuration](https://github.com/halt-hammerzeit/webapp/blob/master/webpack/webpack-isomorphic-tools.js)
-* [webpack-isomorphic-tools plugin](https://github.com/halt-hammerzeit/webapp/blob/master/webpack/development%20server.js#L50)
-* [webpack-isomorphic-tools server-side initialization](https://github.com/halt-hammerzeit/webapp/blob/master/code/page-server/entry.js#L10-L18)
-* [where all server-side webpage rendering happens](https://github.com/halt-hammerzeit/webapp/blob/master/code/page-server/main.js#L41-L59)
+* [webpack-isomorphic-tools configuration](https://github.com/halt-hammerzeit/webapp/blob/master/frontend/webpack/webpack-isomorphic-tools.js)
+* [webpack-isomorphic-tools plugin](https://github.com/halt-hammerzeit/webapp/blob/master/frontend/webpack/development%20server.js#L50)
+* [webpack-isomorphic-tools server-side initialization](https://github.com/halt-hammerzeit/webapp/blob/master/frontend/page-server/entry.js#L10-L18)
+* [where all server-side webpage rendering happens](https://github.com/halt-hammerzeit/webapp/blob/master/frontend/page-server/main.js#L41-L59)
 
 ## Configuration
 
@@ -366,8 +366,9 @@ Available configuration parameters:
   // to run an HTTP server serving Webpack assets.
   // (`express` npm package must be installed in order for this to work)
   //
-  // this way `webpack-assets.json` won't ever be written to disk
-  // and instead will always reside in memory and be served from memory.
+  // this way, in development mode, `webpack-assets.json` won't ever
+  // be written to disk and instead will always reside in memory
+  // and be served from memory (just as `webpack-dev-server` does).
   //
   // this `port` setting will take effect only in development mode.
   //
