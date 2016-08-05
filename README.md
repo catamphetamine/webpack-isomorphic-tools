@@ -344,9 +344,8 @@ Also you may look at [this sample project](https://github.com/halt-hammerzeit/we
 Some source code guidance for the aforementioned project:
 
 * [webpack-isomorphic-tools configuration](https://github.com/halt-hammerzeit/webapp/blob/master/frontend/webpack/webpack-isomorphic-tools.js)
-* [webpack-isomorphic-tools plugin](https://github.com/halt-hammerzeit/webapp/blob/master/frontend/webpack/development%20server.js#L50)
-* [webpack-isomorphic-tools server-side initialization](https://github.com/halt-hammerzeit/webapp/blob/master/frontend/page-server/entry.js#L10-L18)
-* [where all server-side webpage rendering happens](https://github.com/halt-hammerzeit/webapp/blob/master/frontend/page-server/main.js#L41-L59)
+* [webpack-isomorphic-tools plugin](https://github.com/halt-hammerzeit/webapp/blob/master/frontend/webpack/development%20server.js#L57)
+* [webpack-isomorphic-tools server-side initialization](https://github.com/halt-hammerzeit/webapp/blob/master/frontend/page-server/entry.es6.js#L13-L18)
 
 ## Configuration
 
