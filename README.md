@@ -373,6 +373,12 @@ Available configuration parameters:
   //
   // port: 8888, // is false by default
 
+  // stats output.
+  // when set to false, disables all stats output from Webpack
+  // to the console.
+  //
+  // stats: false, // is true by default
+
   // verbosity.
   // when set to true, outputs Webpack stats to the console 
   // in development mode on each incremental build.
