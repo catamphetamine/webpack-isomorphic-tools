@@ -35,12 +35,7 @@ export function normalize_options(options)
 				break
 
 			case 'debug':
-				if (typeof options[key] !== 'boolean')
-				{
-					throw new Error(`"${key}" configuration parameter must be ` + `a boolean`)
-				}
-				break
-
+			case 'stats':
 			case 'verbose':
 				if (typeof options[key] !== 'boolean')
 				{

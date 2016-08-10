@@ -150,7 +150,7 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 		})
 
 		// output some info to the console if in development mode
-		if (plugin.options.development)
+		if (plugin.options.development && plugin.options.stats !== false)
 		{
 			// outputs stats info to the console
 			// (only needed in development mode)
