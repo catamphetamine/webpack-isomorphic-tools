@@ -4,13 +4,12 @@ import colors from 'colors/safe'
 
 function error(error)
 {
-	// BELLs when something goes wrong!
-	console.log("\x07" + error)
+	console.error(colors.red(error))
 }
 
 function warning(warning)
 {
-	console.log(warning)
+	console.log(colors.yellow(warning))
 }
 
 let first_run  = true

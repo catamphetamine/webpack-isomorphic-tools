@@ -46,6 +46,24 @@ export function normalize_options(options)
 				{
 					throw new Error(`"${key}" configuration parameter must be ` + `a boolean`)
 				}
+				// Legacy `verbose` option is converted to `verbosity`
+				console.log('[webpack-isomorphic-tools] WARNING: `verbose` option is now called `verbosity`')
+				if (options.verbose)
+				{
+					options.verbosity = verbosity_levels.webpack_stats_for_each_build
+				}
+				delete options.verbose
+				break
+
+			case 'verbosity':
+				if (typeof options[key] !== 'string')
+				{
+					throw new Error(`"${key}" configuration parameter must be ` + `a string`)
+				}
+				if (Object.keys(verbosity_levels).map(key => verbosity_levels[key]).indexOf(options[key]) < 0)
+				{
+					throw new Error(`Unknown "verbosity" passed: ${options[key]}`)
+				}
 				break
 
 			case 'port':
@@ -83,7 +101,7 @@ export function normalize_options(options)
 					throw new Error(`"${key}" configuration parameter must be ` + `a boolean`)
 				}
 				// Legacy `require_context` option is converted to `patch_require`
-				console.log('WARNING: `require_context` option is now called `patch_require`')
+				console.log('[webpack-isomorphic-tools] WARNING: `require_context` option is now called `patch_require`')
 				delete options.require_context
 				options.patch_require = true
 				break
@@ -295,4 +313,10 @@ export function uniform_path(asset_path)
 	}
 
 	return asset_path
+}
+
+export const verbosity_levels =
+{
+	no_webpack_stats             : 'no webpack stats',
+	webpack_stats_for_each_build : 'webpack stats for each build'
 }

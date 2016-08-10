@@ -374,11 +374,20 @@ Available configuration parameters:
   // port: 8888, // is false by default
 
   // verbosity.
-  // when set to true, outputs Webpack stats to the console 
-  // in development mode on each incremental build.
-  // (i don't know who might need that info)
   //
-  // verbose: true, // is false by default
+  // when set to 'no webpack stats',
+  // outputs no Webpack stats to the console in development mode.
+  // this also means no Webpack errors or warnings will be output to the console.
+  //
+  // when set to 'webpack stats for each build',
+  // outputs Webpack stats to the console 
+  // in development mode on each incremental build.
+  // (i guess no one is gonna ever use this setting)
+  //
+  // when not set (default), outputs Webpack stats to the console 
+  // in development mode for the first build only.
+  //
+  // verbosity: ..., // is `undefined` by default
 
   // enables support for `require.context()` and `require.ensure()` functions.
   // is turned off by default 

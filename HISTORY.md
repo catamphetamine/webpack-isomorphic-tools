@@ -1,3 +1,8 @@
+2.5.7 / 10.08.2016
+===================
+
+  * Renamed `verbose` option to `verbosity` (can be one of: `undefined`, `"no webpack stats"`, `"webpack stats for each build"`)
+
 2.5.3 / 28.07.2016
 ===================
 

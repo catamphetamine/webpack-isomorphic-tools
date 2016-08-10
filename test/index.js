@@ -560,6 +560,14 @@ describe('plugin', function()
 
 		instantiate.should.throw('must be a boolean')
 
+		options = { verbosity: true }
+
+		instantiate.should.throw('must be a string')
+
+		options = { verbosity: 'gay' }
+
+		instantiate.should.throw('Unknown "verbosity"')
+
 		options = { port: 'true' }
 
 		instantiate.should.throw('must be a number')

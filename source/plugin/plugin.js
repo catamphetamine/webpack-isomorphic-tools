@@ -7,7 +7,7 @@ import Log from './../tools/log'
 
 import { exists, clone, convert_from_camel_case, alias_properties_with_camel_case } from './../helpers'
 
-import { default_webpack_assets, normalize_options } from './../common'
+import { default_webpack_assets, normalize_options, verbosity_levels } from './../common'
 
 // a Webpack plugin
 export default function Webpack_isomorphic_tools_plugin(options)
@@ -150,11 +150,11 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 		})
 
 		// output some info to the console if in development mode
-		if (plugin.options.development)
+		if (plugin.options.development && plugin.options.verbosity !== verbosity_levels.no_webpack_stats)
 		{
 			// outputs stats info to the console
 			// (only needed in development mode)
-			notify_stats(stats, json, plugin.options.verbose)
+			notify_stats(stats, json, plugin.options.verbosity === verbosity_levels.webpack_stats_for_each_build)
 		}
 
 		// assets base path (on disk or on the network)
