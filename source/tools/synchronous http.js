@@ -2,7 +2,9 @@ import request from 'sync-request'
 
 export default function http_request(port)
 {
-	const response = request('GET', `http://0.0.0.0:${port}`, { timeout: 1000, socketTimeout: 1000 })
+	// "0.0.0.0" won't work on Windows
+	// (Error: connect EADDRNOTAVAIL 0.0.0.0:9999)
+	const response = request('GET', `http://127.0.0.1:${port}`, { timeout: 1000, socketTimeout: 1000 })
 
 	// status codes 4xx have been already thrown before this line.
 	// not sure about other status codes, so just in case:
