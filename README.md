@@ -17,7 +17,7 @@ If for some reason `universal-webpack` doesn't suit your needs, or is too comple
 
 ## Topics
 
-- [What it does and why is it needed?](#what-it-does-and-why-is-it-needed)
+- [What it does](#what-it-does)
 - [Getting down to business](#getting-down-to-business)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -33,25 +33,23 @@ If for some reason `universal-webpack` doesn't suit your needs, or is too comple
 - [References](#references)
 - [Contributing](#contributing)
 
-## What it does and why is it needed?
+## What it does
 
-What is a web application? I would define it as a box with a bunch of inputs (keyboard events, mouse events) and a display as an output. A user walks into your website and your web application renders a "page" on his display.
+Suppose you have an application which is built using Webpack. It works in the web browser.
 
-At first all the rendering used to happen on the server. But then "AJAX" came (in 2005) and it opened a possibility of moving all rendering logic to the client (user's web browser) leaving the server with just serving API calls (data fetching, data modification, etc).
+Should it be "isomorphic" ("universal")? It's better if it is. One reason is that search engines will be able to index your page. The other reason is that we live in a realtime mobile age which declared war on network latency, and so it's always better to fetch an already rendered content than to first fetch the application code and only then fetch the content to render the page. Every time you release a client-side only website to the internet someone writes a [frustrated blog post](https://ponyfoo.com/articles/stop-breaking-the-web).
 
-And so numerous javascript frameworks emerged to serve the purpose of client side rendering and routing. But then everybody realised that this new way of building web applications broke search engine indexing because the search engines didn't talk any javascript.
+So, it's obvious then that web applications should be "isomorphic" ("universal"), i.e. be able to render both on the client and the server, depending on circumstances. And it is perfectly possible nowadays since javascript runs everywhere: both in web browsers and on servers.
 
-Then the age of super-responsive websites came and also the iPhone emerged and the battle for milliseconds began. And everybody noticed that client side rendering introduced unnecessary data fetching roundtrips on the first page load: the web browser loaded markup templates and scripts first and then asked the server for the actual data to display.
+Ok, then one can just go ahead and run the web application in Node.js and its done. But, there's one gotcha: a Webpack application will usually crash when tried to be run in Node.js straight ahead (you'll get a lot of `SyntaxError`s with `Unexpected token`s).
 
-So it became obvious that web applications need to be "isomorphic" ("universal"), i.e. be able to render both on the client and the server, depending on circumstances. It was quite manageable: one just had to write the rendering logic in such a programming language that is able to run both on client and server. One such language is javascript.
+The reason is that Webpack introduces its own layer above the standard javascript. This extra layer handles all `require()` calls magically resolving them to whatever it is configured to. For example, Webpack is perfectly fine with the code `require()`ing CSS styles or SVG images.
 
-Time moved on and then another new technology emerged - bundling: web applications became so sophisticated and big that the programmers needed a software to take control of the development, testing and building process and to manage all the heterogeneous components of the system. Currently the most popular and well-thought bundler is Webpack.
+Bare Node.js obviously doesn't come with such trickery up its sleeve. Maybe it can be somehow enhanced to be able to do such things? Turned out that it can, and that's what `webpack-isomorphic-tools` do: they inject that `require()` magic layer above the standard javascript in Node.js.
 
-How Webpack works: it finds all `require()` calls inside your code and replaces them with various kinds of magic to make the things work. If you try to run the same source code outside of Webpack - for example, on a regular Node.js server - you'll get a lot of `SyntaxError`s with `Unexpected token`s. That's because on a Node.js server there's no Webpack `require()` magic happening and it simply tries to `require()` all the "assets" (styles, images, fonts, OpenGL shaders, etc) as if they were proper javascript-coded modules hence the error message.
+An alternative solution exists now: to compile server-side code with Webpack the same way it already compiles the client-side code. This is the officially recommended way to go and one can use [`universal-webpack`](https://github.com/halt-hammerzeit/universal-webpack) library to achieve that. However, some people still prefer this (earlier) library, so it still exists.
 
-One solution is to compile server-side code with Webpack the same way one already compiles the client-side code. This is the officially recommended way to go and one can use [`universal-webpack`](https://github.com/halt-hammerzeit/universal-webpack) library to achieve that. However, some people may find this way too difficult to understand, so there's the second possible solution - `webpack-isomorphic-tools`.
-
-`webpack-isomorphic-tools` mimics (to a certain extent) Webpack's `require()` magic when running your code on a Node.js server without Webpack. It basically fixes all those `require()`s of assets and makes them work instead of throwing `SyntaxError`s. It doesn't provide all the capabilities of Webpack (for example, plugins won't work), but for the basic stuff, it works.
+`webpack-isomorphic-tools` mimics (to a certain extent) Webpack's `require()` magic when running application code on a Node.js server without Webpack. It basically fixes all those `require()`s of assets and makes them work instead of throwing `SyntaxError`s. It doesn't provide all the capabilities of Webpack (for example, plugins won't work), but for the basic stuff, it works.
 
 ## A simple example
 
@@ -85,6 +83,12 @@ To solve this issue one can use `webpack-isomorphic-tools`. With the help of `we
 `webpack-isomorphic-tools` is extensible, and finding the real paths for assets is the simplest example of what it can do inside `require()` calls. Using [custom configuration](#configuration) one can make `require()` calls (on the server) return anything (not just a String; it may be a JSON object, for example).
 
 For example, if one is using Webpack [css-loader](https://github.com/webpack/css-loader) modules feature (also referred to as ["local styles"](https://medium.com/seek-ui-engineering/the-end-of-global-css-90d2a4a06284)) one can make `require(*.css)` calls return JSON objects with generated CSS class names maps like they do in [este](https://github.com/este/este/blob/master/webpack/assets.js) and [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example#styles).
+
+## Tutorials and blog posts
+
+Just some basic guidance from other people on the internets
+
+  * [Importing SVGs](https://github.com/peter-mouland/react-lego/wiki/Importing-SVGs) by [@peter-mouland](https://github.com/peter-mouland)
 
 ## Installation
 
