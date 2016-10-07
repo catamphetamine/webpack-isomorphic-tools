@@ -1030,6 +1030,10 @@ If none of those is your case, enable `debug: true` flag in `webpack-isomorphic-
 
 ## Miscellaneous
 
+### Webpack 2 `System.import`
+
+Instead of implementing `System.import` in this library I think that it would be more rational to use existing tools for transforming `System.import()` calls into `require()` calls. See [this stackoverflow answer](http://stackoverflow.com/questions/37121442/server-side-react-with-webpack-2-system-import/39088208#39088208) for a list of such tools.
+
 ### .gitignore
 
 Make sure you add this to your `.gitignore` so that you don't commit these unnecessary files to your repo
