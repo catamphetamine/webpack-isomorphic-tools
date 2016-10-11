@@ -148,6 +148,10 @@ describe('plugin', function()
 
 		const plugin_settings = extend({}, settings(), { alias: aliases })
 
+		// temporarily set NODE_ENV to "development"
+		const NODE_ENV = process.env.NODE_ENV
+		process.env.NODE_ENV = 'development'
+
 		new plugin(plugin_settings).apply
 		({
 			options: webpack_configuration,
@@ -161,6 +165,9 @@ describe('plugin', function()
 				done()
 			}
 		})
+		
+		// restore NODE_ENV
+		process.env.NODE_ENV = NODE_ENV
 	})
 
 	it('should throw errors for misconfiguration', function(done)
@@ -206,7 +213,7 @@ describe('plugin', function()
 
 	it('should work in debug mode and development mode', function(done)
 	{
-		new plugin(extend({ debug: true }, settings())).development().apply
+		new plugin(extend({ debug: true }, settings())).apply
 		({
 			options: webpack_configuration,
 

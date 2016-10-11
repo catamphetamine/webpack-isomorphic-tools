@@ -142,7 +142,7 @@ describe('plugin', function()
 	{
 		const settings = isomorpher_settings()
 
-		const plugin = new isomorpher_plugin(settings).development()
+		const plugin = new isomorpher_plugin(settings)
 		const server_side = new isomorpher(settings)
 
 		// check resulting regular expressions
@@ -226,8 +226,9 @@ describe('plugin', function()
 	it('should wait for webpack-assets.json (promise)', function(done)
 	{
 		// ensure it waits for webpack-assets.json
-		const server_side = new isomorpher(isomorpher_settings()).development(false)
 
+		const server_side = new isomorpher(isomorpher_settings())
+		
 		// run server side instance
 		server_side.server(webpack_configuration.context).then(() =>
 		{
@@ -353,7 +354,7 @@ describe('plugin', function()
 		create_assets_file()
 
 		// ensure it waits for webpack-assets.json
-		const server_side = new isomorpher(isomorpher_settings()).development()
+		const server_side = new isomorpher(isomorpher_settings())
 
 		// install require() hooks
 		server_side.server(webpack_configuration.context, () =>
@@ -405,7 +406,7 @@ describe('plugin', function()
 		// const aliased_module_name_result = require('aliased_module_name')
 
 		// ensure it waits for webpack-assets.json
-		const server_side = new isomorpher(settings).development()
+		const server_side = new isomorpher(settings)
 
 		// install require() hooks
 		server_side.server(webpack_configuration.context, () =>
@@ -438,7 +439,7 @@ describe('plugin', function()
 		create_assets_file()
 
 		// ensure it waits for webpack-assets.json
-		const server_side = new isomorpher(isomorpher_settings()).development()
+		const server_side = new isomorpher(isomorpher_settings())
 
 		// install require() hooks
 		server_side.server(webpack_configuration.context, () =>
@@ -472,7 +473,7 @@ describe('plugin', function()
 		// const aliased_module_name_result = require('aliased_module_name')
 
 		// ensure it waits for webpack-assets.json
-		const server_side = new isomorpher(settings).development()
+		const server_side = new isomorpher(settings)
 
 		// install require() hooks
 		server_side.server(webpack_configuration.context, () =>
@@ -498,8 +499,15 @@ describe('plugin', function()
 		// create the webpack-assets.json
 		create_assets_file()
 
+		// temporarily set NODE_ENV to "production"
+		const NODE_ENV = process.env.NODE_ENV
+		process.env.NODE_ENV = 'production'
+
 		// ensure it waits for webpack-assets.json
 		const server_side = new isomorpher(isomorpher_settings())
+
+		// restore NODE_ENV
+		process.env.NODE_ENV = NODE_ENV
 
 		// install require() hooks
 		server_side.server(webpack_configuration.context, () =>
@@ -524,7 +532,7 @@ describe('plugin', function()
 		create_assets_file()
 
 		// ensure it waits for webpack-assets.json
-		const server_side = new isomorpher(isomorpher_settings()).development()
+		const server_side = new isomorpher(isomorpher_settings())
 
 		// install require() hooks
 		server_side.server(webpack_configuration.context, () =>

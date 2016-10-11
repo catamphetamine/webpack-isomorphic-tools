@@ -18,14 +18,14 @@ let was_faulty = false
 export default function notify_stats(stats, json, verbose)
 {
 	// if there were any errors
-	if (json.errors.length > 0)
+	if (json.errors && json.errors.length > 0)
 	{
 		was_faulty = true
 		return json.errors.forEach(error)
 	}
 
 	// if there were any warnings
-	if (json.warnings.length > 0)
+	if (json.warnings && json.warnings.length > 0)
 	{
 		json.warnings.forEach(warning)
 	}
