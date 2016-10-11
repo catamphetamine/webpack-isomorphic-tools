@@ -28,6 +28,9 @@ export default class webpack_isomorphic_tools
 		// add missing fields, etc
 		normalize_options(this.options)
 
+		// set development mode flag
+		this.options.development = process.env.NODE_ENV !== 'production'
+
 		// set require-hacker debug mode if run in debug mode
 		if (this.options.debug)
 		{
@@ -40,21 +43,13 @@ export default class webpack_isomorphic_tools
 		this.log.debug(`instantiated webpack-isomorphic-tools v${require('../package.json').version} with options`, this.options)
 	}
 
+	// (deprecated)
 	// sets development mode flag to whatever was passed (or true if nothing was passed)
 	// (development mode allows asset hot reloading when used with webpack-dev-server)
-	development(flag)
+	development()
 	{
-		// set development mode flag
-		this.options.development = exists(flag) ? flag : true
-
-		if (this.options.development)
-		{
-			this.log.debug('entering development mode')
-		}
-		else
-		{
-			this.log.debug('entering production mode')
-		}
+		// display deprecation notice
+		this.log.error('`.development()` method is now deprecated and has no effect. Set up a proper `process.env.NODE_ENV` variable instead.')
 
 		// allows method chaining
 		return this
@@ -95,6 +90,12 @@ export default class webpack_isomorphic_tools
 					return default_webpack_assets()
 				}
 			}
+		}
+
+		// sanity check
+		if (!this.webpack_assets_path)
+		{
+			throw new Error(`You seem to have forgotten to call the .server() method`)
 		}
 
 		return require(this.webpack_assets_path)

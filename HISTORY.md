@@ -1,3 +1,8 @@
+2.6.0 / 11.10.2016
+===================
+
+  * Deprecated `.development()` method in favour of examining `process.env.NODE_ENV`
+
 2.5.8 / 29.08.2016
 ===================
 

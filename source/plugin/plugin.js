@@ -18,6 +18,19 @@ export default function Webpack_isomorphic_tools_plugin(options)
 	// add missing fields, etc
 	normalize_options(this.options)
 
+	// set development mode flag
+	if (typeof process !== 'undefined' && typeof process.env !== 'undefined')
+	{
+		this.options.development = process.env.NODE_ENV !== 'production'
+	}
+
+	// start HTTP service in development mode
+	// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/92
+	if (this.options.development && this.options.port)
+	{
+		this.start_dev_server()
+	}
+
 	// logging
 	this.log = new Log('webpack-isomorphic-tools/plugin', { debug: this.options.debug })
 
@@ -33,6 +46,29 @@ export default function Webpack_isomorphic_tools_plugin(options)
 		// create a regular expression for this file extension (or these file extensions)
 		this.regular_expressions[asset_type] = description.regular_expression || Webpack_isomorphic_tools_plugin.regular_expression(description.extensions)
 	}
+}
+
+// starts HTTP service in development mode
+// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/92
+Webpack_isomorphic_tools_plugin.prototype.start_dev_server = function()
+{
+	const express = require('express')
+	const app = express()
+
+	app.get('/', (request, response) =>
+	{
+		if (!this.assets)
+		{
+			return response.status(404).send('Webpack assets not generated yet')
+		}
+		
+		response.send(this.assets)
+	})
+
+	app.listen(this.options.port, () =>
+	{
+		this.log.info(`HTTP service listening on port ${this.options.port}`)
+	})
 }
 
 // creates a regular expression for this file extension (or these file extensions)
@@ -70,45 +106,13 @@ Webpack_isomorphic_tools_plugin.regular_expression = function(extensions)
 	return new RegExp(`\\.${matcher}$`)
 }
 
+// (deprecated)
 // sets development mode flag to whatever was passed (or true if nothing was passed)
 // (development mode allows asset hot reloading when used with webpack-dev-server)
-Webpack_isomorphic_tools_plugin.prototype.development = function(flag)
+Webpack_isomorphic_tools_plugin.prototype.development = function()
 {
-	// set development mode flag
-	this.options.development = exists(flag) ? flag : true
-
-	/* istanbul ignore else */
-	if (this.options.development)
-	{
-		this.log.debug('entering development mode')
-	}
-	else
-	{
-		this.log.debug('entering production mode')
-	}
-
-	// start HTTP service in development mode
-	// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/92
-	if (this.options.development && this.options.port)
-	{
-		const express = require('express')
-		const app = express()
-
-		app.get('/', (request, response) =>
-		{
-			if (!this.assets)
-			{
-				return response.status(404).send('Webpack assets not generated yet')
-			}
-			
-			response.send(this.assets)
-		})
-
-		app.listen(this.options.port, () =>
-		{
-			this.log.info(`HTTP service listening on port ${this.options.port}`)
-		})
-	}
+	// display deprecation notice
+	this.log.error('`.development()` method is now deprecated and has no effect. Set up a proper `process.env.NODE_ENV` variable instead.')
 
 	// allows method chaining
 	return this

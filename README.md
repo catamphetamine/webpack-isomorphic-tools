@@ -111,9 +111,6 @@ var webpack_isomorphic_tools_plugin =
   // webpack-isomorphic-tools settings reside in a separate .js file 
   // (because they will be used in the web server code too).
   new Webpack_isomorphic_tools_plugin(require('./webpack-isomorphic-tools-configuration'))
-  // also enter development mode since it's a development webpack configuration
-  // (see below for explanation)
-  .development()
 
 // usual Webpack configuration
 module.exports =
@@ -142,8 +139,6 @@ module.exports =
   ...
 }
 ```
-
-What does `.development()` method do? It enables development mode. In short, when in development mode, it disables asset caching (and enables asset hot reload). Just call it if you're developing your project with `webpack-dev-server` using this config (and, conversely, don't call it for your production webpack build - obvious enough).
 
 For each asset type managed by `webpack_isomorphic_tools` there should be a corresponding loader in your Webpack configuration. For this reason `webpack_isomorphic_tools/plugin` provides a `.regular_expression(asset_type)` method. The `asset_type` parameter is taken from your `webpack-isomorphic-tools` configuration:
 
@@ -176,9 +171,6 @@ var project_base_path = require('path').resolve(__dirname, '..')
 
 // this global variable will be used later in express middleware
 global.webpack_isomorphic_tools = new Webpack_isomorphic_tools(require('./webpack-isomorphic-tools-configuration'))
-// enter development mode if needed 
-// (you may also prefer to use a Webpack DefinePlugin variable)
-.development(process.env.NODE_ENV === 'development')
 // initializes a server-side instance of webpack-isomorphic-tools
 // (the first parameter is the base path for your project
 //  and is equal to the "context" parameter of you Webpack configuration)
@@ -957,11 +949,30 @@ And so when you later `require("./assets/images/husky.jpg")` in your server code
 
 Takes an object with options (see [Configuration](#configuration) section above)
 
-#### .development(true or false or undefined -> true)
+#### `process.env.NODE_ENV`
 
 (both Webpack plugin instance and server tools instance)
 
-Is it development mode or is it production mode? By default it's production mode. But if you're instantiating `webpack-isomorphic-tools/plugin` for use in Webpack development configuration, or if you're instantiating `webpack-isomorphic-tools` on server when you're developing your project, then you should call this method to enable asset hot reloading (and disable asset caching). It should be called right after the constructor.
+`process.env.NODE_ENV` variable is examined to determine if it's production mode or development mode.
+
+For example, in development mode, assets aren't cached, and therefore support hot reloading (if anyone would ever need that). Also `development` variable is passed to asset type's `filter`, `path` and `parser` functions.
+
+The prevously available `.development()` method is now deprecated and has no effect.
+
+To set up `NODE_ENV` on the client side in Webpack use `DefinePlugin`
+
+```js
+plugins:
+[
+  new webpack.DefinePlugin
+  ({
+    'process.env':
+    {
+      NODE_ENV: JSON.stringify('production') // or `JSON.stringify('development')`
+    }
+  })
+]
+```
 
 #### .regular_expression(asset_type)
 
