@@ -49,7 +49,7 @@ export default class webpack_isomorphic_tools
 	development()
 	{
 		// display deprecation notice
-		this.log.error('`.development()` method is now deprecated and has no effect. Set up a proper `process.env.NODE_ENV` variable instead.')
+		this.log.error('`.development()` method is now deprecated (for server-side instance only, not for webpack plugin instance) and has no effect. Set up a proper `process.env.NODE_ENV` variable instead.')
 
 		// allows method chaining
 		return this
