@@ -1,3 +1,8 @@
+2.6.2 / 11.10.2016
+===================
+
+  * Undeprecated `.development()` method for the webpack plugin (since `process.env.NODE_ENV` makes no sense there)
+
 2.6.0 / 11.10.2016
 ===================
 
