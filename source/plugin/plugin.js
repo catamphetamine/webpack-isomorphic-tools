@@ -24,13 +24,6 @@ export default function Webpack_isomorphic_tools_plugin(options)
 		this.options.development = process.env.NODE_ENV !== 'production'
 	}
 
-	// start HTTP service in development mode
-	// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/92
-	if (this.options.development && this.options.port)
-	{
-		this.start_dev_server()
-	}
-
 	// logging
 	this.log = new Log('webpack-isomorphic-tools/plugin', { debug: this.options.debug })
 
@@ -121,6 +114,16 @@ Webpack_isomorphic_tools_plugin.prototype.development = function()
 // applies the plugin to the Webpack build
 Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 {
+	// start HTTP service in development mode
+	// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/92
+	//
+	// (`.apply()` is only called once, so can start the dev server here)
+	//
+	if (this.options.development && this.options.port)
+	{
+		this.start_dev_server()
+	}
+
 	// Webpack configuration
 	const webpack_configuration = compiler.options
 
