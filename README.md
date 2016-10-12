@@ -15,6 +15,8 @@ For an officially recommended Webpack's `target: "node"` approach see [`universa
 
 If for some reason `universal-webpack` doesn't suit your needs, or is too complex to grasp, then you can try using `webpack-isomorphic-tools`. `webpack-isomorphic-tools` are not affiliated with Webpack team in any way and provide support for basic use cases (no support for Webpack plugins, for example) aiming to be easy to understand for beginners.
 
+*Small Advertisement:* 📞 if you're looking for a React phone number component check out [`react-phone-number-input`](http://halt-hammerzeit.github.io/react-phone-number-input/)
+
 ## Topics
 
 - [What it does](#what-it-does)
