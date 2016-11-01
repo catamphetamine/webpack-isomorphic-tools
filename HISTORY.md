@@ -1,3 +1,8 @@
+2.6.4 / 01.11.2016
+===================
+
+  * Fixed a bug when a CSS compilation error would terminate Webpack build
+
 2.6.2 / 11.10.2016
 ===================
 

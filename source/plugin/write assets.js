@@ -270,7 +270,7 @@ function populate_assets(output, json, options, log)
 			// if an alias is found
 			if (aliased_global_path)
 			{
-				return require_hacker.to_javascript_module_source(require(aliased_global_path))
+				return require_hacker.to_javascript_module_source(safe_require(aliased_global_path, log))
 			}
 		}
 
@@ -365,7 +365,7 @@ function populate_assets(output, json, options, log)
 			// if it's a global path it can be resolved right away
 			if (is_global_path)
 			{
-				return require_hacker.to_javascript_module_source(require(required_path))
+				return require_hacker.to_javascript_module_source(safe_require(required_path, log))
 			}
 
 			// from here on it's either a relative filesystem path or an npm module path,
@@ -398,14 +398,14 @@ function populate_assets(output, json, options, log)
 				// if it's a relative path, can try to resolve it
 				if (is_relative_path)
 				{
-					return require_hacker.to_javascript_module_source(require(path.resolve(requiring_file_path, '..', required_path)))
+					return require_hacker.to_javascript_module_source(safe_require(path.resolve(requiring_file_path, '..', required_path), log))
 				}
 
 				// if it's an npm module path (e.g. 'babel-runtime/core-js/object/assign'),
 				// can try to require() it from the requiring asset path
 				if (is_npm_module_path && is_a_global_path(module.filename))
 				{
-					return require_hacker.to_javascript_module_source(require(require_hacker.resolve(required_path, module)))
+					return require_hacker.to_javascript_module_source(safe_require(require_hacker.resolve(required_path, module), log))
 				}
 			}
 
@@ -424,7 +424,7 @@ function populate_assets(output, json, options, log)
 	{
 		// set asset value
 		log.debug(`compiling asset "${asset_path}"`)
-		output.assets[asset_path] = require(path.resolve(options.project_path, asset_path))
+		output.assets[asset_path] = safe_require(path.resolve(options.project_path, asset_path), log)
 
 		// inside that require() call above
 		// all the assets are resolved relative to this `module`,
@@ -439,4 +439,17 @@ function populate_assets(output, json, options, log)
 
 	// timer stop
 	log.debug(` time taken: ${new Date().getTime() - began_at} ms`)
+}
+
+function safe_require(path, log)
+{
+	try
+	{
+		return require(path)
+	}
+	catch (error)
+	{
+		log.error(error)
+		return undefined
+	}
 }
