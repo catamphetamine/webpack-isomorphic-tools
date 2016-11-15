@@ -20,7 +20,7 @@ If for some reason `universal-webpack` doesn't suit your needs, or is too comple
 ## Topics
 
 - [What it does](#what-it-does)
-- [Getting down to business](#getting-down-to-business)
+- [A simple example](#a-simple-example)
 - [Installation](#installation)
 - [Usage](#usage)
 - [A working example](#a-working-example)
