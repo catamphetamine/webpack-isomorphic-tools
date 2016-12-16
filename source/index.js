@@ -49,7 +49,12 @@ export default class webpack_isomorphic_tools
 	development()
 	{
 		// display deprecation notice
-		this.log.error('`.development()` method is now deprecated (for server-side instance only, not for webpack plugin instance) and has no effect. Set up a proper `process.env.NODE_ENV` variable instead.')
+		this.log.error('`.development()` method is now deprecated ' +
+			'(for server-side instance only, not for webpack plugin instance) ' +
+			'and has no effect. Set up a proper `process.env.NODE_ENV` variable instead: ' +
+			'it should be "production" for production, otherwise it assumes development. ' + 
+			'The currently used mode is: ' + (this.options.development ? 'development' : 'production') + '. ' +
+			'`process.env.NODE_ENV is: ' + process.env.NODE_ENV)
 
 		// allows method chaining
 		return this
@@ -107,7 +112,7 @@ export default class webpack_isomorphic_tools
 		// ensure this is development mode
 		if (!this.options.development)
 		{
-			throw new Error('.refresh() called in production mode. Did you forget to call .development() method on your webpack-isomorphic-tools server instance?')
+			throw new Error('.refresh() called in production mode. It shouldn\'t be called in production mode because that would degrade website performance by discarding caches.')
 		}
 
 		this.log.debug('flushing require() caches')
