@@ -960,7 +960,7 @@ Takes an object with options (see [Configuration](#configuration) section above)
 
 (server tools instance only)
 
-`process.env.NODE_ENV` variable is examined to determine if it's production mode or development mode.
+`process.env.NODE_ENV` variable is examined to determine if it's production mode or development mode. Any value for `process.env.NODE_ENV` other than `production` will indicate development mode.
 
 For example, in development mode, assets aren't cached, and therefore support hot reloading (if anyone would ever need that). Also `development` variable is passed to asset type's `filter`, `path` and `parser` functions.
 
