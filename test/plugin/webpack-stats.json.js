@@ -1,4 +1,4 @@
-module.exports = 
+module.exports =
 {
 	"hash": "6c2b37c0fc8c0592e2d3",
 	"publicPath": "http://127.0.0.1:3001/assets/",
@@ -9,6 +9,11 @@ module.exports =
 		[
 			"main.6c2b37c0fc8c0592e2d3.js",
 			"main.6c2b37c0fc8c0592e2d3.css"
+		],
+    "vendor":
+		[
+			"vendor.js?hash=6c2b37c0fc8c0592e2d3",
+			"vendor.css?hash=6c2b37c0fc8c0592e2d3"
 		]
 	},
 
@@ -25,6 +30,18 @@ module.exports =
 		"chunks": [0],
 		"chunkNames": ["main"],
 		"emitted": true
+	},{
+		"name": "vendor.js?hash=6c2b37c0fc8c0592e2d3",
+		"size": 4632480,
+		"chunks": [0],
+		"chunkNames": ["vendor"],
+		"emitted": true
+	},{
+		"name": "vendor.css?hash=6c2b37c0fc8c0592e2d3",
+		"size": 1234567,
+		"chunks": [0],
+		"chunkNames": ["vendor"],
+		"emitted": true
 	}],
 
 	"chunks":
@@ -36,9 +53,17 @@ module.exports =
 			"main.6c2b37c0fc8c0592e2d3.js",
 			"main.6c2b37c0fc8c0592e2d3.css"
 		]
+	}, {
+		"id": 1,
+		"names": ["vendor"],
+		"files":
+		[
+			"vendor.js?hash=6c2b37c0fc8c0592e2d3",
+			"vendor.css?hash=6c2b37c0fc8c0592e2d3"
+		]
 	}],
 
-	"modules": 
+	"modules":
 	[{
 		"id": 123,
 		"identifier": "G:\\work\\webapp\\node_modules\\url-loader\\index.js?limit=10240!G:\\work\\webapp\\assets\\husky.jpg",
@@ -46,7 +71,7 @@ module.exports =
 		"chunks": [0],
 		"assets": ["9059f094ddb49c2b0fa6a254a6ebf2ad.jpg"],
 		"issuer": "G:\\work\\webapp\\node_modules\\babel-loader\\index.js?{\"plugins\":[\"G:\\\\work\\\\webapp\\\\code\\\\babel_relay_plugin\",\"react-transform\"],\"extra\":{\"react-transform\":{\"transforms\":[{\"transform\":\"react-transform-hmr\",\"imports\":[\"react\"],\"locals\":[\"module\"]}]}}}!G:\\work\\webapp\\code\\client\\pages\\home.js",
-		"reasons": 
+		"reasons":
 		[{
 			"userRequest": "./assets/husky.jpg"
 		}],
@@ -59,7 +84,7 @@ module.exports =
 		"chunks": [0],
 		"assets": [],
 		"issuer": "...whatever...",
-		"reasons": 
+		"reasons":
 		[{
 			"userRequest": "./assets/style.scss"
 		}],
@@ -73,7 +98,7 @@ module.exports =
 		"chunks": [0],
 		"assets": [],
 		"issuer": "...whatever...",
-		"reasons": 
+		"reasons":
 		[{
 			"userRequest": "-!!/cryptic/path/&!./assets/child.scss"
 		}],
@@ -86,7 +111,7 @@ module.exports =
 		"chunks": [0],
 		"assets": [],
 		"issuer": "...whatever...",
-		"reasons": 
+		"reasons":
 		[{
 			"userRequest": "./multiple/candidates.scss"
 		}],
@@ -99,7 +124,7 @@ module.exports =
 		"chunks": [0],
 		"assets": [],
 		"issuer": "...whatever...",
-		"reasons": 
+		"reasons":
 		[{
 			"userRequest": "./multiple/candidates.scss"
 		}],
@@ -112,7 +137,7 @@ module.exports =
 		"chunks": [0],
 		"assets": [],
 		"issuer": "...whatever...",
-		"reasons": 
+		"reasons":
 		[{
 			"userRequest": "aliased_module_name/index"
 		}],
@@ -125,7 +150,7 @@ module.exports =
 		"chunks": [0],
 		"assets": [],
 		"issuer": "...whatever...",
-		"reasons": 
+		"reasons":
 		[{
 			"userRequest": "aliased_module_name/index"
 		}],
@@ -138,7 +163,7 @@ module.exports =
 	// 	"chunks": [0],
 	// 	"assets": [],
 	// 	"issuer": "...whatever...",
-	// 	"reasons": 
+	// 	"reasons":
 	// 	[{
 	// 		"userRequest": "_original_module_name/style.scss"
 	// 	}],
@@ -153,7 +178,7 @@ module.exports =
 	{
 		"id": 8,
 		"name": "../node_modules/aliased_module_name/test.jpg",
-		"reasons": 
+		"reasons":
 		[{
 			"userRequest": "original_module_name/test.jpg"
 		}],
@@ -162,7 +187,7 @@ module.exports =
 	{
 		"id": 101,
 		"name": "./assets/test.text_parser_test",
-		"reasons": 
+		"reasons":
 		[{
 			"userRequest": "./assets/test.text_parser_test"
 		}],
@@ -171,7 +196,7 @@ module.exports =
 	{
 		"id": 102,
 		"name": "./assets/test.object_parser_test",
-		"reasons": 
+		"reasons":
 		[{
 			"userRequest": "./assets/test.object_parser_test"
 		}],

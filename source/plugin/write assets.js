@@ -1,5 +1,6 @@
 import fs     from 'fs-extra'
 import path   from 'path'
+import url 		from 'url'
 
 import require_hacker from 'require-hacker'
 import serialize      from '../tools/serialize-javascript'
@@ -134,7 +135,7 @@ function populate_assets(output, json, options, log)
 
 		return chunk
 			// filter by extension
-			.filter(name => path.extname(name) === `.${extension}`)
+			.filter(name => path.extname(url.parse(name).pathname) === `.${extension}`)
 			// adjust the real path (can be http, filesystem)
 			.map(name => options.assets_base_url + name)
 	}
