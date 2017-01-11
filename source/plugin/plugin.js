@@ -48,7 +48,7 @@ Webpack_isomorphic_tools_plugin.prototype.start_dev_server = function()
 		{
 			return response.status(404).send('Webpack assets not generated yet')
 		}
-		
+
 		response.send(this.assets)
 	})
 
@@ -237,7 +237,7 @@ Webpack_isomorphic_tools_plugin.style_loader_filter = function(module, regular_e
 		// The paths below have the form of "/~/css-loader"
 		// and not the form of "./~/css-loader"
 		// because in some (non-standard) cases
-		// Webpack project context can be set 
+		// Webpack project context can be set
 		// not to project root folder.
 		//
 		// For a discussion see:
@@ -275,4 +275,5 @@ Webpack_isomorphic_tools_plugin.urlLoaderParser          = Webpack_isomorphic_to
 Webpack_isomorphic_tools_plugin.cssLoaderParser          = Webpack_isomorphic_tools_plugin.css_loader_parser
 Webpack_isomorphic_tools_plugin.cssModulesLoaderParser   = Webpack_isomorphic_tools_plugin.css_modules_loader_parser
 Webpack_isomorphic_tools_plugin.styleLoaderFilter        = Webpack_isomorphic_tools_plugin.style_loader_filter
+Webpack_isomorphic_tools_plugin.styleLoaderPathExtractor = Webpack_isomorphic_tools_plugin.style_loader_path_extractor
 Webpack_isomorphic_tools_plugin.styleLoaderPathExtractor = Webpack_isomorphic_tools_plugin.style_loader_path_extractor

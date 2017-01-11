@@ -1,7 +1,5 @@
 import fs     from 'fs-extra'
 import path   from 'path'
-import url 		from 'url'
-
 import require_hacker from 'require-hacker'
 import serialize      from '../tools/serialize-javascript'
 
@@ -135,7 +133,7 @@ function populate_assets(output, json, options, log)
 
 		return chunk
 			// filter by extension
-			.filter(name => path.extname(url.parse(name).pathname) === `.${extension}`)
+			.filter(name => path.extname(extract_path(name)) === `.${extension}`)
 			// adjust the real path (can be http, filesystem)
 			.map(name => options.assets_base_url + name)
 	}
@@ -453,4 +451,14 @@ function safe_require(path, log)
 		log.error(error)
 		return undefined
 	}
+}
+
+export function extract_path(from)
+{
+  const question_mark_index = from.indexOf('?')
+  if (question_mark_index === -1)
+  {
+    return from
+  }
+  return from.slice(0, question_mark_index)
 }

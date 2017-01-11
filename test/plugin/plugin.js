@@ -3,6 +3,7 @@ import path from 'path'
 
 import chai from 'chai'
 import plugin from '../../source/plugin/plugin.js'
+import { extract_path } from '../../source/plugin/write assets.js'
 
 import { extend, camel_case } from '../../source/helpers'
 
@@ -298,5 +299,11 @@ describe('plugin', function()
 		plugin.prototype.should.have.property('regularExpression')
 		plugin.should.have.property('cssLoaderParser')
 		plugin.cssLoaderParser.should.equal(plugin.css_loader_parser)
+	})
+
+	it('should extract path from string', function()
+	{
+		extract_path('abc.css').should.equal('abc.css')
+    extract_path('abc.css?hash=123456').should.equal('abc.css')
 	})
 })
