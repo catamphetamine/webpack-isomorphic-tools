@@ -1,3 +1,8 @@
+2.6.6 / 12.01.2017
+===================
+
+  * @pmdroid - added support for querystring in filenames
+
 2.6.4 / 01.11.2016
 ===================
 
