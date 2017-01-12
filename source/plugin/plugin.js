@@ -276,4 +276,3 @@ Webpack_isomorphic_tools_plugin.cssLoaderParser          = Webpack_isomorphic_to
 Webpack_isomorphic_tools_plugin.cssModulesLoaderParser   = Webpack_isomorphic_tools_plugin.css_modules_loader_parser
 Webpack_isomorphic_tools_plugin.styleLoaderFilter        = Webpack_isomorphic_tools_plugin.style_loader_filter
 Webpack_isomorphic_tools_plugin.styleLoaderPathExtractor = Webpack_isomorphic_tools_plugin.style_loader_path_extractor
-Webpack_isomorphic_tools_plugin.styleLoaderPathExtractor = Webpack_isomorphic_tools_plugin.style_loader_path_extractor
