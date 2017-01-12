@@ -3,6 +3,7 @@ import path from 'path'
 
 import chai from 'chai'
 import plugin from '../../source/plugin/plugin.js'
+import { extract_path } from '../../source/plugin/write assets.js'
 
 import { extend, camel_case } from '../../source/helpers'
 
@@ -10,15 +11,17 @@ chai.should()
 
 const webpack_stats = require(path.resolve(__dirname, 'webpack-stats.json'))
 
-const expected_webpack_assets = 
+const expected_webpack_assets =
 {
 	"javascript":
 	{
-		"main": "http://127.0.0.1:3001/assets/main.6c2b37c0fc8c0592e2d3.js"
+		"main": "http://127.0.0.1:3001/assets/main.6c2b37c0fc8c0592e2d3.js",
+    "vendor": "http://127.0.0.1:3001/assets/vendor.js?hash=6c2b37c0fc8c0592e2d3"
 	},
 	"styles":
 	{
-		"main": "http://127.0.0.1:3001/assets/main.6c2b37c0fc8c0592e2d3.css"
+		"main": "http://127.0.0.1:3001/assets/main.6c2b37c0fc8c0592e2d3.css",
+    "vendor": "http://127.0.0.1:3001/assets/vendor.css?hash=6c2b37c0fc8c0592e2d3"
 	},
 	"assets":
 	{
@@ -86,7 +89,7 @@ function cleanup_webpack_assets()
 
 const settings = () =>
 ({
-	debug: true, 
+	debug: true,
 
 	webpack_assets_file_path: webpack_assets_path,
 	webpack_stats_file_path: webpack_stats_path,
@@ -165,7 +168,7 @@ describe('plugin', function()
 				done()
 			}
 		})
-		
+
 		// restore NODE_ENV
 		process.env.NODE_ENV = NODE_ENV
 	})
@@ -228,7 +231,7 @@ describe('plugin', function()
 							errors: [],
 							warnings: [],
 							assetsByChunkName: { main: 'main' },
-							modules: 
+							modules:
 							[{
 								id: 1,
 								name: 'whatever.jpg',
@@ -242,7 +245,7 @@ describe('plugin', function()
 								name: 'kitten.jpg',
 								source: 'blah'
 							}]
-						} 
+						}
 						return stats
 					},
 					toString: () => 'stats'
@@ -256,7 +259,7 @@ describe('plugin', function()
 	it('should parse various loaders', function()
 	{
 		// maybe write proper test for these (with compilation)
-		
+
 		plugin.url_loader_parser({ source: 'abc.jpg' }).should.equal('abc.jpg')
 
 		plugin.css_loader_parser({ source: 'body {}' }).should.equal('body {}' + '\n module.exports = module.exports.toString();')
@@ -296,5 +299,11 @@ describe('plugin', function()
 		plugin.prototype.should.have.property('regularExpression')
 		plugin.should.have.property('cssLoaderParser')
 		plugin.cssLoaderParser.should.equal(plugin.css_loader_parser)
+	})
+
+	it('should extract path from string', function()
+	{
+		extract_path('abc.css').should.equal('abc.css')
+    extract_path('abc.css?hash=123456').should.equal('abc.css')
 	})
 })
