@@ -215,6 +215,13 @@ export function normalize_options(options)
 					}
 					break
 
+				case 'runtime':
+					if (typeof description[key] !== 'boolean')
+					{
+						throw new Error(`"${key}" must be a boolean for asset type "${asset_type}"`)
+					}
+					break
+
 				default:
 					throw new Error(`Unknown property "${key}" for asset type "${asset_type}"`)
 			}
@@ -250,11 +257,15 @@ export function alias_hook(path, module, project_path, aliases, log)
 	// return require_hacker.to_javascript_module_source(result)
 }
 
+export const is_global_path   = path => starts_with(path, '/') || path.indexOf(':') > 0
+export const is_relative_path = path => starts_with(path, './') || starts_with(path, '../')
+export const is_package_path  = path => !is_relative_path(path) && !is_global_path(path)
+
 // alias the path provided the aliases map
 function alias(path, aliases)
 {
 	// if it's a path to a file - don't interfere
-	if (starts_with(path, '.') || starts_with(path, '/'))
+	if (!is_package_path(path))
 	{
 		return
 	}

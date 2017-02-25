@@ -1,3 +1,8 @@
+3.0.0 / 25.02.2017
+===================
+
+  * No new major features added / no rewrite. Incrementing the major version just so it doesn't break anything because many people use it in production. Tweaked npm module resolution algorithm a bit (miscellaneous) and also added `runtime` option for asset types which performs asset source compilation at runtime rather than at build time (this can be used for Webpack loaders returning javascript functions or React component classes — stuff like that, because it's not serializable to `webpack-assets.json`). Added configuration example for `svg-react-loader`.
+
 2.6.6 / 12.01.2017
 ===================
 

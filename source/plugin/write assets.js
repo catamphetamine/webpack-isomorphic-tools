@@ -1,10 +1,17 @@
-import fs     from 'fs-extra'
-import path   from 'path'
+import fs from 'fs-extra'
+import path from 'path'
 import require_hacker from 'require-hacker'
-import serialize      from '../tools/serialize-javascript'
+import serialize from '../tools/serialize-javascript'
 
 import { exists, clone, replace_all, starts_with, last } from '../helpers'
-import { alias_hook, uniform_path } from '../common'
+import { alias_hook, uniform_path, is_relative_path, is_global_path, is_package_path } from '../common'
+
+// one can supply a custom filter
+const default_filter = (module, regular_expression) => regular_expression.test(module.name)
+// one can supply a custom namer
+const default_asset_path = module => module.name
+// one can supply a custom parser
+const default_parser = module => module.source
 
 // writes webpack-assets.json file, which contains assets' file paths
 export default function write_assets(json, options, log)
@@ -138,13 +145,6 @@ function populate_assets(output, json, options, log)
 			.map(name => options.assets_base_url + name)
 	}
 
-	// one can supply a custom filter
-	const default_filter = (module, regular_expression) => regular_expression.test(module.name)
-	// one can supply a custom namer
-	const default_asset_path = module => module.name
-	// one can supply a custom parser
-	const default_parser = module => module.source
-
 	// 1st pass
 	const parsed_assets = {}
 
@@ -260,6 +260,20 @@ function populate_assets(output, json, options, log)
 	{
 		log.debug(`require()ing "${required_path}"`)
 
+		// If the `required_path` is an npm package path
+		// still can't simply `return` and fall back to default Node.js behaviour
+		// because it could still be an asset like
+		// `require('bootstrap/style.css')` inside `./style.css`.
+		//
+		// If the `required_path` is not an asset though
+		// (which means "has no extension" in this case — should work)
+		// then `require()` it as usual.
+		//
+		if (required_path.split(path.sep).slice(-1)[0].indexOf('.') === -1)
+		{
+			return
+		}
+
 		// if Webpack aliases are supplied
 		if (options.alias)
 		{
@@ -354,15 +368,8 @@ function populate_assets(output, json, options, log)
 
 			// from here on it's either a filesystem path or an npm module path
 
-			const is_a_global_path = path => starts_with(path, '/') || path.indexOf(':') > 0
-			const is_a_relative_path = path => starts_with(path, './') || starts_with(path, '../')
-
-			const is_relative_path = is_a_relative_path(required_path)
-			const is_global_path = is_a_global_path(required_path)
-			const is_npm_module_path = !is_relative_path && !is_global_path
-
 			// if it's a global path it can be resolved right away
-			if (is_global_path)
+			if (is_global_path(required_path))
 			{
 				return require_hacker.to_javascript_module_source(safe_require(required_path, log))
 			}
@@ -383,26 +390,26 @@ function populate_assets(output, json, options, log)
 			}
 
 			// make relative path global
-			if (is_a_relative_path(requiring_file_path))
+			if (is_relative_path(requiring_file_path))
 			{
 				requiring_file_path = path.resolve(options.project_path, requiring_file_path)
 			}
 
 			// if `requiring_file_path` is a filesystem path (not an npm module path),
 			// then the require()d path can possibly be resolved
-			if (is_a_global_path(requiring_file_path))
+			if (is_global_path(requiring_file_path))
 			{
 				log.debug(` The module is being require()d from "${requiring_file_path}", so resolving the path against this file`)
 
 				// if it's a relative path, can try to resolve it
-				if (is_relative_path)
+				if (is_relative_path(required_path))
 				{
 					return require_hacker.to_javascript_module_source(safe_require(path.resolve(requiring_file_path, '..', required_path), log))
 				}
 
 				// if it's an npm module path (e.g. 'babel-runtime/core-js/object/assign'),
 				// can try to require() it from the requiring asset path
-				if (is_npm_module_path && is_a_global_path(module.filename))
+				if (is_package_path(required_path) && is_global_path(module.filename))
 				{
 					return require_hacker.to_javascript_module_source(safe_require(require_hacker.resolve(required_path, module), log))
 				}
@@ -419,8 +426,31 @@ function populate_assets(output, json, options, log)
 	const began_at = new Date().getTime()
 
 	// evaluate parsed assets source code
-	for (let asset_path of Object.keys(parsed_assets))
+	for (const asset_path of Object.keys(parsed_assets))
 	{
+		let compile = true
+
+		// If this asset should be compiled at runtime then skip its compilation.
+		// (runtime compilation can be used for Webpack loaders returning
+		//  javascript functions or React component classes — stuff like that,
+		//  because it's not serializable to `webpack-assets.json`)
+		for (const asset_type of Object.keys(options.assets))
+		{
+			if (options.regular_expressions[asset_type].test(asset_path))
+			{
+				if (options.assets[asset_type].runtime)
+				{
+					compile = false
+				}
+			}
+		}
+
+		if (!compile)
+		{
+			output.assets[asset_path] = parsed_assets[asset_path]
+			continue
+		}
+
 		// set asset value
 		log.debug(`compiling asset "${asset_path}"`)
 		output.assets[asset_path] = safe_require(path.resolve(options.project_path, asset_path), log)
@@ -455,10 +485,10 @@ function safe_require(path, log)
 
 export function extract_path(from)
 {
-  const question_mark_index = from.indexOf('?')
-  if (question_mark_index === -1)
-  {
-    return from
-  }
-  return from.slice(0, question_mark_index)
+	const question_mark_index = from.indexOf('?')
+	if (question_mark_index === -1)
+	{
+		return from
+	}
+	return from.slice(0, question_mark_index)
 }
