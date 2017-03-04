@@ -1,6 +1,12 @@
 # git
 .gitignore
 
+# Babel
+.babelrc
+
+# Sources aren't needed for npm
+/source/
+
 # testing package
 /webpack-isomorphic-tools-*.tgz
 
@@ -26,5 +32,4 @@ npm-debug.log
 /scripts/
 /test/
 
-.babelrc
 webpack.config.js
