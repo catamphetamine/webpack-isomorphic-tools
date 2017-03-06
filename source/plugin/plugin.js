@@ -175,7 +175,7 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 		//  as opposed to `webpack_configuration.output.publicPath`
 		//  because it is processed by webpack replacing things like `[hash]`)
 		//
-		const assets_base_url = (webpack_configuration.devServer && webpack_configuration.devServer.publicPath) ? webpack_configuration.devServer.publicPath : json.publicPath
+		const assets_base_url = (process.env.NODE_ENV !== 'production' && webpack_configuration.devServer && webpack_configuration.devServer.publicPath) ? webpack_configuration.devServer.publicPath : json.publicPath
 
 		// serve webpack assets from RAM rather than from disk
 		const serve_assets_from_memory = plugin.options.development && plugin.options.port
