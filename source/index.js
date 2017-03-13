@@ -140,7 +140,8 @@ export default class webpack_isomorphic_tools
 	// If this method is used it must be called before the `.server()` method.
 	enable_aliasing()
 	{
-		// mount require() hook
+		// Mount a require() hook which will intercept all
+		// `require(path)` calls and alias the `path` using Webpack "aliases".
 		this.alias_hook = require_hacker.resolver((path, module) =>
 		{
 			// returns aliased global filesystem path
@@ -316,7 +317,13 @@ export default class webpack_isomorphic_tools
 				return
 			}
 
-			return this.require_asset(asset, { require_cache_path: required_path + '.webpack-loaders' })
+			const result =
+			{
+				source : this.require_asset(asset, { require_cache_path: required_path + '.webpack-loaders' }),
+				path   : global_asset_path
+			}
+
+			return result
 		})
 
 		// allows method chaining

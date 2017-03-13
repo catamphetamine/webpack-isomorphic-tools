@@ -260,6 +260,25 @@ function populate_assets(output, json, options, log)
 	{
 		log.debug(`require()ing "${required_path}"`)
 
+		// if Webpack aliases are supplied
+		if (options.alias)
+		{
+			// possibly alias the path
+			const aliased_global_path = alias_hook(required_path, module, options.project_path, options.alias, log)
+
+			// if an alias is found
+			if (aliased_global_path)
+			{
+				const result =
+				{
+					source : require_hacker.to_javascript_module_source(safe_require(aliased_global_path, log)),
+					path   : aliased_global_path
+				}
+
+				return result
+			}
+		}
+
 		// If the `required_path` is an npm package path
 		// still can't simply `return` and fall back to default Node.js behaviour
 		// because it could still be an asset like
@@ -274,19 +293,6 @@ function populate_assets(output, json, options, log)
 			return
 		}
 
-		// if Webpack aliases are supplied
-		if (options.alias)
-		{
-			// possibly alias the path
-			const aliased_global_path = alias_hook(required_path, module, options.project_path, options.alias, log)
-
-			// if an alias is found
-			if (aliased_global_path)
-			{
-				return require_hacker.to_javascript_module_source(safe_require(aliased_global_path, log))
-			}
-		}
-
 		// find an asset with this path
 		//
 		// the require()d path will be global path in case of the for..of require() loop
@@ -297,7 +303,14 @@ function populate_assets(output, json, options, log)
 		if (exists(global_paths_to_parsed_asset_paths[required_path]))
 		{
 			log.debug(` found in parsed assets`)
-			return parsed_assets[global_paths_to_parsed_asset_paths[required_path]]
+
+			const result =
+			{
+				source : parsed_assets[global_paths_to_parsed_asset_paths[required_path]],
+				path   : required_path
+			}
+
+			return result
 		}
 
 		log.debug(` not found in parsed assets, searching in webpack stats`)
@@ -326,7 +339,14 @@ function populate_assets(output, json, options, log)
 
 			// also resolve "ReferenceError: __webpack_public_path__ is not defined".
 			// because it may be a url-loaded resource (e.g. a font inside a style).
-			return define_webpack_public_path + candidates[0].source
+
+			const result =
+			{
+				source : define_webpack_public_path + candidates[0].source,
+				path   : candidates[0].identifier
+			}
+
+			return result
 		}
 
 		// if there are more than one candidate for this require()d path,
@@ -371,7 +391,13 @@ function populate_assets(output, json, options, log)
 			// if it's a global path it can be resolved right away
 			if (is_global_path(required_path))
 			{
-				return require_hacker.to_javascript_module_source(safe_require(required_path, log))
+				const result =
+				{
+					source : require_hacker.to_javascript_module_source(safe_require(required_path, log)),
+					path   : required_path
+				}
+
+				return result
 			}
 
 			// from here on it's either a relative filesystem path or an npm module path,
@@ -404,14 +430,30 @@ function populate_assets(output, json, options, log)
 				// if it's a relative path, can try to resolve it
 				if (is_relative_path(required_path))
 				{
-					return require_hacker.to_javascript_module_source(safe_require(path.resolve(requiring_file_path, '..', required_path), log))
+					const absolute_path = path.resolve(requiring_file_path, '..', required_path)
+
+					const result =
+					{
+						source : require_hacker.to_javascript_module_source(safe_require(absolute_path, log)),
+						path   : absolute_path
+					}
+
+					return result
 				}
 
 				// if it's an npm module path (e.g. 'babel-runtime/core-js/object/assign'),
 				// can try to require() it from the requiring asset path
 				if (is_package_path(required_path) && is_global_path(module.filename))
 				{
-					return require_hacker.to_javascript_module_source(safe_require(require_hacker.resolve(required_path, module), log))
+					const absolute_path = require_hacker.resolve(required_path, module)
+
+					const result =
+					{
+						source : require_hacker.to_javascript_module_source(safe_require(absolute_path, log)),
+						path   : absolute_path
+					}
+
+					return result
 				}
 			}
 

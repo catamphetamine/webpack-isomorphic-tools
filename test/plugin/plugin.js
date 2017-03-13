@@ -155,6 +155,11 @@ describe('plugin', function()
 		const NODE_ENV = process.env.NODE_ENV
 		process.env.NODE_ENV = 'development'
 
+
+		console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+
+		plugin_settings.debug = true
+
 		new plugin(plugin_settings).apply
 		({
 			options: webpack_configuration,

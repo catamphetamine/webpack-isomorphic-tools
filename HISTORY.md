@@ -1,3 +1,8 @@
+3.0.2 / 13.03.2017
+==================
+
+  * Fixed a bug when the new `3.0.0` version couldn't load some relative Node.js modules for Webpack loaders (e.g. a new version of `css-loader`)
+
 3.0.0 / 25.02.2017
 ===================
 
