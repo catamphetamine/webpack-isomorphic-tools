@@ -1,13 +1,9 @@
 # webpack-isomorphic-tools
 
-[![NPM Version][npm-image]][npm-url]
-[![NPM Downloads][downloads-image]][downloads-url]
-[![Build Status][travis-image]][travis-url]
-[![Test Coverage][coveralls-image]][coveralls-url]
-
-<!---
-[![Gratipay][gratipay-image]][gratipay-url]
--->
+[![npm version](https://img.shields.io/npm/v/webpack-isomorphic-tools.svg?style=flat-square)](https://www.npmjs.com/package/webpack-isomorphic-tools)
+[![npm downloads](https://img.shields.io/npm/dm/webpack-isomorphic-tools.svg?style=flat-square)](https://www.npmjs.com/package/webpack-isomorphic-tools)
+[![build status](https://img.shields.io/travis/halt-hammerzeit/webpack-isomorphic-tools/master.svg?style=flat-square)](https://travis-ci.org/halt-hammerzeit/webpack-isomorphic-tools)
+[![coverage](https://img.shields.io/coveralls/halt-hammerzeit/webpack-isomorphic-tools/master.svg?style=flat-square)](https://coveralls.io/r/halt-hammerzeit/webpack-isomorphic-tools?branch=master)
 
 `webpack-isomorphic-tools` is a small helper module providing basic support for isomorphic (universal) rendering when using Webpack (this is an alternative solution to using Webpack's officially recommended `target: "node"` approach).
 
@@ -1181,16 +1177,3 @@ npm install [module name with version].tar.gz
 ## License
 
 [MIT](LICENSE)
-[npm-image]: https://img.shields.io/npm/v/webpack-isomorphic-tools.svg
-[npm-url]: https://npmjs.org/package/webpack-isomorphic-tools
-[travis-image]: https://img.shields.io/travis/halt-hammerzeit/webpack-isomorphic-tools/master.svg
-[travis-url]: https://travis-ci.org/halt-hammerzeit/webpack-isomorphic-tools
-[downloads-image]: https://img.shields.io/npm/dm/webpack-isomorphic-tools.svg
-[downloads-url]: https://npmjs.org/package/webpack-isomorphic-tools
-[coveralls-image]: https://img.shields.io/coveralls/halt-hammerzeit/webpack-isomorphic-tools/master.svg
-[coveralls-url]: https://coveralls.io/r/halt-hammerzeit/webpack-isomorphic-tools?branch=master
-
-<!---
-[gratipay-image]: https://img.shields.io/gratipay/dougwilson.svg
-[gratipay-url]: https://gratipay.com/dougwilson/
--->
