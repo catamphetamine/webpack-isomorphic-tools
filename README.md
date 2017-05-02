@@ -82,12 +82,6 @@ To solve this issue one can use `webpack-isomorphic-tools`. With the help of `we
 
 For example, if one is using Webpack [css-loader](https://github.com/webpack/css-loader) modules feature (also referred to as ["local styles"](https://medium.com/seek-ui-engineering/the-end-of-global-css-90d2a4a06284)) one can make `require(*.css)` calls return JSON objects with generated CSS class names maps like they do in [este](https://github.com/este/este/blob/master/webpack/assets.js) and [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example#styles).
 
-## Tutorials and blog posts
-
-Just some basic guidance from other people on the internets
-
-  * [Importing SVGs](https://github.com/peter-mouland/react-lego/wiki/Importing-SVGs) by [@peter-mouland](https://github.com/peter-mouland)
-
 ## Installation
 
 `webpack-isomorphic-tools` are required both for development and production
