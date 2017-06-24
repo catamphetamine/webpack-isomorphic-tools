@@ -1,3 +1,8 @@
+3.0.3 / 24.06.2017
+==================
+
+  * Adapted for Webpack 3 which is no longer using `~` for `node_modules`
+
 3.0.2 / 13.03.2017
 ==================
 

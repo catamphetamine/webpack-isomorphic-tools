@@ -56,7 +56,7 @@ For example, consider images. Images are `require()`d in React components and th
 ```javascript
 // alternatively one can use `import`, 
 // but with `import`s hot reloading won't work
-// import image_path from '../image.png'
+// import imagePath from '../image.png'
 
 // Just `src` the image inside the `render()` method
 class Photo extends React.Component
@@ -92,17 +92,17 @@ $ npm install webpack-isomorphic-tools --save
 
 ## Usage
 
-First you add `webpack_isomorphic_tools` plugin to your Webpack configuration.
+First you add `webpack-isomorphic-tools` plugin to your Webpack configuration.
 
 ### webpack.config.js
 
 ```javascript
-var Webpack_isomorphic_tools_plugin = require('webpack-isomorphic-tools/plugin')
+var WebpackIsomorphicToolsPlugin = require('webpack-isomorphic-tools/plugin')
 
-var webpack_isomorphic_tools_plugin = 
+var webpackIsomorphicToolsPlugin = 
   // webpack-isomorphic-tools settings reside in a separate .js file 
   // (because they will be used in the web server code too).
-  new Webpack_isomorphic_tools_plugin(require('./webpack-isomorphic-tools-configuration'))
+  new WebpackIsomorphicToolsPlugin(require('./webpack-isomorphic-tools-configuration'))
   // also enter development mode since it's a development webpack configuration
   // (see below for explanation)
   .development()
@@ -118,7 +118,7 @@ module.exports =
     [
       ...,
       {
-        test: webpack_isomorphic_tools_plugin.regular_expression('images'),
+        test: webpackIsomorphicToolsPlugin.regularExpression('images'),
         loader: 'url-loader?limit=10240', // any image below or equal to 10K will be converted to inline base64 instead
       }
     ]
@@ -128,7 +128,7 @@ module.exports =
   [
     ...,
 
-    webpack_isomorphic_tools_plugin
+    webpackIsomorphicToolsPlugin
   ]
 
   ...
@@ -137,12 +137,12 @@ module.exports =
 
 What does `.development()` method do? It enables development mode. In short, when in development mode, it disables asset caching (and enables asset hot reload), and optionally runs its own "dev server" utility (see `port` configuration setting). Call it in development webpack build configuration, and, conversely, don't call it in production webpack build configuration.
 
-For each asset type managed by `webpack_isomorphic_tools` there should be a corresponding loader in your Webpack configuration. For this reason `webpack_isomorphic_tools/plugin` provides a `.regular_expression(asset_type)` method. The `asset_type` parameter is taken from your `webpack-isomorphic-tools` configuration:
+For each asset type managed by `webpack-isomorphic-tools` there should be a corresponding loader in your Webpack configuration. For this reason `webpack-isomorphic-tools/plugin` provides a `.regularExpression(assetType)` method. The `assetType` parameter is taken from your `webpack-isomorphic-tools` configuration:
 
 ### webpack-isomorphic-tools-configuration.js
 
 ```javascript
-import Webpack_isomorphic_tools_plugin from 'webpack-isomorphic-tools/plugin'
+import WebpackIsomorphicToolsPlugin from 'webpack-isomorphic-tools/plugin'
 
 export default
 {
@@ -161,20 +161,20 @@ That's it for the client side. Next, the server side. You create your server sid
 ### main.js
 
 ```javascript
-var Webpack_isomorphic_tools = require('webpack-isomorphic-tools')
+var WebpackIsomorphicTools = require('webpack-isomorphic-tools')
 
 // this must be equal to your Webpack configuration "context" parameter
-var project_base_path = require('path').resolve(__dirname, '..')
+var projectBasePath = require('path').resolve(__dirname, '..')
 
 // this global variable will be used later in express middleware
-global.webpack_isomorphic_tools = new Webpack_isomorphic_tools(require('./webpack-isomorphic-tools-configuration'))
+global.webpackIsomorphicTools = new WebpackIsomorphicTools(require('./webpack-isomorphic-tools-configuration'))
 // initializes a server-side instance of webpack-isomorphic-tools
 // (the first parameter is the base path for your project
 //  and is equal to the "context" parameter of you Webpack configuration)
 // (if you prefer Promises over callbacks 
 //  you can omit the callback parameter
 //  and then it will return a Promise instead)
-.server(project_base_path, function()
+.server(projectBasePath, function()
 {
   // webpack-isomorphic-tools is all set now.
   // here goes all your web application code:
@@ -193,26 +193,26 @@ import React from 'react'
 import Html from './html'
 
 // will be used in express_application.use(...)
-export function page_rendering_middleware(request, response)
+export function pageRenderingMiddleware(request, response)
 {
   // clear require() cache if in development mode
   // (makes asset hot reloading work)
-  if (_development_)
+  if (process.env.NODE_ENV !== 'production')
   {
-    webpack_isomorphic_tools.refresh()
+    webpackIsomorphicTools.refresh()
   }
 
   // for react-router example of determining current page by URL take a look at this:
   // https://github.com/halt-hammerzeit/webapp/blob/master/code/server/webpage%20rendering.js
-  const page_component = [determine your page component here using request.path]
+  const pageComponent = [determine your page component here using request.path]
 
   // for a Redux Flux store implementation you can see the same example:
   // https://github.com/halt-hammerzeit/webapp/blob/master/code/server/webpage%20rendering.js
-  const flux_store = [initialize and populate your flux store depending on the page being shown]
+  const fluxStore = [initialize and populate your flux store depending on the page being shown]
 
   // render the page to string and send it to the browser as text/html
   response.send('<!doctype html>\n' +
-        React.renderToString(<Html assets={webpack_isomorphic_tools.assets()} component={page_component} store={flux_store}/>))
+        React.renderToString(<Html assets={webpackIsomorphicTools.assets()} component={pageComponent} store={fluxStore}/>))
 }
 ```
 
@@ -275,7 +275,7 @@ export default class Html extends Component
                   rel="stylesheet" type="text/css"/>)}
 
           {/* resolves the initial style flash (flicker) on page load in development mode */}
-          { Object.keys(assets.styles).is_empty() ? <style dangerouslySetInnerHTML={{__html: require('../assets/styles/main_style.css')}}/> : null }
+          { Object.keys(assets.styles).length === 0 ? <style dangerouslySetInnerHTML={{__html: require('../assets/styles/main_style.css')}}/> : null }
         </head>
 
         <body>
@@ -390,11 +390,11 @@ Available configuration parameters:
   // patch_require: true, // is false by default
 
   // By default it creates 'webpack-assets.json' file at 
-  // webpack_configuration.context (which is your project folder).
+  // webpackConfiguration.context (which is your project folder).
   // You can change the assets file path as you wish
   // (therefore changing both folder and filename).
   //
-  // (relative to webpack_configuration.context which is your project folder)
+  // (relative to webpackConfiguration.context which is your project folder)
   //
   webpack_assets_file_path: 'webpack-assets.json',
 
@@ -414,12 +414,12 @@ Available configuration parameters:
   // The `alias` parameter corresponds to `resolve.alias` 
   // in your Webpack configuration.
   //
-  alias: webpack_configuration.resolve.alias, // is {} by default
+  alias: webpackConfiguration.resolve.alias, // is {} by default
 
   // if you're using Webpack's `resolve.modulesDirectories`
   // then you should also put them here.
   //
-  // modulesDirectories: webpack_configuration.resolve.modulesDirectories // is ['node_modules'] by default
+  // modulesDirectories: webpackConfiguration.resolve.modulesDirectories // is ['node_modules'] by default
 
   // here you can define all your asset types
   //
@@ -428,9 +428,9 @@ Available configuration parameters:
     // keys of this object will appear in:
     //  * webpack-assets.json
     //  * .assets() method call result
-    //  * .regular_expression(key) method call
+    //  * .regularExpression(key) method call
     //
-    png_images: 
+    pngImages: 
     {
       // which file types belong to this asset type
       //
@@ -469,7 +469,7 @@ Available configuration parameters:
       //                       (to understand what a "module" is
       //                        read the "What's a "module"?" section of this readme)
       //
-      //  regular_expression - a regular expression 
+      //  regularExpression  - a regular expression 
       //                       composed of this asset type's extensions
       //                       e.g. /\.scss$/, /\.(ico|gif)$/
       //
@@ -485,16 +485,16 @@ Available configuration parameters:
       // 
       // returns: a Boolean
       //
-      // by default is: "return regular_expression.test(module.name)"
+      // by default is: "return regularExpression.test(module.name)"
       //
       // premade utility filters:
       //
-      // Webpack_isomorphic_tools_plugin.style_loader_filter
+      // WebpackIsomorphicToolsPlugin.styleLoaderFilter
       //  (for use with style-loader + css-loader)
       //
-      filter: function(module, regular_expression, options, log)
+      filter: function(module, regularExpression, options, log)
       {
-        return regular_expression.test(module.name)
+        return regularExpression.test(module.name)
       },
 
       // [optional]
@@ -525,7 +525,7 @@ Available configuration parameters:
       //
       // premade utility path extractors:
       //
-      // Webpack_isomorphic_tools_plugin.style_loader_path_extractor
+      // WebpackIsomorphicToolsPlugin.styleLoaderPathExtractor
       //  (for use with style-loader + css-loader)
       //
       path: function(module, options, log)
@@ -585,16 +585,16 @@ Available configuration parameters:
       //
       // premade utility parsers:
       //
-      // Webpack_isomorphic_tools_plugin.url_loader_parser
+      // WebpackIsomorphicToolsPlugin.urlLoaderParser
       //  (for use with url-loader or file-loader)
       //  require() will return file URL
       //  (is equal to the default parser, i.e. no parser)
       //
-      // Webpack_isomorphic_tools_plugin.css_loader_parser
+      // WebpackIsomorphicToolsPlugin.cssLoaderParser
       //  (for use with css-loader when not using "modules" feature)
       //  require() will return CSS style text
       //
-      // Webpack_isomorphic_tools_plugin.css_modules_loader_parser
+      // WebpackIsomorphicToolsPlugin.cssModulesLoaderParser
       //  (for use with css-loader when using "modules" feature)
       //  require() will return a JSON object map of style class names
       //  which will also have a `_style` key containing CSS style text
@@ -603,11 +603,9 @@ Available configuration parameters:
       {
         log.info('# module name', module.name)
         log.info('# module source', module.source)
-        log.info('# project path', options.project_path)
-        log.info('# assets base url', options.assets_base_url)
-        log.info('# regular expressions', options.regular_expressions)
         log.info('# debug mode', options.debug)
         log.info('# development mode', options.development)
+        log.info('# webpack version', options.webpackVersion)
         log.debug('debugging')
         log.warning('warning')
         log.error('error')
@@ -655,7 +653,7 @@ If you aren't using "CSS modules" feature of Webpack, and if in your production 
       extensions: ['less', 'scss'],
 
       // which `module`s to parse CSS from:
-      filter: function(module, regular_expression, options, log)
+      filter: function(module, regularExpression, options, log)
       {
         if (options.development)
         {
@@ -669,7 +667,7 @@ If you aren't using "CSS modules" feature of Webpack, and if in your production 
           //
           // Therefore using a non-default `filter` function here.
           //
-          return webpack_isomorphic_tools_plugin.style_loader_filter(module, regular_expression, options, log)
+          return WebpackIsomorphicToolsPlugin.styleLoaderFilter(module, regularExpression, options, log)
         }
 
         // In production mode there will be no CSS text at all
@@ -682,11 +680,11 @@ If you aren't using "CSS modules" feature of Webpack, and if in your production 
       // How to correctly transform kinda weird `module.name`
       // of the `module` created by Webpack "css-loader" 
       // into the correct asset path:
-      path: webpack_isomorphic_tools_plugin.style_loader_path_extractor,
+      path: WebpackIsomorphicToolsPlugin.styleLoaderPathExtractor,
 
       // How to extract these Webpack `module`s' javascript `source` code.
       // basically takes `module.source` and modifies `module.exports` a little.
-      parser: webpack_isomorphic_tools_plugin.css_loader_parser
+      parser: WebpackIsomorphicToolsPlugin.cssLoaderParser
     }
   }
 }
@@ -700,7 +698,7 @@ If you are using "CSS modules" feature of Webpack, and if in your production Web
 {
   assets:
   {
-    style_modules:
+    styleModules:
     {
       extensions: ['less', 'scss'],
 
@@ -719,7 +717,7 @@ If you are using "CSS modules" feature of Webpack, and if in your production Web
           //
           // Therefore using a non-default `filter` function here.
           //
-          return webpack_isomorphic_tools_plugin.style_loader_filter(module, regex, options, log)
+          return WebpackIsomorphicToolsPlugin.styleLoaderFilter(module, regex, options, log)
         }
 
         // In production mode there's no Webpack "style-loader",
@@ -740,7 +738,7 @@ If you are using "CSS modules" feature of Webpack, and if in your production Web
           // (those picked by the `filter` function above)
           // will be kinda weird, and this path extractor extracts 
           // the correct asset paths from these kinda weird `module.name`s
-          return WebpackIsomorphicToolsPlugin.style_loader_path_extractor(module, options, log);
+          return WebpackIsomorphicToolsPlugin.styleLoaderPathExtractor(module, options, log);
         }
 
         // in production mode there's no Webpack "style-loader",
@@ -756,7 +754,7 @@ If you are using "CSS modules" feature of Webpack, and if in your production Web
         {
           // In development mode it adds an extra `_style` entry
           // to the CSS style class name map, containing the CSS text
-          return WebpackIsomorphicToolsPlugin.css_modules_loader_parser(module, options, log);
+          return WebpackIsomorphicToolsPlugin.cssModulesLoaderParser(module, options, log);
         }
 
         // In production mode there's Webpack Extract Text Plugin 
@@ -799,7 +797,7 @@ If you are using "CSS modules" feature of Webpack, and if in your production Web
 
 ## What are webpack-assets.json?
 
-This file is needed for `webpack-isomorphic-tools` operation on server. It is created by a custom Webpack plugin and is then read from the filesystem by `webpack-isomorphic-tools` server instance. When you `require(path_to_an_asset)` an asset on server then what you get is simply what's there in this file corresponding to this `path_to_an_asset` key (under the `assets` section).
+This file is needed for `webpack-isomorphic-tools` operation on server. It is created by a custom Webpack plugin and is then read from the filesystem by `webpack-isomorphic-tools` server instance. When you `require(pathToAnAsset)` an asset on server then what you get is simply what's there in this file corresponding to this `pathToAnAsset` key (under the `assets` section).
 
 Pseudocode: 
 
@@ -945,7 +943,7 @@ The `module` object for an image would look like this
 
 Therefore, in this simple case, in `webpack-isomorphic-tools` configuration file we create an "images" asset type with extension "jpg" and these parameters:
 
-* the `filter` function would be `module => module.name.ends_with('.jpg')` (and it's the default `filter` if no `filter` is specified)
+* the `filter` function would be `module => module.name.endsWith('.jpg')` (and it's the default `filter` if no `filter` is specified)
 * the `path` parser function would be `module => module.name` (and it's the default `path` parser if no `path` parser is specified)
 * the `parser` function would be `module => module.source` (and it's the default `parser` if no `parser` is specified)
 
@@ -990,25 +988,25 @@ The prevously available `.development()` method for the server-side instance is 
 
 Is it development mode or is it production mode? By default it's production mode. But if you're instantiating `webpack-isomorphic-tools/plugin` for use in Webpack development configuration, then you should call this method to enable asset hot reloading (and disable asset caching), and optinally to run its own "dev server" utility (see `port` configuration setting). It should be called right after the constructor.
 
-#### .regular_expression(asset_type)
+#### .regularExpression(assetType)
 
-(aka `.regexp(asset_type)`)
+(aka `.regexp(pathToAnAsset)`)
 
 (Webpack plugin instance)
 
 Returns the regular expression for this asset type (based on this asset type's `extension` (or `extensions`))
 
-#### Webpack_isomorphic_tools_plugin.url_loader_parser
+#### WebpackIsomorphicToolsPlugin.urlLoaderParser
 
 (Webpack plugin)
 
 A parser (see [Configuration](#configuration) section above) for Webpack [url-loader](https://github.com/webpack/url-loader), also works for Webpack [file-loader](https://github.com/webpack/file-loader). Use it for your images, fonts, etc.
 
-#### .server(project_path, [callback])
+#### .server(projectPath, [callback])
 
 (server tools instance)
 
-Initializes a server-side instance of `webpack-isomorphic-tools` with the base path for your project and makes all the server-side `require()` calls work. The `project_path` parameter must be identical to the `context` parameter of your Webpack configuration and is needed to locate `webpack-assets.json` (contains the assets info) which is output by Webpack process.
+Initializes a server-side instance of `webpack-isomorphic-tools` with the base path for your project and makes all the server-side `require()` calls work. The `projectPath` parameter must be identical to the `context` parameter of your Webpack configuration and is needed to locate `webpack-assets.json` (contains the assets info) which is output by Webpack process.
 
 When you're running your project in development mode for the very first time the `webpack-assets.json` file doesn't exist yet because in development mode `webpack-dev-server` and your application server are run concurrently and by the time the application server starts the `webpack-assets.json` file hasn't yet been generated by Webpack and `require()` calls for your assets would return `undefined`.
 
@@ -1090,9 +1088,9 @@ That would surely work. Much simpler and more modern. But, the disadvantage of t
 If you wrote your code with just `import`s it would work fine. But imagine you're developing your website, so you're changing files constantly, and you would like it all refresh automagically when you reload your webpage (in development mode). `webpack-isomorphic-tools` gives you that. Remember this code in the express middleware example above?
 
 ```javascript
-if (_development_)
+if (process.env.NODE_ENV !== 'production')
 {
-  webpack_isomorphic_tools.refresh()
+  webpackIsomorphicTools.refresh()
 }
 ```
 
@@ -1101,10 +1099,10 @@ It does exactly as it says: it refreshes everything on page reload when you're i
 I also read on the internets that ES6 supports dynamic module loading too and it looks something like this:
 
 ```javascript
-System.import('some_module')
-.then(some_module =>
+System.import('module')
+.then((module) =>
 {
-  // Use some_module
+  // Use `module`
 })
 .catch(error =>
 {

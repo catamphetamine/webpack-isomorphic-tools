@@ -1,10 +1,12 @@
-import fs from 'fs-extra'
-import path from 'path'
+import fs             from 'fs-extra'
+import path           from 'path'
+import semver         from 'semver'
 import require_hacker from 'require-hacker'
+
 import serialize from '../tools/serialize-javascript'
 
 import { exists, clone, replace_all, starts_with, last } from '../helpers'
-import { alias_hook, uniform_path, is_relative_path, is_global_path, is_package_path } from '../common'
+import { alias_hook, uniform_path, is_relative_path, is_global_path, is_package_path, webpack_uses_tilde_for_node_modules } from '../common'
 
 // one can supply a custom filter
 const default_filter = (module, regular_expression) => regular_expression.test(module.name)
@@ -42,8 +44,19 @@ export default function write_assets(json, options, log)
 		fs.outputFileSync(options.webpack_stats_path, JSON.stringify(json, null, 2))
 	}
 
+	// Note Webpack version due to breaking changes between v2 and v3.
+	// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/142
+	//
+	// Convert things like `3.0.0-alpha.1` to just `3.0.0`.
+	//
+	let version = new semver(json.version)
+	version = `${version.major}.${version.minor}.${version.patch}`
+	options.webpackVersion = version
+	options.webpackUsesTildeForNodeModules = webpack_uses_tilde_for_node_modules(version)
+
 	// the output object with assets
 	const output = options.output
+	output.webpack = { version }
 
 	// populate the output object with assets
 	populate_assets(output, json, options, log)

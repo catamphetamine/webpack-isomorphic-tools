@@ -13,15 +13,19 @@ const webpack_stats = require(path.resolve(__dirname, 'webpack-stats.json'))
 
 const expected_webpack_assets =
 {
+	"webpack":
+	{
+		"version": "2.3.0"
+	},
 	"javascript":
 	{
 		"main": "http://127.0.0.1:3001/assets/main.6c2b37c0fc8c0592e2d3.js",
-    "vendor": "http://127.0.0.1:3001/assets/vendor.js?hash=6c2b37c0fc8c0592e2d3"
+		"vendor": "http://127.0.0.1:3001/assets/vendor.js?hash=6c2b37c0fc8c0592e2d3"
 	},
 	"styles":
 	{
 		"main": "http://127.0.0.1:3001/assets/main.6c2b37c0fc8c0592e2d3.css",
-    "vendor": "http://127.0.0.1:3001/assets/vendor.css?hash=6c2b37c0fc8c0592e2d3"
+		"vendor": "http://127.0.0.1:3001/assets/vendor.css?hash=6c2b37c0fc8c0592e2d3"
 	},
 	"assets":
 	{
@@ -155,9 +159,6 @@ describe('plugin', function()
 		const NODE_ENV = process.env.NODE_ENV
 		process.env.NODE_ENV = 'development'
 
-
-		console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-
 		plugin_settings.debug = true
 
 		new plugin(plugin_settings).apply
@@ -233,6 +234,7 @@ describe('plugin', function()
 					{
 						const stats =
 						{
+							version: '2.3.0-beta.14',
 							errors: [],
 							warnings: [],
 							assetsByChunkName: { main: 'main' },
@@ -274,7 +276,7 @@ describe('plugin', function()
 
 	it('should filter styles', function()
 	{
-		plugin.style_loader_filter({ name: './~/css-loader!abc.css' }, /abc\.css$/).should.equal(true)
+		plugin.style_loader_filter({ name: './~/css-loader!abc.css' }, /abc\.css$/, { webpackUsesTildeForNodeModules: true }).should.equal(true)
 	})
 
 	it('should extract path from style loader', function()
@@ -309,6 +311,6 @@ describe('plugin', function()
 	it('should extract path from string', function()
 	{
 		extract_path('abc.css').should.equal('abc.css')
-    extract_path('abc.css?hash=123456').should.equal('abc.css')
+		extract_path('abc.css?hash=123456').should.equal('abc.css')
 	})
 })

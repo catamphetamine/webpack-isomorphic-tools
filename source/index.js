@@ -1,6 +1,5 @@
-import path   from 'path'
-import fs     from 'fs'
-
+import path           from 'path'
+import fs             from 'fs'
 import require_hacker from 'require-hacker'
 import UglifyJS       from 'uglify-js'
 
@@ -8,7 +7,7 @@ import Log     from './tools/log'
 import request from './tools/synchronous http'
 
 import { exists, clone, convert_from_camel_case, starts_with, ends_with, alias_properties_with_camel_case } from './helpers'
-import { default_webpack_assets, normalize_options, alias_hook, normalize_asset_path, uniform_path } from './common'
+import { default_webpack_assets, normalize_options, alias_hook, normalize_asset_path, uniform_path, webpack_uses_tilde_for_node_modules } from './common'
 
 // using ES6 template strings
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/template_strings
@@ -104,6 +103,23 @@ export default class webpack_isomorphic_tools
 		}
 
 		return require(this.webpack_assets_path)
+	}
+
+	// Webpack uses `~` for `node_modules` in `webpack-stats.json` prior to v3.
+	// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/142
+	webpack_uses_tilde_for_node_modules()
+	{
+		const assets = this.assets()
+		let version = assets.webpack && assets.webpack.version
+
+		// Legacy behaviour (times of Webpack 1.x and 2.x),
+		// before `version` property was introduced in `webpack-assets.json`.
+		if (!version)
+		{
+			return true
+		}
+
+		return webpack_uses_tilde_for_node_modules(version)
 	}
 
 	// clear the require.cache (only used in developer mode with webpack-dev-server)
@@ -294,7 +310,7 @@ export default class webpack_isomorphic_tools
 				return
 			}
 
-			parts = parts.map(loader =>
+			parts = parts.map((loader) =>
 			{
 				let loader_parts = loader.split('?')
 
@@ -303,7 +319,8 @@ export default class webpack_isomorphic_tools
 					loader_parts[0] += '-loader'
 				}
 
-				return `./~/${loader_parts.join('?')}`
+				const node_modules = this.webpack_uses_tilde_for_node_modules() ? '~' : 'node_modules'
+				return `./${node_modules}/${loader_parts.join('?')}`
 			})
 
 			const global_asset_path = require_hacker.resolve(local_asset_path, module)
@@ -584,14 +601,15 @@ export default class webpack_isomorphic_tools
 	{
 		this.log.debug(` requiring ${asset_path}`)
 
-		// Webpack replaces `node_modules` with `~`.
+		// Webpack (prior to v3) replaces `node_modules` with `~`.
 		// I don't know how exactly it decides whether to
 		// replace `node_modules` with `~` or not
 		// so it will be a guess.
+		const use_tilde_for_node_modules = this.webpack_uses_tilde_for_node_modules()
 		function possible_webpack_paths(asset_path)
 		{
-			// Webpack always replaces project's own `node_modules` with `~`
-			if (starts_with(asset_path, './node_modules/'))
+			// Webpack (prior to v3) always replaces project's own `node_modules` with `~`
+			if (starts_with(asset_path, './node_modules/') && use_tilde_for_node_modules)
 			{
 				asset_path = asset_path.replace('./node_modules/', './~/')
 			}
@@ -616,15 +634,19 @@ export default class webpack_isomorphic_tools
 
 				for (let guess of rest)
 				{
-					const one = clone(guess)
-					one.push('/~/')
-					one.push(last)
+					if (use_tilde_for_node_modules)
+					{
+						const one = clone(guess)
+						one.push('/~/')
+						one.push(last)
+
+						guesses.push(one)
+					}
 
 					const two = clone(guess)
 					two.push('/node_modules/')
 					two.push(last)
 
-					guesses.push(one)
 					guesses.push(two)
 				}
 

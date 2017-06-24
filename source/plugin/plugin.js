@@ -191,8 +191,8 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 			alias               : plugin.options.alias,
 			project_path        : plugin.options.project_path,
 			assets_base_url,
-			webpack_assets_path : webpack_assets_path,
-			webpack_stats_path  : webpack_stats_path,
+			webpack_assets_path,
+			webpack_stats_path,
 			output              : default_webpack_assets(),
 			output_to_a_file    : !serve_assets_from_memory,
 			regular_expressions : plugin.regular_expressions
@@ -232,10 +232,11 @@ Webpack_isomorphic_tools_plugin.css_modules_loader_parser = function(module, opt
 // the module with the CSS styles is the one with a long name:
 Webpack_isomorphic_tools_plugin.style_loader_filter = function(module, regular_expression, options, log)
 {
+	const node_modules = options.webpackUsesTildeForNodeModules ? '~' : 'node_modules'
 	const css_loader = module.name.split('!')[0]
 	return regular_expression.test(module.name) &&
-		// The paths below have the form of "/~/css-loader"
-		// and not the form of "./~/css-loader"
+		// The paths below have the form of "/~/css-loader" (in Webpack v2)
+		// and not the form of "./~/css-loader" (in Webpack v2)
 		// because in some (non-standard) cases
 		// Webpack project context can be set
 		// not to project root folder.
@@ -251,9 +252,9 @@ Webpack_isomorphic_tools_plugin.style_loader_filter = function(module, regular_e
 		// I personally don't compile sources on the server side,
 		// so I haven't thought of better ways of doing all that.
 		//
-		(css_loader.indexOf('/~/css-loader') > 0 ||
-		 css_loader.indexOf('/~/.npminstall/css-loader') > 0 ||
-		 css_loader.indexOf('/~/.store/css-loader') > 0)
+		(css_loader.indexOf(`/${node_modules}/css-loader`) > 0 ||
+		 css_loader.indexOf(`/${node_modules}/.npminstall/css-loader`) > 0 ||
+		 css_loader.indexOf(`/${node_modules}/.store/css-loader`) > 0)
 }
 
 // extracts css style file path

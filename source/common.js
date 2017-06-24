@@ -1,6 +1,6 @@
-import path from 'path'
-import fs from 'fs'
-
+import path           from 'path'
+import fs             from 'fs'
+import semver         from 'semver'
 import require_hacker from 'require-hacker'
 
 import { is_object, exists, starts_with } from './helpers'
@@ -330,4 +330,11 @@ export const verbosity_levels =
 {
 	no_webpack_stats             : 'no webpack stats',
 	webpack_stats_for_each_build : 'webpack stats for each build'
+}
+
+// Webpack uses `~` for `node_modules` in `webpack-stats.json` prior to v3.
+// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/142
+export function webpack_uses_tilde_for_node_modules(version)
+{
+	return semver.lt(version, '3.0.0')
 }
