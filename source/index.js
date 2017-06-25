@@ -601,72 +601,24 @@ export default class webpack_isomorphic_tools
 	{
 		this.log.debug(` requiring ${asset_path}`)
 
+		const assets = this.assets().assets
+
+		if (!this.webpack_uses_tilde_for_node_modules())
+		{
+			return assets[webpack_asset_path]
+		}
+
 		// Webpack (prior to v3) replaces `node_modules` with `~`.
 		// I don't know how exactly it decides whether to
 		// replace `node_modules` with `~` or not
-		// so it will be a guess.
-		const use_tilde_for_node_modules = this.webpack_uses_tilde_for_node_modules()
-		function possible_webpack_paths(asset_path)
-		{
-			// Webpack (prior to v3) always replaces project's own `node_modules` with `~`
-			if (starts_with(asset_path, './node_modules/') && use_tilde_for_node_modules)
-			{
-				asset_path = asset_path.replace('./node_modules/', './~/')
-			}
-
-			// if there are any `node_modules` left,
-			// supposing the count is N,
-			// then there are 2 to the power of N possible guesses
-			// on how webpack path might look like.
-			const parts = asset_path.split('/node_modules/')
-
-			function construct_guesses(parts)
-			{
-				if (parts.length === 1)
-				{
-					return [parts]
-				}
-
-				const last = parts.pop()
-				const rest = construct_guesses(parts)
-
-				const guesses = []
-
-				for (let guess of rest)
-				{
-					if (use_tilde_for_node_modules)
-					{
-						const one = clone(guess)
-						one.push('/~/')
-						one.push(last)
-
-						guesses.push(one)
-					}
-
-					const two = clone(guess)
-					two.push('/node_modules/')
-					two.push(last)
-
-					guesses.push(two)
-				}
-
-				return guesses
-			}
-
-			return construct_guesses(parts)
-		}
-
-		// get real file path list
-		const assets = this.assets().assets
-
+		// so it will be a guess:
+		// all possible combinations of `~` and `node_modules`
+		// in the `asset_path` are constructed and later checked.
 		const possible_webpack_asset_paths = possible_webpack_paths(asset_path).map(path => path.join(''))
 
-		for (let webpack_asset_path of possible_webpack_asset_paths)
+		for (const webpack_asset_path of possible_webpack_asset_paths)
 		{
-			if (possible_webpack_asset_paths.length > 1)
-			{
-				this.log.debug(`  trying "${webpack_asset_path}"`)
-			}
+			this.log.debug(`  trying "${webpack_asset_path}"`)
 
 			// find this asset in the real file path list
 			const asset = assets[webpack_asset_path]
@@ -677,9 +629,6 @@ export default class webpack_isomorphic_tools
 				return asset
 			}
 		}
-
-		// if the asset was not found in the list, return nothing
-		return
 	}
 
 	// unregisters require() hooks
@@ -883,3 +832,55 @@ export default class webpack_isomorphic_tools
 // Doesn't work with Babel 6 compiler
 // // alias camel case for those who prefer it
 // alias_properties_with_camel_case(webpack_isomorphic_tools.prototype)
+
+function construct_guesses(parts)
+{
+	if (parts.length === 1)
+	{
+		return [parts]
+	}
+
+	const last = parts.pop()
+	const rest = construct_guesses(parts)
+
+	const guesses = []
+
+	for (const guess of rest)
+	{
+		const one = clone(guess)
+		one.push('/~/')
+		one.push(last)
+
+		const two = clone(guess)
+		two.push('/node_modules/')
+		two.push(last)
+
+		guesses.push(one)
+		guesses.push(two)
+	}
+
+	return guesses
+}
+
+// Webpack (prior to v3) replaces `node_modules` with `~`.
+// I don't know how exactly it decides whether to
+// replace `node_modules` with `~` or not
+// so it will be a guess:
+// all possible combinations of `~` and `node_modules`
+// in the `asset_path` are constructed and later checked.
+function possible_webpack_paths(asset_path)
+{
+	// Webpack (prior to v3) always replaces project's own `node_modules` with `~`
+	if (starts_with(asset_path, './node_modules/'))
+	{
+		asset_path = asset_path.replace('./node_modules/', './~/')
+	}
+
+	// if there are any `node_modules` left,
+	// supposing the count is N,
+	// then there are 2 to the power of N possible guesses
+	// on how webpack path might look like.
+	const parts = asset_path.split('/node_modules/')
+
+	return construct_guesses(parts)
+}
