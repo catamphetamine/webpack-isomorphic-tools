@@ -605,7 +605,7 @@ export default class webpack_isomorphic_tools
 
 		if (!this.webpack_uses_tilde_for_node_modules())
 		{
-			return assets[webpack_asset_path]
+			return assets[asset_path]
 		}
 
 		// Webpack (prior to v3) replaces `node_modules` with `~`.
