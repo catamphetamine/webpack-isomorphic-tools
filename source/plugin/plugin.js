@@ -36,7 +36,7 @@ export default function Webpack_isomorphic_tools_plugin(options)
 }
 
 // starts HTTP service in development mode
-// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/92
+// https://github.com/catamphetamine/webpack-isomorphic-tools/issues/92
 Webpack_isomorphic_tools_plugin.prototype.start_dev_server = function()
 {
 	const express = require('express')
@@ -117,7 +117,7 @@ Webpack_isomorphic_tools_plugin.prototype.development = function(flag)
 Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 {
 	// start HTTP service in development mode
-	// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/92
+	// https://github.com/catamphetamine/webpack-isomorphic-tools/issues/92
 	//
 	// (`.apply()` is only called once, so can start the dev server here)
 	//
@@ -242,7 +242,7 @@ Webpack_isomorphic_tools_plugin.style_loader_filter = function(module, regular_e
 		// not to project root folder.
 		//
 		// For a discussion see:
-		// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/pull/68
+		// https://github.com/catamphetamine/webpack-isomorphic-tools/pull/68
 		// (there the `context` is set to the "${project_root}/src" folder
 		//  so that the asset paths in `webpack-assets.json` wouldn't
 		//  contain the "./src" prefix and therefore they will be found

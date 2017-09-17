@@ -45,7 +45,7 @@ export default function write_assets(json, options, log)
 	}
 
 	// Note Webpack version due to breaking changes between v2 and v3.
-	// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/142
+	// https://github.com/catamphetamine/webpack-isomorphic-tools/issues/142
 	//
 	// Convert things like `3.0.0-alpha.1` to just `3.0.0`.
 	//

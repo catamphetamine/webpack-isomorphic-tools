@@ -333,7 +333,7 @@ export const verbosity_levels =
 }
 
 // Webpack uses `~` for `node_modules` in `webpack-stats.json` prior to v3.
-// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/142
+// https://github.com/catamphetamine/webpack-isomorphic-tools/issues/142
 export function webpack_uses_tilde_for_node_modules(version)
 {
 	return semver.lt(version, '3.0.0')

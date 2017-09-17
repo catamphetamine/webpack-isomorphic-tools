@@ -106,7 +106,7 @@ export default class webpack_isomorphic_tools
 	}
 
 	// Webpack uses `~` for `node_modules` in `webpack-stats.json` prior to v3.
-	// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/142
+	// https://github.com/catamphetamine/webpack-isomorphic-tools/issues/142
 	webpack_uses_tilde_for_node_modules()
 	{
 		const assets = this.assets()
@@ -411,7 +411,7 @@ export default class webpack_isomorphic_tools
 
 	// injects helper functions into `require()` function
 	// (such as `.context()` and `.ensure()`)
-	// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/48#issuecomment-182878437
+	// https://github.com/catamphetamine/webpack-isomorphic-tools/issues/48#issuecomment-182878437
 	// (this is a "dirty" way to do it but it works)
 	patch_require()
 	{
@@ -482,7 +482,7 @@ export default class webpack_isomorphic_tools
 		require_context = UglifyJS.minify(require_context, { fromString: true }).code
 
 		// Source code for `require.ensure()`
-		// https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/84
+		// https://github.com/catamphetamine/webpack-isomorphic-tools/issues/84
 		const require_ensure = `require.ensure=function(d,c){c(require)};`
 
 		const debug = this.log.debug.bind(this.log)

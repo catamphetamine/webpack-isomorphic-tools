@@ -1,6 +1,6 @@
 {
   "name": "webpack-isomorphic-tools",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Transforms CSS-alike text into a React style JSON object",
   "main": "babel-transpiled-modules/index.js",
   "dependencies": {
@@ -39,7 +39,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/halt-hammerzeit/webpack-isomorphic-tools.git"
+    "url": "git+https://github.com/catamphetamine/webpack-isomorphic-tools.git"
   },
   "keywords": [
     "react",
@@ -47,10 +47,10 @@
     "inline",
     "css"
   ],
-  "author": "Halt Hammerzeit <halt.hammerzeit.at@gmail.com>",
+  "author": "catamphetamine <purecatamphetamine@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues"
+    "url": "https://github.com/catamphetamine/webpack-isomorphic-tools/issues"
   },
-  "homepage": "https://github.com/halt-hammerzeit/webpack-isomorphic-tools#readme"
+  "homepage": "https://github.com/catamphetamine/webpack-isomorphic-tools#readme"
 }

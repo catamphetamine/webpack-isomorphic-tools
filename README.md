@@ -2,16 +2,16 @@
 
 [![npm version](https://img.shields.io/npm/v/webpack-isomorphic-tools.svg?style=flat-square)](https://www.npmjs.com/package/webpack-isomorphic-tools)
 [![npm downloads](https://img.shields.io/npm/dm/webpack-isomorphic-tools.svg?style=flat-square)](https://www.npmjs.com/package/webpack-isomorphic-tools)
-[![build status](https://img.shields.io/travis/halt-hammerzeit/webpack-isomorphic-tools/master.svg?style=flat-square)](https://travis-ci.org/halt-hammerzeit/webpack-isomorphic-tools)
-[![coverage](https://img.shields.io/coveralls/halt-hammerzeit/webpack-isomorphic-tools/master.svg?style=flat-square)](https://coveralls.io/r/halt-hammerzeit/webpack-isomorphic-tools?branch=master)
+[![build status](https://img.shields.io/travis/catamphetamine/webpack-isomorphic-tools/master.svg?style=flat-square)](https://travis-ci.org/catamphetamine/webpack-isomorphic-tools)
+[![coverage](https://img.shields.io/coveralls/catamphetamine/webpack-isomorphic-tools/master.svg?style=flat-square)](https://coveralls.io/r/catamphetamine/webpack-isomorphic-tools?branch=master)
 
 `webpack-isomorphic-tools` is a small helper module providing basic support for isomorphic (universal) rendering when using Webpack (this is an alternative solution to using Webpack's officially recommended `target: "node"` approach).
 
-For an officially recommended Webpack's `target: "node"` approach see [`universal-webpack`](https://github.com/halt-hammerzeit/universal-webpack) library. `universal-webpack` library is the recommended way to go.
+For an officially recommended Webpack's `target: "node"` approach see [`universal-webpack`](https://github.com/catamphetamine/universal-webpack) library. `universal-webpack` library is the recommended way to go.
 
 If for some reason `universal-webpack` doesn't suit your needs, or is too complex to grasp, then you can try using `webpack-isomorphic-tools`. `webpack-isomorphic-tools` are not affiliated with Webpack team in any way and provide support for basic use cases (no support for Webpack plugins, for example) aiming to be easy to understand for beginners.
 
-*Small Advertisement:* 📞 if you're looking for a React phone number component check out [`react-phone-number-input`](http://halt-hammerzeit.github.io/react-phone-number-input/)
+*Small Advertisement:* 📞 if you're looking for a React phone number component check out [`react-phone-number-input`](http://catamphetamine.github.io/react-phone-number-input/)
 
 ## Topics
 
@@ -45,7 +45,7 @@ The reason is that Webpack introduces its own layer above the standard javascrip
 
 Bare Node.js obviously doesn't come with such trickery up its sleeve. Maybe it can be somehow enhanced to be able to do such things? Turned out that it can, and that's what `webpack-isomorphic-tools` do: they inject that `require()` magic layer above the standard javascript in Node.js.
 
-An alternative solution exists now: to compile server-side code with Webpack the same way it already compiles the client-side code. This is the officially recommended way to go and one can use [`universal-webpack`](https://github.com/halt-hammerzeit/universal-webpack) library to achieve that. However, some people still prefer this (earlier) library, so it still exists.
+An alternative solution exists now: to compile server-side code with Webpack the same way it already compiles the client-side code. This is the officially recommended way to go and one can use [`universal-webpack`](https://github.com/catamphetamine/universal-webpack) library to achieve that. However, some people still prefer this (earlier) library, so it still exists.
 
 `webpack-isomorphic-tools` mimics (to a certain extent) Webpack's `require()` magic when running application code on a Node.js server without Webpack. It basically fixes all those `require()`s of assets and makes them work instead of throwing `SyntaxError`s. It doesn't provide all the capabilities of Webpack (for example, plugins won't work), but for the basic stuff, it works.
 
@@ -203,11 +203,11 @@ export function pageRenderingMiddleware(request, response)
   }
 
   // for react-router example of determining current page by URL take a look at this:
-  // https://github.com/halt-hammerzeit/webapp/blob/master/code/server/webpage%20rendering.js
+  // https://github.com/catamphetamine/webapp/blob/master/code/server/webpage%20rendering.js
   const pageComponent = [determine your page component here using request.path]
 
   // for a Redux Flux store implementation you can see the same example:
-  // https://github.com/halt-hammerzeit/webapp/blob/master/code/server/webpage%20rendering.js
+  // https://github.com/catamphetamine/webapp/blob/master/code/server/webpage%20rendering.js
   const fluxStore = [initialize and populate your flux store depending on the page being shown]
 
   // render the page to string and send it to the browser as text/html
@@ -332,13 +332,13 @@ And that's it, now you can `require()` your assets "isomorphically" (both on cli
 
 `webpack-isomorphic-tools` are featured in [react-redux-universal-hot-example](https://github.com/erikras/react-redux-universal-hot-example/blob/master/webpack/webpack-isomorphic-tools.js#L64-L96). There it is used to `require()` images and CSS styles (in the form of CSS `modules`).
 
-Also you may look at [this sample project](https://github.com/halt-hammerzeit/webapp). There it is used to `require()` images and CSS styles (without using CSS `modules` feature).
+Also you may look at [this sample project](https://github.com/catamphetamine/webapp). There it is used to `require()` images and CSS styles (without using CSS `modules` feature).
 
 Some source code guidance for the aforementioned project:
 
-* [webpack-isomorphic-tools configuration](https://github.com/halt-hammerzeit/webapp/blob/master/frontend/webpack/webpack-isomorphic-tools.js)
-* [webpack-isomorphic-tools plugin](https://github.com/halt-hammerzeit/webapp/blob/master/frontend/webpack/development%20server.js#L57)
-* [webpack-isomorphic-tools server-side initialization](https://github.com/halt-hammerzeit/webapp/blob/master/frontend/page-server/entry.es6.js#L13-L18)
+* [webpack-isomorphic-tools configuration](https://github.com/catamphetamine/webapp/blob/master/frontend/webpack/webpack-isomorphic-tools.js)
+* [webpack-isomorphic-tools plugin](https://github.com/catamphetamine/webapp/blob/master/frontend/webpack/development%20server.js#L57)
+* [webpack-isomorphic-tools server-side initialization](https://github.com/catamphetamine/webapp/blob/master/frontend/page-server/entry.es6.js#L13-L18)
 
 ## Configuration
 
@@ -1030,7 +1030,7 @@ Returns the contents of `webpack-assets.json` which is created by `webpack-isomo
 
 If encountered when run on server, this error means that the `require()`d path doesn't exist in the filesystem (all the `require()`d assets [must exist in the filesystem](https://github.com/nodejs/node/blob/4d4cfb27ca7718c7df381ac3b257175927cd17d1/lib/module.js#L436-L441) when run on server). If encountered during Webpack build, this error means that the `require()`d path is absent from `webpack-stats.json`.
 
-As an illustration, consider an example where a developer transpiles all his ES6 code using Babel into a single compiled file `./build/server-bundle-es5.js`. Because all the assets still remain in the `./src` directory, `Cannot find module` error will be thrown when trying to run the compiled bundle. As a workaround use [`babel-register`](https://babeljs.io/docs/usage/require/) instead. Or [copy all assets](https://github.com/halt-hammerzeit/webpack-isomorphic-tools/pull/68#issuecomment-218698675) to the `./build` folder (keeping the file tree structure) and point Webpack `context` to the `./src` folder.
+As an illustration, consider an example where a developer transpiles all his ES6 code using Babel into a single compiled file `./build/server-bundle-es5.js`. Because all the assets still remain in the `./src` directory, `Cannot find module` error will be thrown when trying to run the compiled bundle. As a workaround use [`babel-register`](https://babeljs.io/docs/usage/require/) instead. Or [copy all assets](https://github.com/catamphetamine/webpack-isomorphic-tools/pull/68#issuecomment-218698675) to the `./build` folder (keeping the file tree structure) and point Webpack `context` to the `./src` folder.
 
 ### SyntaxError: Unexpected token ILLEGAL
 
@@ -1038,7 +1038,7 @@ This probably means that in some asset module source there's a `require()` call 
 
 ### "TypeError: require.context is not a function" or "TypeError: require.ensure is not a function"
 
-You should enable `patch_require: true` flag in your `webpack-isomorphic-tools` configuration file. The reason is that the support for `require.context()` and `require.ensure()` [is hacky at the moment](https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/48#issuecomment-182878437). It works and does its thing but the solution is not elegant enough if you know what I mean.
+You should enable `patch_require: true` flag in your `webpack-isomorphic-tools` configuration file. The reason is that the support for `require.context()` and `require.ensure()` [is hacky at the moment](https://github.com/catamphetamine/webpack-isomorphic-tools/issues/48#issuecomment-182878437). It works and does its thing but the solution is not elegant enough if you know what I mean.
 
 ### Infinite "(waiting for the first Webpack build to finish)"
 
@@ -1048,7 +1048,7 @@ It can happen, for example, in any of these cases
 
   * you forgot to add `webpack-isomorphic-tools` plugin to your Webpack configuration
   * you aren't running your Webpack build either in parallel with your app or prior to running you app
-  * you're using `webpack-dev-middleware` inside your main server code [which you shouldn't](https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/47)
+  * you're using `webpack-dev-middleware` inside your main server code [which you shouldn't](https://github.com/catamphetamine/webpack-isomorphic-tools/issues/47)
   * your Webpack configuration's `context` path doesn't point to the project base directory
 
 If none of those is your case, enable `debug: true` flag in `webpack-isomorphic-tools` configuration to get debugging info.
@@ -1160,7 +1160,7 @@ npm install [module name with version].tar.gz
 
 ## To do
 
- * Implement `require.context(folder, include_subdirectories, regular_expression)` and `require.ensure` Webpack helper functions [properly](https://github.com/halt-hammerzeit/webpack-isomorphic-tools/issues/48#issuecomment-182878437)
+ * Implement `require.context(folder, include_subdirectories, regular_expression)` and `require.ensure` Webpack helper functions [properly](https://github.com/catamphetamine/webpack-isomorphic-tools/issues/48#issuecomment-182878437)
  * Proper testing for `log` (output to a variable rather than `console`)
  * Proper testing for `notify_stats` (output to a `log` variable)
  * Proper testing for parsers (using `eval()` CommonJS module compilation)
