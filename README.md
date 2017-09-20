@@ -5,6 +5,8 @@
 [![build status](https://img.shields.io/travis/catamphetamine/webpack-isomorphic-tools/master.svg?style=flat-square)](https://travis-ci.org/catamphetamine/webpack-isomorphic-tools)
 [![coverage](https://img.shields.io/coveralls/catamphetamine/webpack-isomorphic-tools/master.svg?style=flat-square)](https://coveralls.io/r/catamphetamine/webpack-isomorphic-tools?branch=master)
 
+**For starters:** consider skipping both `webpack-isomorphic-tools` and `universal-webpack` and trying [Next.js](https://github.com/zeit/next.js) first: it's super user-friendly, [very hyped](https://zeit.co/blog/next) and is supposed to be an ideal start for beginners. Master simpler things first, then move on to complex ones. Here be dragons.
+
 `webpack-isomorphic-tools` is a small helper module providing basic support for isomorphic (universal) rendering when using Webpack (this is an alternative solution to using Webpack's officially recommended `target: "node"` approach).
 
 For an officially recommended Webpack's `target: "node"` approach see [`universal-webpack`](https://github.com/catamphetamine/universal-webpack) library. `universal-webpack` library is the recommended way to go.
