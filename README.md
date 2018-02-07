@@ -5,15 +5,7 @@
 [![build status](https://img.shields.io/travis/catamphetamine/webpack-isomorphic-tools/master.svg?style=flat-square)](https://travis-ci.org/catamphetamine/webpack-isomorphic-tools)
 [![coverage](https://img.shields.io/coveralls/catamphetamine/webpack-isomorphic-tools/master.svg?style=flat-square)](https://coveralls.io/r/catamphetamine/webpack-isomorphic-tools?branch=master)
 
-**For starters:** consider skipping both `webpack-isomorphic-tools` and `universal-webpack` and trying [Next.js](https://github.com/zeit/next.js) first: it's super user-friendly, [very hyped](https://zeit.co/blog/next) and is supposed to be an ideal start for beginners. Master simpler things first, then move on to complex ones. Here be dragons.
-
-`webpack-isomorphic-tools` is a small helper module providing basic support for isomorphic (universal) rendering when using Webpack (this is an alternative solution to using Webpack's officially recommended `target: "node"` approach).
-
-For an officially recommended Webpack's `target: "node"` approach see [`universal-webpack`](https://github.com/catamphetamine/universal-webpack) library. `universal-webpack` library is the recommended way to go.
-
-If for some reason `universal-webpack` doesn't suit your needs, or is too complex to grasp, then you can try using `webpack-isomorphic-tools`. `webpack-isomorphic-tools` are not affiliated with Webpack team in any way and provide support for basic use cases (no support for Webpack plugins, for example) aiming to be easy to understand for beginners.
-
-*Small Advertisement:* 📞 if you're looking for a React phone number component check out [`react-phone-number-input`](http://catamphetamine.github.io/react-phone-number-input/)
+`webpack-isomorphic-tools` is a small helper module providing very basic support for isomorphic (universal) rendering when using Webpack. It was created a long time ago when Webpack was `v1` and the whole movement was just starting. Therefore `webpack-isomorphic-tools` is a hacky solution. It allowed many projects to set up isomorphic (universal) rendering in the early days but is now considered deprecated and new projects shouldn't use it. This library can still be found in legacy projects. For new projects use either [`universal-webpack`](https://github.com/catamphetamine/universal-webpack) or all-in-one frameworks like [Next.js](https://github.com/zeit/next.js).
 
 ## Topics
 
