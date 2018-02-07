@@ -5,7 +5,7 @@
 [![build status](https://img.shields.io/travis/catamphetamine/webpack-isomorphic-tools/master.svg?style=flat-square)](https://travis-ci.org/catamphetamine/webpack-isomorphic-tools)
 [![coverage](https://img.shields.io/coveralls/catamphetamine/webpack-isomorphic-tools/master.svg?style=flat-square)](https://coveralls.io/r/catamphetamine/webpack-isomorphic-tools?branch=master)
 
-`webpack-isomorphic-tools` is a small helper module providing very basic support for isomorphic (universal) rendering when using Webpack. It was created a long time ago when Webpack was `v1` and the whole movement was just starting. Therefore `webpack-isomorphic-tools` is a hacky solution. It allowed many projects to set up isomorphic (universal) rendering in the early days but is now considered deprecated and new projects shouldn't use it. This library can still be found in legacy projects. For new projects use either [`universal-webpack`](https://github.com/catamphetamine/universal-webpack) or all-in-one frameworks like [Next.js](https://github.com/zeit/next.js).
+`webpack-isomorphic-tools` is a small helper module providing very basic support for isomorphic (universal) rendering when using Webpack. It was created a long time ago when Webpack was `v1` and the whole movement was just starting. Therefore `webpack-isomorphic-tools` is a hacky solution. It allowed many projects to set up basic isomorphic (universal) rendering in the early days but is now considered deprecated and new projects shouldn't use it. This library can still be found in legacy projects. For new projects use either [`universal-webpack`](https://github.com/catamphetamine/universal-webpack) or all-in-one frameworks like [Next.js](https://github.com/zeit/next.js).
 
 ## Topics
 
