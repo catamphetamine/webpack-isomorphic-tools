@@ -10,7 +10,7 @@ import { exists, clone, convert_from_camel_case, alias_properties_with_camel_cas
 import { default_webpack_assets, normalize_options, verbosity_levels } from './../common'
 
 // a Webpack plugin
-export default function Webpack_isomorphic_tools_plugin(options)
+export default function WebpackIsomorphicToolsPlugin(options)
 {
 	// take the passed in options
 	this.options = convert_from_camel_case(clone(options))
@@ -31,13 +31,13 @@ export default function Webpack_isomorphic_tools_plugin(options)
 		const description = this.options.assets[asset_type]
 
 		// create a regular expression for this file extension (or these file extensions)
-		this.regular_expressions[asset_type] = description.regular_expression || Webpack_isomorphic_tools_plugin.regular_expression(description.extensions)
+		this.regular_expressions[asset_type] = description.regular_expression || WebpackIsomorphicToolsPlugin.regular_expression(description.extensions)
 	}
 }
 
 // starts HTTP service in development mode
 // https://github.com/catamphetamine/webpack-isomorphic-tools/issues/92
-Webpack_isomorphic_tools_plugin.prototype.start_dev_server = function()
+WebpackIsomorphicToolsPlugin.prototype.start_dev_server = function()
 {
 	const express = require('express')
 	const app = express()
@@ -59,7 +59,7 @@ Webpack_isomorphic_tools_plugin.prototype.start_dev_server = function()
 }
 
 // creates a regular expression for this file extension (or these file extensions)
-Webpack_isomorphic_tools_plugin.prototype.regular_expression = function(asset_type)
+WebpackIsomorphicToolsPlugin.prototype.regular_expression = function(asset_type)
 {
 	if (!exists(this.regular_expressions[asset_type]))
 	{
@@ -70,10 +70,10 @@ Webpack_isomorphic_tools_plugin.prototype.regular_expression = function(asset_ty
 }
 
 // shorthand alias
-Webpack_isomorphic_tools_plugin.prototype.regexp = Webpack_isomorphic_tools_plugin.prototype.regular_expression
+WebpackIsomorphicToolsPlugin.prototype.regexp = WebpackIsomorphicToolsPlugin.prototype.regular_expression
 
 // creates a regular expression for this file extension (or these file extensions)
-Webpack_isomorphic_tools_plugin.regular_expression = function(extensions)
+WebpackIsomorphicToolsPlugin.regular_expression = function(extensions)
 {
 	if (!Array.isArray(extensions))
 	{
@@ -95,7 +95,7 @@ Webpack_isomorphic_tools_plugin.regular_expression = function(extensions)
 
 // sets development mode flag to whatever was passed (or true if nothing was passed)
 // (development mode allows asset hot reloading when used with webpack-dev-server)
-Webpack_isomorphic_tools_plugin.prototype.development = function(flag)
+WebpackIsomorphicToolsPlugin.prototype.development = function(flag)
 {
 	// set development mode flag
 	this.options.development = exists(flag) ? flag : true
@@ -114,7 +114,7 @@ Webpack_isomorphic_tools_plugin.prototype.development = function(flag)
 }
 
 // applies the plugin to the Webpack build
-Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
+WebpackIsomorphicToolsPlugin.prototype.apply = function(compiler)
 {
 	// start HTTP service in development mode
 	// https://github.com/catamphetamine/webpack-isomorphic-tools/issues/92
@@ -205,21 +205,21 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 
 // a sample module source parser for webpack url-loader
 // (works for images, fonts, and i guess for everything else, should work for any file type)
-Webpack_isomorphic_tools_plugin.url_loader_parser = function(module, options, log)
+WebpackIsomorphicToolsPlugin.url_loader_parser = function(module, options, log)
 {
 	return module.source
 }
 
 // a sample module source parser for webpack css-loader
 // (without css-loader "modules" feature support)
-Webpack_isomorphic_tools_plugin.css_loader_parser = function(module, options, log)
+WebpackIsomorphicToolsPlugin.css_loader_parser = function(module, options, log)
 {
 	return module.source + '\n module.exports = module.exports.toString();'
 }
 
 // a sample module source parser for webpack css-loader
 // (with css-loader "modules" feature support)
-Webpack_isomorphic_tools_plugin.css_modules_loader_parser = function(module, options, log)
+WebpackIsomorphicToolsPlugin.css_modules_loader_parser = function(module, options, log)
 {
 	return module.source + '\n module.exports = exports.locals || {}; module.exports._style = exports.toString();'
 }
@@ -230,7 +230,7 @@ Webpack_isomorphic_tools_plugin.css_modules_loader_parser = function(module, opt
 // so the module with module.name equal to the asset path is not what's needed
 // (because what that module does is it creates a <style/> tag on the page).
 // the module with the CSS styles is the one with a long name:
-Webpack_isomorphic_tools_plugin.style_loader_filter = function(module, regular_expression, options, log)
+WebpackIsomorphicToolsPlugin.style_loader_filter = function(module, regular_expression, options, log)
 {
 	const node_modules = options.webpackUsesTildeForNodeModules ? '~' : 'node_modules'
 	const css_loader = module.name.split('!')[0]
@@ -258,22 +258,22 @@ Webpack_isomorphic_tools_plugin.style_loader_filter = function(module, regular_e
 }
 
 // extracts css style file path
-Webpack_isomorphic_tools_plugin.style_loader_path_extractor = function(module, options, log)
+WebpackIsomorphicToolsPlugin.style_loader_path_extractor = function(module, options, log)
 {
 	return module.name.slice(module.name.lastIndexOf('!') + 1)
 }
 
 // Doesn't work with Babel 6 compiler
 // // alias camel case for those who prefer it
-// alias_properties_with_camel_case(Webpack_isomorphic_tools_plugin.prototype)
-// alias_properties_with_camel_case(Webpack_isomorphic_tools_plugin)
+// alias_properties_with_camel_case(WebpackIsomorphicToolsPlugin.prototype)
+// alias_properties_with_camel_case(WebpackIsomorphicToolsPlugin)
 
 // camelCase aliases
 
-Webpack_isomorphic_tools_plugin.prototype.regularExpression = Webpack_isomorphic_tools_plugin.prototype.regular_expression
+WebpackIsomorphicToolsPlugin.prototype.regularExpression = WebpackIsomorphicToolsPlugin.prototype.regular_expression
 
-Webpack_isomorphic_tools_plugin.urlLoaderParser          = Webpack_isomorphic_tools_plugin.url_loader_parser
-Webpack_isomorphic_tools_plugin.cssLoaderParser          = Webpack_isomorphic_tools_plugin.css_loader_parser
-Webpack_isomorphic_tools_plugin.cssModulesLoaderParser   = Webpack_isomorphic_tools_plugin.css_modules_loader_parser
-Webpack_isomorphic_tools_plugin.styleLoaderFilter        = Webpack_isomorphic_tools_plugin.style_loader_filter
-Webpack_isomorphic_tools_plugin.styleLoaderPathExtractor = Webpack_isomorphic_tools_plugin.style_loader_path_extractor
+WebpackIsomorphicToolsPlugin.urlLoaderParser          = WebpackIsomorphicToolsPlugin.url_loader_parser
+WebpackIsomorphicToolsPlugin.cssLoaderParser          = WebpackIsomorphicToolsPlugin.css_loader_parser
+WebpackIsomorphicToolsPlugin.cssModulesLoaderParser   = WebpackIsomorphicToolsPlugin.css_modules_loader_parser
+WebpackIsomorphicToolsPlugin.styleLoaderFilter        = WebpackIsomorphicToolsPlugin.style_loader_filter
+WebpackIsomorphicToolsPlugin.styleLoaderPathExtractor = WebpackIsomorphicToolsPlugin.style_loader_path_extractor
