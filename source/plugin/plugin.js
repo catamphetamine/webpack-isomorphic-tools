@@ -138,69 +138,70 @@ WebpackIsomorphicToolsPlugin.prototype.apply = function(compiler)
 	// project base path, required to output webpack-assets.json
 	this.options.project_path = webpack_configuration.context
 
+	const onDone = (stats) => writeAssets(stats, this, webpack_configuration)
+
+	compiler.plugin('done', onDone)
+}
+
+function writeAssets(stats, plugin, webpack_configuration)
+{
+	plugin.log.debug('------------------- Started -------------------')
+
+	const options = plugin.options
+
 	// resolve webpack-assets.json file path
-	const webpack_assets_path = path.resolve(this.options.project_path, this.options.webpack_assets_file_path)
+	const webpack_assets_path = path.resolve(options.project_path, options.webpack_assets_file_path)
 
 	// resolve webpack-stats.json file path
-	const webpack_stats_path = path.resolve(this.options.project_path, this.options.webpack_stats_file_path)
+	const webpack_stats_path = path.resolve(options.project_path, options.webpack_stats_file_path)
 
-	// selfie
-	const plugin = this
-
-	// when all is done
-	// https://github.com/webpack/docs/wiki/plugins
-	compiler.plugin('done', function(stats)
-	{
-		plugin.log.debug('------------------- Started -------------------')
-
-		const json = stats.toJson
-		({
-			context: webpack_configuration.context
-		})
-
-		// output some info to the console if in development mode
-		if (plugin.options.development && plugin.options.verbosity !== verbosity_levels.no_webpack_stats)
-		{
-			// outputs stats info to the console
-			// (only needed in development mode)
-			notify_stats(stats, json, plugin.options.verbosity === verbosity_levels.webpack_stats_for_each_build)
-		}
-
-		// assets base path (on disk or on the network)
-		//
-		// (first search for the `devServer.publicPath` setting,
-		//  then fallback to the generic `publicPath`)
-		//
-		// (using `publicPath` from webpack stats here
-		//  as opposed to `webpack_configuration.output.publicPath`
-		//  because it is processed by webpack replacing things like `[hash]`)
-		//
-		const assets_base_url = (process.env.NODE_ENV !== 'production' && webpack_configuration.devServer && webpack_configuration.devServer.publicPath) ? webpack_configuration.devServer.publicPath : json.publicPath
-
-		// serve webpack assets from RAM rather than from disk
-		const serve_assets_from_memory = plugin.options.development && plugin.options.port
-
-		// write webpack-assets.json with assets info
-		// and cache them in plugin instance
-		// for later serving from HTTP service
-		plugin.assets = write_assets(json,
-		{
-			development         : plugin.options.development,
-			debug               : plugin.options.debug,
-			assets              : plugin.options.assets,
-			alias               : plugin.options.alias,
-			project_path        : plugin.options.project_path,
-			assets_base_url,
-			webpack_assets_path,
-			webpack_stats_path,
-			output              : default_webpack_assets(),
-			output_to_a_file    : !serve_assets_from_memory,
-			regular_expressions : plugin.regular_expressions
-		},
-		plugin.log)
-
-		plugin.log.debug('------------------- Finished -------------------')
+	const json = stats.toJson
+	({
+		context: webpack_configuration.context
 	})
+
+	// output some info to the console if in development mode
+	if (options.development && options.verbosity !== verbosity_levels.no_webpack_stats)
+	{
+		// outputs stats info to the console
+		// (only needed in development mode)
+		notify_stats(stats, json, options.verbosity === verbosity_levels.webpack_stats_for_each_build)
+	}
+
+	// assets base path (on disk or on the network)
+	//
+	// (first search for the `devServer.publicPath` setting,
+	//  then fallback to the generic `publicPath`)
+	//
+	// (using `publicPath` from webpack stats here
+	//  as opposed to `webpack_configuration.output.publicPath`
+	//  because it is processed by webpack replacing things like `[hash]`)
+	//
+	const assets_base_url = (process.env.NODE_ENV !== 'production' && webpack_configuration.devServer && webpack_configuration.devServer.publicPath) ? webpack_configuration.devServer.publicPath : json.publicPath
+
+	// serve webpack assets from RAM rather than from disk
+	const serve_assets_from_memory = options.development && options.port
+
+	// write webpack-assets.json with assets info
+	// and cache them in plugin instance
+	// for later serving from HTTP service
+	plugin.assets = write_assets(json,
+	{
+		development         : options.development,
+		debug               : options.debug,
+		assets              : options.assets,
+		alias               : options.alias,
+		project_path        : options.project_path,
+		assets_base_url,
+		webpack_assets_path,
+		webpack_stats_path,
+		output              : default_webpack_assets(),
+		output_to_a_file    : !serve_assets_from_memory,
+		regular_expressions : plugin.regular_expressions
+	},
+	plugin.log)
+
+	plugin.log.debug('------------------- Finished -------------------')
 }
 
 // a sample module source parser for webpack url-loader
