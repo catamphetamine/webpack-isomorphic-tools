@@ -30,7 +30,7 @@ export function normalize_options(options)
 			case 'name':
 				if (typeof options[key] !== 'string')
 				{
-				  throw new Error(`"${key}" configuration parameter must be ` + `an object`)
+				  throw new Error(`"${key}" configuration parameter must be ` + `an string`)
 				}
 				break
 

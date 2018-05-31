@@ -205,7 +205,6 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 	if (typeof plugin.options.name === 'undefined') {
 		plugin.options.name = 'webpack-isomorphic-tools';
 	}
-
 	if (typeof compiler.hooks !== 'undefined') {
 		compiler.hooks.done.tap(plugin.options, tap);
 	} else {
