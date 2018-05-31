@@ -149,7 +149,7 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 
 	// when all is done
 	// https://github.com/webpack/docs/wiki/plugins
-	compiler.plugin('done', function(stats)
+	const tap = function(stats)
 	{
 		plugin.log.debug('------------------- Started -------------------')
 
@@ -200,7 +200,17 @@ Webpack_isomorphic_tools_plugin.prototype.apply = function(compiler)
 		plugin.log)
 
 		plugin.log.debug('------------------- Finished -------------------')
-	})
+	}
+
+  if (typeof plugin.options.name === 'undefined') {
+    plugin.options.name = 'webpack-isomorphic-tools';
+  }
+
+  if (typeof compiler.hooks !== 'undefined') {
+    compiler.hooks.done.tap(plugin.options, tap);
+  } else {
+    compiler.plugin('done', tap);
+  }
 }
 
 // a sample module source parser for webpack url-loader
