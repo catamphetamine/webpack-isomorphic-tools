@@ -140,7 +140,12 @@ WebpackIsomorphicToolsPlugin.prototype.apply = function(compiler)
 
 	const onDone = (stats) => writeAssets(stats, this, webpack_configuration)
 
-	compiler.plugin('done', onDone)
+	// Fixes "DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead".
+	if (compiler.hooks) {
+		compiler.hooks.done.tap('WebpackIsomorphicToolsWriteAssetsPlugin', onDone)
+	} else {
+		compiler.plugin('done', onDone)
+	}
 }
 
 function writeAssets(stats, plugin, webpack_configuration)
