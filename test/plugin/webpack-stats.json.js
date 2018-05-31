@@ -3,7 +3,6 @@ module.exports =
 	"version": "2.3.0-beta.14",
 	"hash": "6c2b37c0fc8c0592e2d3",
 	"publicPath": "http://127.0.0.1:3001/assets/",
-
 	"assetsByChunkName":
 	{
 		"main":

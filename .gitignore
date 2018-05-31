@@ -27,6 +27,6 @@ npm-debug.log
 
 # webpack build target folder
 /babel-transpiled-modules/
-
+.idea
 # NUL
 NUL
