@@ -27,12 +27,12 @@ export function normalize_options(options)
 	{
 		switch (key)
 		{
-		  case 'name':
-			if (typeof options[key] !== 'string')
-			{
-			  throw new Error(`"${key}" configuration parameter must be ` + `an object`)
-			}
-			break
+			case 'name':
+				if (typeof options[key] !== 'string')
+				{
+				  throw new Error(`"${key}" configuration parameter must be ` + `an object`)
+				}
+				break
 
 			case 'assets':
 				if (!is_object(options[key]))
