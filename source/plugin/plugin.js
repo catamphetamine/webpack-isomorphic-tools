@@ -162,7 +162,9 @@ function writeAssets(stats, plugin, webpack_configuration)
 
 	const json = stats.toJson
 	({
-		context: webpack_configuration.context
+		context: webpack_configuration.context,
+		// make sure stats contain module sources
+		source: true,
 	})
 
 	// output some info to the console if in development mode
